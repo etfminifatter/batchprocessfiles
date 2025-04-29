@@ -18,6 +18,10 @@ class MainWindow:
         self.logger = logging.getLogger('main_window')
         self.logger.info("主窗口初始化")
         
+        # 初始化状态变量
+        self.status_var = tk.StringVar()
+        self.status_var.set("就绪")
+        
         self.setup_ui()
         
     def setup_ui(self):
@@ -28,8 +32,8 @@ class MainWindow:
         
         # 设置UI结构
         self.setup_menu()
+        self.setup_status_bar()  # 先设置状态栏，确保status_var在notebook之前可用
         self.setup_notebook()
-        self.setup_status_bar()
         self.setup_bottom_buttons()
         
         self.logger.info("用户界面设置完成")
@@ -55,25 +59,46 @@ class MainWindow:
         
     def setup_notebook(self):
         """设置标签页"""
-        self.notebook = ttk.Notebook(self.main_frame)
-        self.notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # 创建一个容器框架
+        container = ttk.Frame(self.main_frame)
+        container.pack(fill=tk.BOTH, expand=True)
         
-        # 创建各个标签页
-        self.create_files_tab = CreateFilesTab(self.notebook)
-        self.create_dirs_tab = CreateDirsTab(self.notebook)
-        self.create_sheets_tab = CreateSheetsTab(self.notebook)
-        self.rename_tab = RenameTab(self.notebook)
-        self.move_copy_tab = MoveCopyTab(self.notebook)
+        # 创建标签栏 - 这是标签按钮的容器
+        tab_bar = ttk.Frame(container)
+        tab_bar.pack(fill=tk.X, side=tk.TOP, anchor=tk.W)
         
-        # 添加标签页到Notebook
-        self.notebook.add(self.create_files_tab, text="创建文件")
-        self.notebook.add(self.create_dirs_tab, text="创建目录")
-        self.notebook.add(self.create_sheets_tab, text="创建工作表")
-        self.notebook.add(self.rename_tab, text="重命名")
-        self.notebook.add(self.move_copy_tab, text="移动/复制")
+        # 创建内容区 - 这是显示标签页内容的区域
+        content_frame = ttk.Frame(container, relief=tk.RAISED, borderwidth=1)
+        content_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        # 绑定标签页切换事件
-        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+        # 存储所有标签页
+        self.tabs = {}
+        self.tab_buttons = {}
+        self.current_tab = None
+        
+        # 创建标签页
+        self.create_files_tab = CreateFilesTab(content_frame)
+        self.create_dirs_tab = CreateDirsTab(content_frame)
+        self.create_sheets_tab = CreateSheetsTab(content_frame)
+        self.rename_tab = RenameTab(content_frame)
+        self.move_copy_tab = MoveCopyTab(content_frame)
+        
+        # 存储标签页
+        self.tabs["批量创建文件"] = self.create_files_tab
+        self.tabs["批量创建目录"] = self.create_dirs_tab
+        self.tabs["批量创建工作表"] = self.create_sheets_tab
+        self.tabs["批量重命名"] = self.rename_tab
+        self.tabs["批量移动/复制"] = self.move_copy_tab
+        
+        # 创建标签按钮
+        for i, (tab_name, tab) in enumerate(self.tabs.items()):
+            button = ttk.Button(tab_bar, text=tab_name, command=lambda t=tab_name: self.switch_tab(t))
+            button.pack(side=tk.LEFT, padx=(0 if i > 0 else 5, 0))
+            self.tab_buttons[tab_name] = button
+        
+        # 初始显示第一个标签页
+        first_tab = list(self.tabs.keys())[0]
+        self.switch_tab(first_tab)
         
         self.logger.info("标签页设置完成")
         
@@ -82,9 +107,7 @@ class MainWindow:
         self.status_bar = ttk.Frame(self.main_frame, relief=tk.SUNKEN)
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
         
-        # 状态信息
-        self.status_var = tk.StringVar()
-        self.status_var.set("就绪")
+        # 状态信息 - 使用已在__init__中初始化的status_var
         ttk.Label(self.status_bar, textvariable=self.status_var).pack(side=tk.LEFT, padx=5)
         
         # 版本信息
@@ -124,17 +147,38 @@ class MainWindow:
         
         self.logger.info("底部按钮设置完成")
         
-    def on_tab_changed(self, event):
-        """标签页切换事件"""
-        tab_id = self.notebook.select()
-        tab_text = self.notebook.tab(tab_id, "text")
-        self.logger.info(f"切换到标签页: {tab_text}")
-        self.status_var.set(f"当前: {tab_text}")
+    def switch_tab(self, tab_name):
+        """切换到指定标签页"""
+        # 如果有当前显示的标签页，隐藏它
+        if self.current_tab:
+            self.tabs[self.current_tab].pack_forget()
+            self.tab_buttons[self.current_tab].configure(style='TButton')
+        
+        # 显示新的标签页
+        self.tabs[tab_name].pack(fill=tk.BOTH, expand=True)
+        
+        # 高亮显示对应的按钮
+        self.tab_buttons[tab_name].configure(style='Primary.TButton')
+        
+        # 更新当前标签页
+        self.current_tab = tab_name
+        
+        # 更新状态
+        self.status_var.set(f"当前: {tab_name}")
+        
+        # 记录日志
+        self.logger.info(f"切换到标签页: {tab_name}")
     
+    def on_tab_changed(self, event):
+        """标签页切换事件 - 不再使用，保留兼容性"""
+        pass
+        
     def preview_action(self):
         """执行预览操作"""
-        current_tab_id = self.notebook.select()
-        current_tab = self.notebook.nametowidget(current_tab_id)
+        if not self.current_tab:
+            return
+            
+        current_tab = self.tabs[self.current_tab]
         
         self.logger.info(f"执行预览操作: {type(current_tab).__name__}")
         
@@ -150,8 +194,10 @@ class MainWindow:
     
     def execute_action(self):
         """执行操作"""
-        current_tab_id = self.notebook.select()
-        current_tab = self.notebook.nametowidget(current_tab_id)
+        if not self.current_tab:
+            return
+            
+        current_tab = self.tabs[self.current_tab]
         
         self.logger.info(f"执行操作: {type(current_tab).__name__}")
         

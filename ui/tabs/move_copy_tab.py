@@ -91,41 +91,33 @@ class MoveCopyTab(ttk.Frame):
     def setup_file_selection(self, parent):
         """设置文件选择区域"""
         # 文件选择区域框架
-        file_frame = ttk.LabelFrame(parent, text="文件选择")
-        file_frame.pack(fill=tk.BOTH, expand=True)
+        selection_frame = ttk.LabelFrame(parent, text="文件选择")
+        selection_frame.pack(fill=tk.BOTH, expand=True)
         
-        # 顶部按钮区域
-        button_frame = ttk.Frame(file_frame)
+        # 按钮区域
+        button_frame = ttk.Frame(selection_frame)
         button_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # 添加文件按钮
-        add_files_btn = ttk.Button(button_frame, text="添加文件", command=self.add_files)
-        add_files_btn.pack(side=tk.LEFT, padx=2)
+        # 添加文件和文件夹按钮
+        ttk.Button(button_frame, text="添加文件", command=self.add_files).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(button_frame, text="添加文件夹", command=self.add_folder).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="清空", command=self.clear_selection).pack(side=tk.LEFT, padx=5)
         
-        # 添加文件夹按钮
-        add_folder_btn = ttk.Button(button_frame, text="添加文件夹", command=self.add_folder)
-        add_folder_btn.pack(side=tk.LEFT, padx=2)
-        
-        # 清空选择按钮
-        clear_btn = ttk.Button(button_frame, text="清空选择", command=self.clear_selection)
-        clear_btn.pack(side=tk.LEFT, padx=2)
-        
-        # 文件列表显示区域，使用Treeview
-        list_frame = ttk.Frame(file_frame)
+        # 文件列表区域
+        list_frame = ttk.Frame(selection_frame)
         list_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=(0, 5))
         
-        # 列配置
+        # 文件树状视图
         columns = ("文件名", "路径")
         self.files_tree = ttk.Treeview(list_frame, columns=columns, show="headings", selectmode="extended")
         
         # 设置列标题
-        for col in columns:
-            self.files_tree.heading(col, text=col)
-            # 设置列宽
-            if col == "文件名":
-                self.files_tree.column(col, width=120)
-            else:
-                self.files_tree.column(col, width=300)
+        self.files_tree.heading("文件名", text="文件名")
+        self.files_tree.heading("路径", text="路径")
+        
+        # 设置列宽
+        self.files_tree.column("文件名", width=150)
+        self.files_tree.column("路径", width=300)
         
         # 添加滚动条
         y_scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=self.files_tree.yview)
@@ -187,7 +179,7 @@ class MoveCopyTab(ttk.Frame):
         
         ttk.Label(conflict_frame, text="冲突处理:").pack(side=tk.LEFT)
         
-        self.conflict_action = tk.StringVar(value="ask")
+        self.conflict_action = tk.StringVar(value="询问")
         conflict_combobox = ttk.Combobox(conflict_frame, textvariable=self.conflict_action, width=12)
         conflict_combobox["values"] = ("询问", "覆盖", "跳过", "自动重命名")
         conflict_combobox["state"] = "readonly"
@@ -244,42 +236,41 @@ class MoveCopyTab(ttk.Frame):
     def add_folder(self):
         """添加文件夹按钮回调"""
         try:
-            folder_path = filedialog.askdirectory(title="选择文件夹")
-            if folder_path:
+            folder = filedialog.askdirectory(title="选择文件夹")
+            if folder:
+                count = 0
                 # 遍历文件夹中的所有文件
-                file_count = 0
-                for root, _, files in os.walk(folder_path):
+                for root, _, files in os.walk(folder):
                     for file in files:
-                        file_path = os.path.join(root, file)
-                        self._add_file_to_tree(file_path)
-                        file_count += 1
-                self.logger.info(f"已从文件夹添加 {file_count} 个文件")
+                        filepath = os.path.join(root, file)
+                        self._add_file_to_tree(filepath)
+                        count += 1
+                
+                if count > 0:
+                    self.logger.info(f"已添加文件夹 {folder} 中的 {count} 个文件")
+                else:
+                    messagebox.showinfo("提示", f"文件夹 {folder} 中没有文件")
         except Exception as e:
             self.logger.error(f"添加文件夹时出错: {str(e)}")
             messagebox.showerror("错误", f"添加文件夹时出错: {str(e)}")
     
     def _add_file_to_tree(self, filepath):
-        """添加文件到文件列表"""
-        # 检查是否已添加此文件
-        for item in self.files_tree.get_children():
-            if self.files_tree.item(item, "values")[1] == filepath:
-                return  # 文件已存在，不重复添加
-        
-        # 解析文件名和路径
-        filename = os.path.basename(filepath)
-        directory = os.path.dirname(filepath)
-        
-        # 添加到树状视图
-        self.files_tree.insert("", tk.END, values=(filename, directory))
-        
-        # 添加到文件列表
-        self.files_to_process.append(filepath)
+        """将文件添加到树状视图中"""
+        if filepath not in self.files_to_process:
+            self.files_to_process.append(filepath)
+            
+            # 获取文件名和目录
+            filename = os.path.basename(filepath)
+            directory = os.path.dirname(filepath)
+            
+            # 添加到树状视图
+            self.files_tree.insert("", tk.END, values=(filename, directory))
     
     def clear_selection(self):
-        """清空选择按钮回调"""
-        self.files_tree.delete(*self.files_tree.get_children())
+        """清空选择的文件"""
         self.files_to_process = []
-        self.logger.info("已清空所有选择的文件")
+        self.files_tree.delete(*self.files_tree.get_children())
+        self.logger.info("已清空文件选择")
     
     def show_context_menu(self, event):
         """显示右键菜单"""
