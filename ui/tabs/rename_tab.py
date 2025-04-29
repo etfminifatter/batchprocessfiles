@@ -42,14 +42,6 @@ class RenameTab(ttk.Frame):
         preview_frame.pack(fill=tk.BOTH, expand=True)
         
         self.setup_preview_area(preview_frame)
-        
-        # 底部按钮区域
-        button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill=tk.X, pady=(10, 0))
-        
-        # 预览和执行按钮（右对齐）
-        ttk.Button(button_frame, text="执行", command=self.execute, style="Primary.TButton").pack(side=tk.RIGHT, padx=5)
-        ttk.Button(button_frame, text="预览", command=self.preview, style="Primary.TButton").pack(side=tk.RIGHT, padx=5)
     
     def setup_file_selection(self, parent):
         """设置文件选择区域"""
@@ -62,15 +54,15 @@ class RenameTab(ttk.Frame):
         button_frame.pack(fill=tk.X, padx=5, pady=5)
         
         # 添加文件按钮
-        add_files_btn = ttk.Button(button_frame, text="添加文件", command=self.add_files)
+        add_files_btn = ttk.Button(button_frame, text="添加文件", command=self.add_files, style="Auxiliary.TButton")
         add_files_btn.pack(side=tk.LEFT, padx=2)
         
         # 添加文件夹按钮
-        add_folder_btn = ttk.Button(button_frame, text="添加文件夹", command=self.add_folder)
+        add_folder_btn = ttk.Button(button_frame, text="添加文件夹", command=self.add_folder, style="Auxiliary.TButton")
         add_folder_btn.pack(side=tk.LEFT, padx=2)
         
         # 清空选择按钮
-        clear_btn = ttk.Button(button_frame, text="清空选择", command=self.clear_selection)
+        clear_btn = ttk.Button(button_frame, text="清空选择", command=self.clear_selection, style="Auxiliary.TButton")
         clear_btn.pack(side=tk.LEFT, padx=2)
         
         # 文件列表显示区域，使用Treeview

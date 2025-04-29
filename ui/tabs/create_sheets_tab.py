@@ -33,15 +33,15 @@ class CreateSheetsTab(ttk.Frame):
         button_frame = ttk.Frame(self.direct_input_frame)
         button_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        ttk.Button(button_frame, text="从剪贴板粘贴", style="Secondary.TButton", command=self.paste_from_clipboard).pack(side=tk.LEFT)
-        ttk.Button(button_frame, text="清空", style="Secondary.TButton", command=self.clear_input).pack(side=tk.LEFT)
+        ttk.Button(button_frame, text="从剪贴板粘贴", style="Auxiliary.TButton", command=self.paste_from_clipboard).pack(side=tk.LEFT)
+        ttk.Button(button_frame, text="清空", style="Auxiliary.TButton", command=self.clear_input).pack(side=tk.LEFT)
         
         # Excel导入区域
         self.excel_input_frame = ttk.Frame(input_frame)
         
         self.excel_path = tk.StringVar()
         ttk.Entry(self.excel_input_frame, textvariable=self.excel_path, state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        ttk.Button(self.excel_input_frame, text="浏览", style="Secondary.TButton", command=self.browse_excel).pack(side=tk.LEFT, padx=5)
+        ttk.Button(self.excel_input_frame, text="浏览", style="Auxiliary.TButton", command=self.browse_excel).pack(side=tk.LEFT, padx=5)
         
         # 表格格式设置
         format_frame = ttk.LabelFrame(self, text="表格格式设置")
@@ -78,7 +78,7 @@ class CreateSheetsTab(ttk.Frame):
         ttk.Label(file_frame, text="输出文件:").pack(side=tk.LEFT, padx=5)
         self.output_path = tk.StringVar()
         ttk.Entry(file_frame, textvariable=self.output_path, state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        ttk.Button(file_frame, text="浏览", style="Secondary.TButton", command=self.browse_output).pack(side=tk.LEFT, padx=5)
+        ttk.Button(file_frame, text="浏览", style="Auxiliary.TButton", command=self.browse_output).pack(side=tk.LEFT, padx=5)
         
         # 预览区域
         preview_frame = ttk.LabelFrame(self, text="预览")
@@ -93,13 +93,6 @@ class CreateSheetsTab(ttk.Frame):
             self.preview_tree.column(col, width=100)
         
         self.preview_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # 操作按钮
-        button_frame = ttk.Frame(self)
-        button_frame.pack(fill=tk.X, padx=5, pady=5)
-        
-        ttk.Button(button_frame, text="预览", style="Primary.TButton", command=self.preview).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="执行", style="Primary.TButton", command=self.execute).pack(side=tk.LEFT, padx=5)
         
         # 初始化界面状态
         self.toggle_input_method()

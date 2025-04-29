@@ -39,14 +39,6 @@ class CreateFilesTab(ttk.Frame):
         preview_frame.pack(fill=tk.BOTH, expand=True)
         
         self.setup_preview_area(preview_frame)
-        
-        # 底部按钮区域
-        button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill=tk.X, pady=(10, 0))
-        
-        # 预览和执行按钮（右对齐）
-        ttk.Button(button_frame, text="执行", command=self.execute, style="Primary.TButton").pack(side=tk.RIGHT, padx=5)
-        ttk.Button(button_frame, text="预览", command=self.preview, style="Primary.TButton").pack(side=tk.RIGHT, padx=5)
     
     def setup_input_area(self, parent):
         """设置输入区域"""
@@ -84,7 +76,7 @@ class CreateFilesTab(ttk.Frame):
         
         self.file_path = tk.StringVar()
         ttk.Entry(file_select_frame, textvariable=self.file_path, width=30).pack(side=tk.LEFT, fill=tk.X, expand=True)
-        ttk.Button(file_select_frame, text="浏览", command=self.browse_file).pack(side=tk.LEFT, padx=(5, 0))
+        ttk.Button(file_select_frame, text="浏览", command=self.browse_file, style="Auxiliary.TButton").pack(side=tk.LEFT, padx=(5, 0))
         
         # 文件预览区域
         ttk.Label(self.file_input_frame, text="文件内容预览:").pack(anchor=tk.W, pady=(5, 0))
@@ -171,10 +163,10 @@ class CreateFilesTab(ttk.Frame):
         ttk.Label(path_frame, text="目标路径:").pack(side=tk.LEFT)
         
         self.target_path = tk.StringVar()
-        ttk.Entry(path_frame, textvariable=self.target_path).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 5))
+        ttk.Entry(path_frame, textvariable=self.target_path, width=40).pack(side=tk.LEFT, fill=tk.X, expand=True)
         
-        browse_btn = ttk.Button(path_frame, text="浏览", command=self.browse_target_path)
-        browse_btn.pack(side=tk.LEFT)
+        browse_btn = ttk.Button(path_frame, text="浏览", command=self.browse_target_path, style="Auxiliary.TButton")
+        browse_btn.pack(side=tk.LEFT, padx=(5, 0))
         
         # 文件类型
         type_frame = ttk.Frame(output_frame)

@@ -80,13 +80,6 @@ class MoveCopyTab(ttk.Frame):
         preview_frame.pack(fill=tk.BOTH, expand=True, pady=(10, 5))
         
         self.setup_preview_area(preview_frame)
-        
-        # 设置底部按钮
-        button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill=tk.X, pady=(5, 0))
-        
-        ttk.Button(button_frame, text="执行", command=self.execute, style="Primary.TButton").pack(side=tk.RIGHT, padx=5)
-        ttk.Button(button_frame, text="预览", command=self.preview, style="Primary.TButton").pack(side=tk.RIGHT, padx=5)
     
     def setup_file_selection(self, parent):
         """设置文件选择区域"""
@@ -99,9 +92,9 @@ class MoveCopyTab(ttk.Frame):
         button_frame.pack(fill=tk.X, padx=5, pady=5)
         
         # 添加文件和文件夹按钮
-        ttk.Button(button_frame, text="添加文件", command=self.add_files).pack(side=tk.LEFT, padx=(0, 5))
-        ttk.Button(button_frame, text="添加文件夹", command=self.add_folder).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="清空", command=self.clear_selection).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="添加文件", command=self.add_files, style="Auxiliary.TButton").pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(button_frame, text="添加文件夹", command=self.add_folder, style="Auxiliary.TButton").pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="清空", command=self.clear_selection, style="Auxiliary.TButton").pack(side=tk.LEFT, padx=5)
         
         # 文件列表区域
         list_frame = ttk.Frame(selection_frame)
@@ -144,17 +137,17 @@ class MoveCopyTab(ttk.Frame):
         target_frame = ttk.LabelFrame(parent, text="目标路径")
         target_frame.pack(fill=tk.X, padx=(0, 0), pady=(0, 5))
         
-        # 路径输入区域
+        # 添加目标路径输入和浏览按钮
         path_frame = ttk.Frame(target_frame)
-        path_frame.pack(fill=tk.X, padx=5, pady=5)
+        path_frame.pack(fill=tk.X, pady=5)
         
-        # 标签和输入框并排
-        self.target_path = tk.StringVar()
-        ttk.Entry(path_frame, textvariable=self.target_path).pack(side=tk.LEFT, fill=tk.X, expand=True)
+        ttk.Label(path_frame, text="目标路径:").pack(side=tk.LEFT, padx=5)
+        self.target_path_var = tk.StringVar()
+        self.target_path_entry = ttk.Entry(path_frame, textvariable=self.target_path_var)
+        self.target_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
         
-        # 浏览按钮
-        browse_btn = ttk.Button(path_frame, text="浏览", command=self.browse_target_path)
-        browse_btn.pack(side=tk.LEFT, padx=(5, 0))
+        browse_btn = ttk.Button(path_frame, text="浏览", command=self.browse_target_path, style="Auxiliary.TButton")
+        browse_btn.pack(side=tk.LEFT, padx=5)
     
     def setup_options(self, parent):
         """设置操作选项区域"""
@@ -305,7 +298,7 @@ class MoveCopyTab(ttk.Frame):
         try:
             target_dir = filedialog.askdirectory(title="选择目标文件夹")
             if target_dir:
-                self.target_path.set(target_dir)
+                self.target_path_var.set(target_dir)
                 self.logger.info(f"已选择目标路径: {target_dir}")
         except Exception as e:
             self.logger.error(f"选择目标路径时出错: {str(e)}")
@@ -339,7 +332,7 @@ class MoveCopyTab(ttk.Frame):
             messagebox.showinfo("提示", "请先选择要处理的文件")
             return
         
-        target_dir = self.target_path.get()
+        target_dir = self.target_path_var.get()
         if not target_dir:
             messagebox.showinfo("提示", "请选择目标路径")
             return
@@ -387,7 +380,7 @@ class MoveCopyTab(ttk.Frame):
             messagebox.showinfo("提示", "请先选择要处理的文件")
             return
         
-        target_dir = self.target_path.get()
+        target_dir = self.target_path_var.get()
         if not target_dir:
             messagebox.showinfo("提示", "请选择目标路径")
             return
