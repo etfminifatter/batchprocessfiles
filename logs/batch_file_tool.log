@@ -1,0 +1,324 @@
+[2025-04-29 15:21:59,567][INFO][main_window] 主窗口初始化
+[2025-04-29 15:21:59,808][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 15:41:51,704][INFO][main_window] 主窗口初始化
+[2025-04-29 15:41:51,816][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 15:42:31,960][INFO][main_window] 显示帮助信息
+[2025-04-29 15:43:22,421][INFO][main_window] 主窗口初始化
+[2025-04-29 15:43:22,557][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 15:44:58,043][INFO][main_window] 主窗口初始化
+[2025-04-29 15:44:58,177][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 15:46:56,668][INFO][move_copy_tab] 开始选择文件
+[2025-04-29 15:48:17,133][INFO][main_window] 主窗口初始化
+[2025-04-29 15:48:17,235][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 15:56:31,166][INFO][main_window] 主窗口初始化
+[2025-04-29 15:56:31,399][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 16:05:12,351][INFO][main_window] 主窗口初始化
+[2025-04-29 16:05:12,466][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 16:11:29,260][INFO][main_window] 主窗口初始化
+[2025-04-29 16:11:29,368][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 16:30:12,688][INFO][root][main.py:52] 批量文件处理工具启动
+[2025-04-29 16:30:12,835][INFO][root][main.py:117] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 16:30:12,835][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 16:30:12,856][INFO][main_window][main_window.py:57] 菜单栏设置完成
+[2025-04-29 16:30:12,951][INFO][rename_tab] 重命名选项卡初始化
+[2025-04-29 16:30:12,951][INFO][rename_tab][rename_tab.py:41] 重命名选项卡初始化
+[2025-04-29 16:30:12,970][DEBUG][rename_tab] 规则类型改变为: 替换文本
+[2025-04-29 16:30:12,970][DEBUG][rename_tab][rename_tab.py:159] 规则类型改变为: 替换文本
+[2025-04-29 16:30:12,971][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 16:30:12,971][INFO][move_copy_tab][move_copy_tab.py:42] 移动/复制选项卡初始化
+[2025-04-29 16:30:12,983][INFO][main_window][main_window.py:81] 标签页设置完成
+[2025-04-29 16:30:12,987][INFO][main_window][main_window.py:97] 状态栏设置完成
+[2025-04-29 16:30:12,990][INFO][main_window][main_window.py:122] 底部按钮设置完成
+[2025-04-29 16:30:12,990][INFO][main_window][main_window.py:35] 用户界面设置完成
+[2025-04-29 16:30:12,990][INFO][root][main.py:125] 启动主循环
+[2025-04-29 16:30:12,991][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 16:30:46,008][INFO][root][main.py:52] 批量文件处理工具启动
+[2025-04-29 16:30:46,157][INFO][root][main.py:117] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 16:30:46,158][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 16:30:46,180][INFO][main_window][main_window.py:57] 菜单栏设置完成
+[2025-04-29 16:30:46,298][INFO][rename_tab] 重命名选项卡初始化
+[2025-04-29 16:30:46,298][INFO][rename_tab][rename_tab.py:41] 重命名选项卡初始化
+[2025-04-29 16:30:46,318][DEBUG][rename_tab] 规则类型改变为: 替换文本
+[2025-04-29 16:30:46,318][DEBUG][rename_tab][rename_tab.py:159] 规则类型改变为: 替换文本
+[2025-04-29 16:30:46,319][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 16:30:46,319][INFO][move_copy_tab][move_copy_tab.py:42] 移动/复制选项卡初始化
+[2025-04-29 16:30:46,334][INFO][main_window][main_window.py:81] 标签页设置完成
+[2025-04-29 16:30:46,337][INFO][main_window][main_window.py:97] 状态栏设置完成
+[2025-04-29 16:30:46,340][INFO][main_window][main_window.py:122] 底部按钮设置完成
+[2025-04-29 16:30:46,340][INFO][main_window][main_window.py:35] 用户界面设置完成
+[2025-04-29 16:30:46,340][INFO][root][main.py:125] 启动主循环
+[2025-04-29 16:30:46,340][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 16:30:51,503][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 16:30:52,990][INFO][main_window][main_window.py:128] 切换到标签页: 创建工作表
+[2025-04-29 16:30:53,991][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 16:30:54,612][INFO][main_window][main_window.py:128] 切换到标签页: 移动/复制
+[2025-04-29 16:30:58,637][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 16:30:59,523][INFO][main_window][main_window.py:128] 切换到标签页: 创建工作表
+[2025-04-29 16:31:00,087][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 16:31:00,596][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 16:31:02,910][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 16:31:03,889][INFO][main_window][main_window.py:128] 切换到标签页: 创建工作表
+[2025-04-29 16:31:04,454][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 16:31:04,950][INFO][main_window][main_window.py:128] 切换到标签页: 移动/复制
+[2025-04-29 16:31:05,387][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 16:31:05,881][INFO][main_window][main_window.py:128] 切换到标签页: 创建工作表
+[2025-04-29 16:31:06,296][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 16:31:06,792][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 16:31:33,986][INFO][root][main.py:52] 批量文件处理工具启动
+[2025-04-29 16:31:34,147][INFO][root][main.py:117] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 16:31:34,148][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 16:31:34,172][INFO][main_window][main_window.py:57] 菜单栏设置完成
+[2025-04-29 16:31:34,271][INFO][rename_tab] 重命名选项卡初始化
+[2025-04-29 16:31:34,271][INFO][rename_tab][rename_tab.py:41] 重命名选项卡初始化
+[2025-04-29 16:31:34,291][DEBUG][rename_tab] 规则类型改变为: 替换文本
+[2025-04-29 16:31:34,291][DEBUG][rename_tab][rename_tab.py:159] 规则类型改变为: 替换文本
+[2025-04-29 16:31:34,292][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 16:31:34,292][INFO][move_copy_tab][move_copy_tab.py:42] 移动/复制选项卡初始化
+[2025-04-29 16:31:34,311][INFO][main_window][main_window.py:81] 标签页设置完成
+[2025-04-29 16:31:34,313][INFO][main_window][main_window.py:97] 状态栏设置完成
+[2025-04-29 16:31:34,316][INFO][main_window][main_window.py:122] 底部按钮设置完成
+[2025-04-29 16:31:34,317][INFO][main_window][main_window.py:35] 用户界面设置完成
+[2025-04-29 16:31:34,317][INFO][root][main.py:125] 启动主循环
+[2025-04-29 16:31:34,317][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 16:31:54,784][INFO][root][main.py:52] 批量文件处理工具启动
+[2025-04-29 16:31:54,937][INFO][root][main.py:117] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 16:31:54,938][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 16:31:54,967][INFO][main_window][main_window.py:57] 菜单栏设置完成
+[2025-04-29 16:31:55,078][INFO][rename_tab] 重命名选项卡初始化
+[2025-04-29 16:31:55,078][INFO][rename_tab][rename_tab.py:41] 重命名选项卡初始化
+[2025-04-29 16:31:55,099][DEBUG][rename_tab] 规则类型改变为: 替换文本
+[2025-04-29 16:31:55,099][DEBUG][rename_tab][rename_tab.py:159] 规则类型改变为: 替换文本
+[2025-04-29 16:31:55,100][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 16:31:55,100][INFO][move_copy_tab][move_copy_tab.py:42] 移动/复制选项卡初始化
+[2025-04-29 16:31:55,111][INFO][main_window][main_window.py:81] 标签页设置完成
+[2025-04-29 16:31:55,114][INFO][main_window][main_window.py:97] 状态栏设置完成
+[2025-04-29 16:31:55,116][INFO][main_window][main_window.py:122] 底部按钮设置完成
+[2025-04-29 16:31:55,117][INFO][main_window][main_window.py:35] 用户界面设置完成
+[2025-04-29 16:31:55,117][INFO][root][main.py:125] 启动主循环
+[2025-04-29 16:31:55,117][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:00:41,164][INFO][root][main.py:54] 批量文件处理工具启动
+[2025-04-29 17:00:41,196][INFO][root][main.py:71] 应用样式配置完成
+[2025-04-29 17:00:41,270][INFO][root][main.py:88] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 17:00:41,270][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 17:00:41,295][INFO][main_window][main_window.py:57] 菜单栏设置完成
+[2025-04-29 17:00:41,357][DEBUG][create_files_tab][create_files_tab.py:235] 切换输入方式: direct
+[2025-04-29 17:00:41,358][DEBUG][create_files_tab][create_files_tab.py:245] 切换命名规则: direct
+[2025-04-29 17:00:41,358][WARNING][create_files_tab][create_files_tab.py:198] 拖放功能设置失败，可能需要安装TkinterDnD2
+[2025-04-29 17:00:41,405][DEBUG][rename_tab][rename_tab.py:17] 初始化重命名标签页
+[2025-04-29 17:00:41,431][DEBUG][move_copy_tab][move_copy_tab.py:16] 初始化移动/复制标签页
+[2025-04-29 17:00:41,431][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 17:00:41,431][INFO][move_copy_tab][move_copy_tab.py:48] 移动/复制选项卡初始化
+[2025-04-29 17:00:41,447][CRITICAL][root][main.py:99] 应用启动失败: 'MoveCopyTab' object has no attribute 'preview_operation'
+Traceback (most recent call last):
+  File "F:\AI编程\批量创建文件工具_tk\main.py", line 93, in main
+    app = MainWindow(root)
+          ^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 21, in __init__
+    self.setup_ui()
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 31, in setup_ui
+    self.setup_notebook()
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 69, in setup_notebook
+    self.move_copy_tab = MoveCopyTab(self.notebook)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\move_copy_tab.py", line 18, in __init__
+    self.setup_ui()
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\move_copy_tab.py", line 70, in setup_ui
+    self.setup_preview_area(right_frame)
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\move_copy_tab.py", line 199, in setup_preview_area
+    preview_btn = ttk.Button(btn_frame, text="预览", command=self.preview_operation)
+                                                             ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MoveCopyTab' object has no attribute 'preview_operation'
+[2025-04-29 17:00:41,457][CRITICAL][root][log_utils.py:275] 未捕获异常:
+Traceback (most recent call last):
+  File "F:\AI编程\批量创建文件工具_tk\main.py", line 103, in <module>
+    main()
+  File "F:\AI编程\批量创建文件工具_tk\main.py", line 93, in main
+    app = MainWindow(root)
+          ^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 21, in __init__
+    self.setup_ui()
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 31, in setup_ui
+    self.setup_notebook()
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 69, in setup_notebook
+    self.move_copy_tab = MoveCopyTab(self.notebook)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\move_copy_tab.py", line 18, in __init__
+    self.setup_ui()
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\move_copy_tab.py", line 70, in setup_ui
+    self.setup_preview_area(right_frame)
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\move_copy_tab.py", line 199, in setup_preview_area
+    preview_btn = ttk.Button(btn_frame, text="预览", command=self.preview_operation)
+                                                             ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MoveCopyTab' object has no attribute 'preview_operation'
+[2025-04-29 17:02:13,922][INFO][root][main.py:54] 批量文件处理工具启动
+[2025-04-29 17:02:13,952][INFO][root][main.py:71] 应用样式配置完成
+[2025-04-29 17:02:14,086][INFO][root][main.py:88] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 17:02:14,087][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 17:02:14,114][INFO][main_window][main_window.py:57] 菜单栏设置完成
+[2025-04-29 17:02:14,164][DEBUG][create_files_tab][create_files_tab.py:235] 切换输入方式: direct
+[2025-04-29 17:02:14,164][DEBUG][create_files_tab][create_files_tab.py:245] 切换命名规则: direct
+[2025-04-29 17:02:14,164][WARNING][create_files_tab][create_files_tab.py:198] 拖放功能设置失败，可能需要安装TkinterDnD2
+[2025-04-29 17:02:14,205][DEBUG][rename_tab][rename_tab.py:17] 初始化重命名标签页
+[2025-04-29 17:02:14,223][DEBUG][move_copy_tab][move_copy_tab.py:17] 初始化移动/复制标签页
+[2025-04-29 17:02:14,223][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 17:02:14,223][INFO][move_copy_tab][move_copy_tab.py:49] 移动/复制选项卡初始化
+[2025-04-29 17:02:14,239][INFO][main_window][main_window.py:81] 标签页设置完成
+[2025-04-29 17:02:14,241][INFO][main_window][main_window.py:97] 状态栏设置完成
+[2025-04-29 17:02:14,242][INFO][main_window][main_window.py:122] 底部按钮设置完成
+[2025-04-29 17:02:14,243][INFO][main_window][main_window.py:35] 用户界面设置完成
+[2025-04-29 17:02:14,243][INFO][root][main.py:96] 启动主循环
+[2025-04-29 17:02:14,243][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:02:20,800][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 17:02:21,853][INFO][main_window][main_window.py:128] 切换到标签页: 创建工作表
+[2025-04-29 17:02:27,323][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 17:02:28,943][INFO][main_window][main_window.py:128] 切换到标签页: 移动/复制
+[2025-04-29 17:02:30,450][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 17:02:37,639][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:02:39,444][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 17:09:23,550][INFO][root][main.py:54] 批量文件处理工具启动
+[2025-04-29 17:09:23,582][INFO][root][main.py:71] 应用样式配置完成
+[2025-04-29 17:09:23,644][INFO][root][main.py:88] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 17:09:23,644][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 17:09:23,674][INFO][main_window][main_window.py:57] 菜单栏设置完成
+[2025-04-29 17:09:23,695][CRITICAL][root][main.py:99] 应用启动失败: name 'ScrolledText' is not defined
+Traceback (most recent call last):
+  File "F:\AI编程\批量创建文件工具_tk\main.py", line 93, in main
+    app = MainWindow(root)
+          ^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 21, in __init__
+    self.setup_ui()
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 31, in setup_ui
+    self.setup_notebook()
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 65, in setup_notebook
+    self.create_files_tab = CreateFilesTab(self.notebook)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\create_files_tab.py", line 12, in __init__
+    self.setup_ui()
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\create_files_tab.py", line 33, in setup_ui
+    self.setup_input_area(left_pane)      # 左侧：输入区域
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\create_files_tab.py", line 73, in setup_input_area
+    self.text_input = ScrolledText(self.direct_input_frame, height=10, width=40, wrap=tk.WORD)
+                      ^^^^^^^^^^^^
+NameError: name 'ScrolledText' is not defined
+[2025-04-29 17:09:23,700][CRITICAL][root][log_utils.py:275] 未捕获异常:
+Traceback (most recent call last):
+  File "F:\AI编程\批量创建文件工具_tk\main.py", line 103, in <module>
+    main()
+  File "F:\AI编程\批量创建文件工具_tk\main.py", line 93, in main
+    app = MainWindow(root)
+          ^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 21, in __init__
+    self.setup_ui()
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 31, in setup_ui
+    self.setup_notebook()
+  File "F:\AI编程\批量创建文件工具_tk\ui\main_window.py", line 65, in setup_notebook
+    self.create_files_tab = CreateFilesTab(self.notebook)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\create_files_tab.py", line 12, in __init__
+    self.setup_ui()
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\create_files_tab.py", line 33, in setup_ui
+    self.setup_input_area(left_pane)      # 左侧：输入区域
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\AI编程\批量创建文件工具_tk\ui\tabs\create_files_tab.py", line 73, in setup_input_area
+    self.text_input = ScrolledText(self.direct_input_frame, height=10, width=40, wrap=tk.WORD)
+                      ^^^^^^^^^^^^
+NameError: name 'ScrolledText' is not defined
+[2025-04-29 17:15:54,373][INFO][root][main.py:54] 批量文件处理工具启动
+[2025-04-29 17:15:54,403][INFO][root][main.py:71] 应用样式配置完成
+[2025-04-29 17:15:54,456][INFO][root][main.py:88] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 17:15:54,457][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 17:15:54,468][INFO][main_window][main_window.py:57] 菜单栏设置完成
+[2025-04-29 17:15:54,496][DEBUG][create_files_tab][create_files_tab.py:286] 切换输入方式: direct
+[2025-04-29 17:15:54,496][WARNING][create_files_tab][create_files_tab.py:249] 拖放功能设置失败，可能需要安装TkinterDnD2
+[2025-04-29 17:15:54,508][DEBUG][create_files_tab][create_files_tab.py:296] 切换命名规则: direct
+[2025-04-29 17:15:54,518][WARNING][create_files_tab][create_files_tab.py:249] 拖放功能设置失败，可能需要安装TkinterDnD2
+[2025-04-29 17:15:54,557][DEBUG][rename_tab][rename_tab.py:14] 初始化重命名标签页
+[2025-04-29 17:15:54,603][DEBUG][move_copy_tab][move_copy_tab.py:17] 初始化移动/复制标签页
+[2025-04-29 17:15:54,603][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 17:15:54,603][INFO][move_copy_tab][move_copy_tab.py:49] 移动/复制选项卡初始化
+[2025-04-29 17:15:54,650][INFO][main_window][main_window.py:81] 标签页设置完成
+[2025-04-29 17:15:54,653][INFO][main_window][main_window.py:97] 状态栏设置完成
+[2025-04-29 17:15:54,655][INFO][main_window][main_window.py:122] 底部按钮设置完成
+[2025-04-29 17:15:54,655][INFO][main_window][main_window.py:35] 用户界面设置完成
+[2025-04-29 17:15:54,655][INFO][root][main.py:96] 启动主循环
+[2025-04-29 17:15:54,655][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:16:06,409][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 17:16:10,059][INFO][main_window][main_window.py:128] 切换到标签页: 创建工作表
+[2025-04-29 17:16:12,204][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 17:16:16,741][INFO][main_window][main_window.py:128] 切换到标签页: 移动/复制
+[2025-04-29 17:16:18,392][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 17:16:19,040][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:16:26,843][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 17:16:29,643][INFO][main_window][main_window.py:128] 切换到标签页: 创建工作表
+[2025-04-29 17:16:30,347][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 17:16:30,809][INFO][main_window][main_window.py:128] 切换到标签页: 移动/复制
+[2025-04-29 17:16:31,281][INFO][main_window][main_window.py:128] 切换到标签页: 重命名
+[2025-04-29 17:16:31,661][INFO][main_window][main_window.py:128] 切换到标签页: 创建工作表
+[2025-04-29 17:16:32,138][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 17:16:32,539][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:16:33,709][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 17:16:34,161][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:16:36,315][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 17:16:39,411][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:18:53,348][INFO][root][main.py:54] 批量文件处理工具启动
+[2025-04-29 17:18:53,383][INFO][root][main.py:71] 应用样式配置完成
+[2025-04-29 17:18:53,507][INFO][root][main.py:88] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 17:18:53,507][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 17:18:53,535][INFO][main_window][main_window.py:57] 菜单栏设置完成
+[2025-04-29 17:18:53,555][DEBUG][create_files_tab][create_files_tab.py:286] 切换输入方式: direct
+[2025-04-29 17:18:53,555][WARNING][create_files_tab][create_files_tab.py:249] 拖放功能设置失败，可能需要安装TkinterDnD2
+[2025-04-29 17:18:53,579][DEBUG][create_files_tab][create_files_tab.py:296] 切换命名规则: direct
+[2025-04-29 17:18:53,591][WARNING][create_files_tab][create_files_tab.py:249] 拖放功能设置失败，可能需要安装TkinterDnD2
+[2025-04-29 17:18:53,633][DEBUG][rename_tab][rename_tab.py:14] 初始化重命名标签页
+[2025-04-29 17:18:53,652][DEBUG][move_copy_tab][move_copy_tab.py:17] 初始化移动/复制标签页
+[2025-04-29 17:18:53,653][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 17:18:53,653][INFO][move_copy_tab][move_copy_tab.py:49] 移动/复制选项卡初始化
+[2025-04-29 17:18:53,673][INFO][main_window][main_window.py:81] 标签页设置完成
+[2025-04-29 17:18:53,675][INFO][main_window][main_window.py:97] 状态栏设置完成
+[2025-04-29 17:18:53,677][INFO][main_window][main_window.py:122] 底部按钮设置完成
+[2025-04-29 17:18:53,677][INFO][main_window][main_window.py:35] 用户界面设置完成
+[2025-04-29 17:18:53,678][INFO][root][main.py:96] 启动主循环
+[2025-04-29 17:18:53,678][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:18:58,758][INFO][main_window][main_window.py:128] 切换到标签页: 创建目录
+[2025-04-29 17:19:00,601][INFO][main_window][main_window.py:128] 切换到标签页: 创建工作表
+[2025-04-29 17:19:02,007][INFO][main_window][main_window.py:128] 切换到标签页: 创建文件
+[2025-04-29 17:19:03,383][DEBUG][create_files_tab][create_files_tab.py:286] 切换输入方式: direct
+[2025-04-29 17:19:05,184][DEBUG][create_files_tab][create_files_tab.py:286] 切换输入方式: direct
+[2025-04-29 17:19:07,323][DEBUG][create_files_tab][create_files_tab.py:286] 切换输入方式: direct
+[2025-04-29 17:19:08,369][DEBUG][create_files_tab][create_files_tab.py:286] 切换输入方式: direct
+[2025-04-29 17:19:13,554][DEBUG][create_files_tab][create_files_tab.py:286] 切换输入方式: direct
+[2025-04-29 17:25:57,186][INFO][root][main.py:54] 批量文件处理工具启动
+[2025-04-29 17:25:57,237][INFO][root][main.py:74] 成功初始化TkinterDnD，拖放功能已启用
+[2025-04-29 17:25:57,237][INFO][root][main.py:82] 应用样式配置完成
+[2025-04-29 17:25:57,296][INFO][root][main.py:98] 已设置应用图标: F:\AI编程\批量创建文件工具_tk\resources\icons\logo.ico
+[2025-04-29 17:25:57,297][INFO][main_window][main_window.py:19] 主窗口初始化
+[2025-04-29 17:25:57,311][INFO][main_window][main_window.py:54] 菜单栏设置完成
+[2025-04-29 17:25:57,355][DEBUG][create_files_tab][create_files_tab.py:307] 切换输入方式: direct
+[2025-04-29 17:25:57,360][INFO][create_files_tab][create_files_tab.py:248] 拖放功能设置成功
+[2025-04-29 17:25:57,380][DEBUG][create_files_tab][create_files_tab.py:317] 切换命名规则: direct
+[2025-04-29 17:25:57,491][INFO][create_files_tab][create_files_tab.py:248] 拖放功能设置成功
+[2025-04-29 17:25:57,538][DEBUG][rename_tab][rename_tab.py:14] 初始化重命名标签页
+[2025-04-29 17:25:57,561][DEBUG][move_copy_tab][move_copy_tab.py:17] 初始化移动/复制标签页
+[2025-04-29 17:25:57,562][INFO][move_copy_tab] 移动/复制选项卡初始化
+[2025-04-29 17:25:57,562][INFO][move_copy_tab][move_copy_tab.py:49] 移动/复制选项卡初始化
+[2025-04-29 17:25:57,581][INFO][main_window][main_window.py:78] 标签页设置完成
+[2025-04-29 17:25:57,583][INFO][main_window][main_window.py:94] 状态栏设置完成
+[2025-04-29 17:25:57,585][INFO][main_window][main_window.py:125] 底部按钮设置完成
+[2025-04-29 17:25:57,585][INFO][main_window][main_window.py:35] 用户界面设置完成
+[2025-04-29 17:25:57,585][INFO][root][main.py:106] 启动主循环
+[2025-04-29 17:25:57,585][INFO][main_window][main_window.py:131] 切换到标签页: 创建文件
+[2025-04-29 17:26:06,726][INFO][main_window][main_window.py:131] 切换到标签页: 创建目录
+[2025-04-29 17:26:18,473][INFO][main_window][main_window.py:131] 切换到标签页: 创建工作表
+[2025-04-29 17:26:22,404][INFO][main_window][main_window.py:131] 切换到标签页: 重命名
+[2025-04-29 17:26:25,167][INFO][main_window][main_window.py:131] 切换到标签页: 移动/复制
+[2025-04-29 17:26:26,432][INFO][main_window][main_window.py:131] 切换到标签页: 重命名
+[2025-04-29 17:26:26,967][INFO][main_window][main_window.py:131] 切换到标签页: 创建工作表
+[2025-04-29 17:26:27,439][INFO][main_window][main_window.py:131] 切换到标签页: 创建目录
+[2025-04-29 17:26:27,857][INFO][main_window][main_window.py:131] 切换到标签页: 创建文件
+[2025-04-29 17:26:44,430][INFO][main_window][main_window.py:170] 打开官方网站
+[2025-04-29 17:26:51,492][INFO][main_window][main_window.py:195] 显示广告信息
+[2025-04-29 17:26:54,844][INFO][main_window][main_window.py:210] 显示帮助信息
+[2025-04-29 17:26:58,640][INFO][main_window][main_window.py:195] 显示广告信息
+[2025-04-29 17:27:01,162][INFO][main_window][main_window.py:226] 显示关于信息
+[2025-04-29 17:27:10,574][DEBUG][create_files_tab][create_files_tab.py:307] 切换输入方式: file

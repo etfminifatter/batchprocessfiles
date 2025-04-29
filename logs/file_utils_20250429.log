@@ -1,0 +1,130 @@
+2025-04-29 16:30:12,450 - file_utils - ERROR - log_utils.py:106 - 记录系统信息失败: argument 1 (impossible<bad format char>)
+2025-04-29 16:30:45,782 - file_utils - ERROR - log_utils.py:106 - 记录系统信息失败: argument 1 (impossible<bad format char>)
+2025-04-29 16:31:33,738 - file_utils - ERROR - log_utils.py:106 - 记录系统信息失败: argument 1 (impossible<bad format char>)
+2025-04-29 16:31:54,553 - file_utils - ERROR - log_utils.py:106 - 记录系统信息失败: argument 1 (impossible<bad format char>)
+2025-04-29 16:59:03,469 - file_utils - INFO - [log_utils.py:142] - 系统信息: {
+  "操作系统": "Windows-11-10.0.22631-SP0",
+  "Python版本": "3.12.4",
+  "工作目录": "F:\\AI编程\\批量创建文件工具_tk",
+  "用户名": "zhang",
+  "程序路径": "D:\\anaconda3\\python.exe",
+  "处理器": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "节点名称": "jingle",
+  "Python位数": "64bit",
+  "总内存": "32452MB",
+  "可用内存": "10538MB",
+  "内存使用率": "67.5%",
+  "磁盘信息": "获取失败: argument 1 (impossible<bad format char>)",
+  "CPU使用率": "3.0%",
+  "CPU核心数": 14,
+  "CPU逻辑核心数": 20
+}
+2025-04-29 16:59:03,474 - file_utils - INFO - [log_utils.py:68] - 日志系统初始化完成，级别: DEBUG, 日志文件: logs\file_utils_20250429.log
+2025-04-29 17:00:41,155 - file_utils - INFO - [log_utils.py:142] - 系统信息: {
+  "操作系统": "Windows-11-10.0.22631-SP0",
+  "Python版本": "3.12.4",
+  "工作目录": "F:\\AI编程\\批量创建文件工具_tk",
+  "用户名": "zhang",
+  "程序路径": "D:\\anaconda3\\python.exe",
+  "处理器": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "节点名称": "jingle",
+  "Python位数": "64bit",
+  "总内存": "32452MB",
+  "可用内存": "10584MB",
+  "内存使用率": "67.4%",
+  "磁盘信息": "获取失败: argument 1 (impossible<bad format char>)",
+  "CPU使用率": "2.6%",
+  "CPU核心数": 14,
+  "CPU逻辑核心数": 20
+}
+2025-04-29 17:00:41,158 - file_utils - INFO - [log_utils.py:68] - 日志系统初始化完成，级别: DEBUG, 日志文件: logs\file_utils_20250429.log
+2025-04-29 17:02:13,913 - file_utils - INFO - [log_utils.py:142] - 系统信息: {
+  "操作系统": "Windows-11-10.0.22631-SP0",
+  "Python版本": "3.12.4",
+  "工作目录": "F:\\AI编程\\批量创建文件工具_tk",
+  "用户名": "zhang",
+  "程序路径": "D:\\anaconda3\\python.exe",
+  "处理器": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "节点名称": "jingle",
+  "Python位数": "64bit",
+  "总内存": "32452MB",
+  "可用内存": "10540MB",
+  "内存使用率": "67.5%",
+  "磁盘信息": "获取失败: argument 1 (impossible<bad format char>)",
+  "CPU使用率": "2.3%",
+  "CPU核心数": 14,
+  "CPU逻辑核心数": 20
+}
+2025-04-29 17:02:13,914 - file_utils - INFO - [log_utils.py:68] - 日志系统初始化完成，级别: DEBUG, 日志文件: logs\file_utils_20250429.log
+2025-04-29 17:09:23,534 - file_utils - INFO - [log_utils.py:142] - 系统信息: {
+  "操作系统": "Windows-11-10.0.22631-SP0",
+  "Python版本": "3.12.4",
+  "工作目录": "F:\\AI编程\\批量创建文件工具_tk",
+  "用户名": "zhang",
+  "程序路径": "D:\\anaconda3\\python.exe",
+  "处理器": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "节点名称": "jingle",
+  "Python位数": "64bit",
+  "总内存": "32452MB",
+  "可用内存": "10694MB",
+  "内存使用率": "67.0%",
+  "磁盘信息": "获取失败: argument 1 (impossible<bad format char>)",
+  "CPU使用率": "7.4%",
+  "CPU核心数": 14,
+  "CPU逻辑核心数": 20
+}
+2025-04-29 17:09:23,538 - file_utils - INFO - [log_utils.py:68] - 日志系统初始化完成，级别: DEBUG, 日志文件: logs\file_utils_20250429.log
+2025-04-29 17:15:54,364 - file_utils - INFO - [log_utils.py:142] - 系统信息: {
+  "操作系统": "Windows-11-10.0.22631-SP0",
+  "Python版本": "3.12.4",
+  "工作目录": "F:\\AI编程\\批量创建文件工具_tk",
+  "用户名": "zhang",
+  "程序路径": "D:\\anaconda3\\python.exe",
+  "处理器": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "节点名称": "jingle",
+  "Python位数": "64bit",
+  "总内存": "32452MB",
+  "可用内存": "10637MB",
+  "内存使用率": "67.2%",
+  "磁盘信息": "获取失败: argument 1 (impossible<bad format char>)",
+  "CPU使用率": "2.8%",
+  "CPU核心数": 14,
+  "CPU逻辑核心数": 20
+}
+2025-04-29 17:15:54,365 - file_utils - INFO - [log_utils.py:68] - 日志系统初始化完成，级别: DEBUG, 日志文件: logs\file_utils_20250429.log
+2025-04-29 17:18:53,342 - file_utils - INFO - [log_utils.py:142] - 系统信息: {
+  "操作系统": "Windows-11-10.0.22631-SP0",
+  "Python版本": "3.12.4",
+  "工作目录": "F:\\AI编程\\批量创建文件工具_tk",
+  "用户名": "zhang",
+  "程序路径": "D:\\anaconda3\\python.exe",
+  "处理器": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "节点名称": "jingle",
+  "Python位数": "64bit",
+  "总内存": "32452MB",
+  "可用内存": "10531MB",
+  "内存使用率": "67.5%",
+  "磁盘信息": "获取失败: argument 1 (impossible<bad format char>)",
+  "CPU使用率": "8.8%",
+  "CPU核心数": 14,
+  "CPU逻辑核心数": 20
+}
+2025-04-29 17:18:53,343 - file_utils - INFO - [log_utils.py:68] - 日志系统初始化完成，级别: DEBUG, 日志文件: logs\file_utils_20250429.log
+2025-04-29 17:25:57,178 - file_utils - INFO - [log_utils.py:142] - 系统信息: {
+  "操作系统": "Windows-11-10.0.22631-SP0",
+  "Python版本": "3.12.4",
+  "工作目录": "F:\\AI编程\\批量创建文件工具_tk",
+  "用户名": "zhang",
+  "程序路径": "D:\\anaconda3\\python.exe",
+  "处理器": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "节点名称": "jingle",
+  "Python位数": "64bit",
+  "总内存": "32452MB",
+  "可用内存": "10456MB",
+  "内存使用率": "67.8%",
+  "磁盘信息": "获取失败: argument 1 (impossible<bad format char>)",
+  "CPU使用率": "7.7%",
+  "CPU核心数": 14,
+  "CPU逻辑核心数": 20
+}
+2025-04-29 17:25:57,179 - file_utils - INFO - [log_utils.py:68] - 日志系统初始化完成，级别: DEBUG, 日志文件: logs\file_utils_20250429.log

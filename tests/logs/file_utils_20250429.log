@@ -1,0 +1,47 @@
+2025-04-29 17:15:38,849 - file_utils - INFO - [log_utils.py:142] - 系统信息: {
+  "操作系统": "Windows-11-10.0.22631-SP0",
+  "Python版本": "3.12.4",
+  "工作目录": "F:\\AI编程\\批量创建文件工具_tk\\tests",
+  "用户名": "zhang",
+  "程序路径": "D:\\anaconda3\\python.exe",
+  "处理器": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "节点名称": "jingle",
+  "Python位数": "64bit",
+  "总内存": "32452MB",
+  "可用内存": "10661MB",
+  "内存使用率": "67.1%",
+  "磁盘信息": "获取失败: argument 1 (impossible<bad format char>)",
+  "CPU使用率": "1.6%",
+  "CPU核心数": 14,
+  "CPU逻辑核心数": 20
+}
+2025-04-29 17:15:38,851 - file_utils - INFO - [log_utils.py:68] - 日志系统初始化完成，级别: DEBUG, 日志文件: logs\file_utils_20250429.log
+2025-04-29 17:15:38,863 - file_utils - INFO - [file_utils.py:31] - 开始创建文件，共3个，目标目录：C:\Users\zhang\AppData\Local\Temp\tmpf_5pxzj3\target
+2025-04-29 17:15:38,864 - file_utils - INFO - [file_utils.py:86] - 创建文件成功：C:\Users\zhang\AppData\Local\Temp\tmpf_5pxzj3\target\file1.txt
+2025-04-29 17:15:38,865 - file_utils - INFO - [file_utils.py:86] - 创建文件成功：C:\Users\zhang\AppData\Local\Temp\tmpf_5pxzj3\target\file2.txt
+2025-04-29 17:15:38,865 - file_utils - INFO - [file_utils.py:86] - 创建文件成功：C:\Users\zhang\AppData\Local\Temp\tmpf_5pxzj3\target\file3.txt
+2025-04-29 17:15:38,866 - file_utils - INFO - [file_utils.py:100] - 创建完成。成功：3个，跳过：0个，失败：0个
+2025-04-29 17:15:38,868 - file_utils - INFO - [file_utils.py:31] - 开始创建文件，共3个，目标目录：C:\Users\zhang\AppData\Local\Temp\tmpawt30frz\target
+2025-04-29 17:15:38,869 - file_utils - INFO - [file_utils.py:86] - 创建文件成功：C:\Users\zhang\AppData\Local\Temp\tmpawt30frz\target\prefix_file1_1.txt
+2025-04-29 17:15:38,870 - file_utils - INFO - [file_utils.py:86] - 创建文件成功：C:\Users\zhang\AppData\Local\Temp\tmpawt30frz\target\prefix_file2_2.txt
+2025-04-29 17:15:38,871 - file_utils - INFO - [file_utils.py:86] - 创建文件成功：C:\Users\zhang\AppData\Local\Temp\tmpawt30frz\target\prefix_file3_3.txt
+2025-04-29 17:15:38,871 - file_utils - INFO - [file_utils.py:100] - 创建完成。成功：3个，跳过：0个，失败：0个
+2025-04-29 17:15:38,874 - file_utils - INFO - [file_utils.py:31] - 开始创建文件，共3个，目标目录：C:\Users\zhang\AppData\Local\Temp\tmpstzwu19t\target
+2025-04-29 17:15:38,876 - file_utils - INFO - [file_utils.py:86] - 创建文件成功：C:\Users\zhang\AppData\Local\Temp\tmpstzwu19t\target\file1.txt
+2025-04-29 17:15:38,876 - file_utils - INFO - [file_utils.py:86] - 创建文件成功：C:\Users\zhang\AppData\Local\Temp\tmpstzwu19t\target\file2.txt
+2025-04-29 17:15:38,877 - file_utils - INFO - [file_utils.py:86] - 创建文件成功：C:\Users\zhang\AppData\Local\Temp\tmpstzwu19t\target\file3.txt
+2025-04-29 17:15:38,877 - file_utils - INFO - [file_utils.py:100] - 创建完成。成功：3个，跳过：0个，失败：0个
+2025-04-29 17:15:38,880 - file_utils - INFO - [log_utils.py:160] - 开始操作: copy文件, 参数: {"文件数量": 5, "目标目录": "C:\\Users\\zhang\\AppData\\Local\\Temp\\tmpo0hwivi0\\copy", "冲突处理": "skip", "保留结构": false}
+2025-04-29 17:15:38,882 - file_utils - INFO - [log_utils.py:252] - 复制文件: C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\source\test_file_0.txt -> C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\copy\test_file_0.txt
+2025-04-29 17:15:38,883 - file_utils - INFO - [log_utils.py:252] - 复制文件: C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\source\test_file_1.txt -> C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\copy\test_file_1.txt
+2025-04-29 17:15:38,884 - file_utils - INFO - [log_utils.py:252] - 复制文件: C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\source\test_file_2.txt -> C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\copy\test_file_2.txt
+2025-04-29 17:15:38,885 - file_utils - INFO - [log_utils.py:252] - 复制文件: C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\source\test_file_3.txt -> C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\copy\test_file_3.txt
+2025-04-29 17:15:38,886 - file_utils - INFO - [log_utils.py:252] - 复制文件: C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\source\test_file_4.txt -> C:\Users\zhang\AppData\Local\Temp\tmpo0hwivi0\copy\test_file_4.txt
+2025-04-29 17:15:38,886 - file_utils - INFO - [log_utils.py:186] - 结束操作: 复制文件, {"状态": "成功", "成功数": 5, "失败数": 0}
+2025-04-29 17:15:38,892 - file_utils - INFO - [file_utils.py:283] - 开始重命名文件，共5个
+2025-04-29 17:15:38,893 - file_utils - INFO - [file_utils.py:400] - 重命名文件成功：C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\test_file_0.txt -> C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\renamed_file_0.txt
+2025-04-29 17:15:38,894 - file_utils - INFO - [file_utils.py:400] - 重命名文件成功：C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\test_file_1.txt -> C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\renamed_file_1.txt
+2025-04-29 17:15:38,895 - file_utils - INFO - [file_utils.py:400] - 重命名文件成功：C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\test_file_2.txt -> C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\renamed_file_2.txt
+2025-04-29 17:15:38,896 - file_utils - INFO - [file_utils.py:400] - 重命名文件成功：C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\test_file_3.txt -> C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\renamed_file_3.txt
+2025-04-29 17:15:38,897 - file_utils - INFO - [file_utils.py:400] - 重命名文件成功：C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\test_file_4.txt -> C:\Users\zhang\AppData\Local\Temp\tmpbltkfx8s\target\renamed_file_4.txt
+2025-04-29 17:15:38,897 - file_utils - INFO - [file_utils.py:414] - 重命名完成。成功：5个，跳过：0个，失败：0个
