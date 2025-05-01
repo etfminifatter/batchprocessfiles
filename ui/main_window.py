@@ -33,8 +33,8 @@ class MainWindow:
         
     def setup_ui(self):
         """设置用户界面"""
-        # 设置主框架
-        self.main_frame = ttk.Frame(self.root)
+        # 设置主框架，应用清晰的背景色
+        self.main_frame = ttk.Frame(self.root, style="MainContent.TFrame")
         self.main_frame.pack(fill=tk.BOTH, expand=True)
         
         # 设置UI结构，调整初始化顺序
@@ -45,6 +45,9 @@ class MainWindow:
         
         # 验证UI组件是否正确创建
         self.validate_ui_components()
+        
+        # 强制更新UI，确保变更生效
+        self.root.update_idletasks()
         
         self.logger.info("用户界面设置完成")
         
@@ -172,28 +175,55 @@ class MainWindow:
     
     def setup_content_area(self):
         """设置主内容区"""
-        # 创建主内容框架
-        self.content_frame = ttk.Frame(self.main_frame)
+        # 创建主内容框架，使用带有明显背景色的样式
+        self.content_frame = ttk.Frame(self.main_frame, style="MainContent.TFrame")
         self.content_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(10, 0))  # 顶部和侧面有内边距，底部无内边距
         
-        # 创建一个框架来容纳所有标签页内容
-        self.tab_contents = ttk.Frame(self.content_frame)
-        self.tab_contents.pack(fill=tk.BOTH, expand=True)
+        # 创建一个框架来容纳所有标签页内容，使用明确的样式
+        self.tab_contents = ttk.Frame(self.content_frame, style="TabContent.TFrame")
+        self.tab_contents.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # 创建各个标签页，但初始不显示
-        self.tabs = [
-            CreateFilesTab(self.tab_contents),
-            CreateDirsTab(self.tab_contents),
-            CreateSheetsTab(self.tab_contents),
-            RenameTab(self.tab_contents),
-            MoveCopyTab(self.tab_contents)
-        ]
+        self.tabs = []
+        try:
+            self.tabs = [
+                CreateFilesTab(self.tab_contents),
+                CreateDirsTab(self.tab_contents),
+                CreateSheetsTab(self.tab_contents),
+                RenameTab(self.tab_contents),
+                MoveCopyTab(self.tab_contents)
+            ]
+            
+            # 初始设置所有标签页为隐藏
+            for tab in self.tabs:
+                tab.pack_forget()
+                # 为每个标签页添加内边距和边框
+                tab.configure(padding=10)
+            
+            self.logger.info(f"成功创建 {len(self.tabs)} 个标签页")
+        except Exception as e:
+            self.logger.error(f"创建标签页失败: {str(e)}")
+            self.logger.error(f"异常详情: {e}")
+            import traceback
+            self.logger.error(traceback.format_exc())
         
         # 设置底部按钮区域，独立放在main_frame中，在状态栏之上
         self.setup_bottom_buttons()
         
-        # 显示第一个标签页
-        self.switch_tab(0)
+        # 显示第一个标签页，确保它被正确加载
+        if self.tabs and len(self.tabs) > 0:
+            # 确保显示第一个标签页
+            self.current_tab_index = 0
+            self.tabs[0].pack(fill=tk.BOTH, expand=True)
+            # 更新状态栏
+            tab_names = ["创建文件", "创建目录", "创建工作表", "重命名", "移动/复制"]
+            self.status_var.set(f"当前: {tab_names[0]}")
+            # 标记选中的按钮
+            self.mark_selected_button()
+            
+            self.logger.info("成功加载第一个标签页")
+        else:
+            self.logger.error("没有可用的标签页，界面可能显示为空白")
         
         self.logger.info("主内容区设置完成")
     
@@ -215,6 +245,9 @@ class MainWindow:
         # 显示新选择的标签页
         self.tabs[index].pack(fill=tk.BOTH, expand=True)
         
+        # 添加一个边框来增强视觉区分
+        self.tabs[index].configure(padding=10, borderwidth=1, relief=tk.GROOVE)
+        
         # 更新当前标签页索引
         self.current_tab_index = index
         
@@ -232,8 +265,27 @@ class MainWindow:
         for i, btn in enumerate(self.nav_buttons):
             if i == self.current_tab_index:
                 btn.configure(style="TabSelected.TButton")
+                # 通过样式增加选中指示
+                btn.state(["selected"])  # 添加selected状态
+                
+                # 可以考虑为按钮添加简单的边框效果
+                try:
+                    # 获取按钮在导航栏中的位置
+                    btn_x = btn.winfo_x()
+                    btn_y = btn.winfo_y()
+                    btn_width = btn.winfo_width()
+                    btn_height = btn.winfo_height()
+                    
+                    # 记录当前按钮位置，用于后续处理
+                    btn.winfo_toplevel().update()  # 确保UI布局已更新
+                    
+                    # 记录选中按钮的日志信息
+                    self.logger.debug(f"选中按钮 {i}: 位置({btn_x},{btn_y})，大小({btn_width}x{btn_height})")
+                except Exception as e:
+                    self.logger.error(f"获取按钮位置失败: {str(e)}")
             else:
                 btn.configure(style="Tab.TButton")
+                btn.state(["!selected"])  # 移除selected状态
         
     def setup_bottom_buttons(self):
         """设置底部按钮区域"""
@@ -441,3 +493,25 @@ class MainWindow:
         作者：示例开发者
         """
         messagebox.showinfo("关于", about_info) 
+    
+    def update_tab_highlight(self):
+        """更新标签页高亮线的位置"""
+        if hasattr(self, 'nav_buttons') and self.nav_buttons and self.current_tab_index < len(self.nav_buttons):
+            # 获取当前选中的按钮
+            btn = self.nav_buttons[self.current_tab_index]
+            
+            # 更新高亮线位置
+            if hasattr(self, 'tab_highlight') and self.tab_highlight and self.tab_highlight.winfo_exists():
+                try:
+                    # 计算按钮位置
+                    btn_x = btn.winfo_x()
+                    btn_y = btn.winfo_y()
+                    btn_height = btn.winfo_height()
+                    
+                    # 更新左侧高亮线位置
+                    self.tab_highlight.place(x=btn_x, y=btn_y+2, height=btn_height-4)
+                    
+                    # 强制更新UI
+                    self.root.update_idletasks()
+                except Exception as e:
+                    self.logger.error(f"更新高亮线位置失败: {str(e)}")

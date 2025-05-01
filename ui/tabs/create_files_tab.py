@@ -9,8 +9,26 @@ class CreateFilesTab(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.logger = logging.getLogger("create_files_tab")
+        self.logger.info("初始化创建文件标签页")
+        
+        # 设置自身的背景色和边框
+        self.configure(style="TabContent.TFrame")
+        
         self.setup_ui()
         self.setup_drag_drop()
+        
+        # 添加一些默认内容，避免界面显示为空白
+        self.text_input.insert("1.0", "# 请在此输入文件名称(每行一个)\nfile1\nfile2\nfile3")
+        self.text_input.configure(background="#FFFFFF", font=('Arial', 10))
+        
+        # 设置默认目标路径
+        default_path = os.path.join(os.path.expanduser("~"), "Desktop")
+        self.target_path.set(default_path)
+        
+        # 设置内容模板示例
+        self.content_template.insert("1.0", "这是一个示例文件\n文件名: ${NAME}\n序号: ${ISEQ}")
+        
+        self.logger.info("创建文件标签页初始化完成")
         
     def setup_ui(self):
         """设置用户界面"""
