@@ -180,7 +180,7 @@ def create_file_with_type(file_path, content, file_type):
             f.write(content)
 
 def create_dirs(dir_names, parent_dir, structure=None, naming_rule=None, 
-               start_value=1, step=1, digits=3):
+               start_value=1, step=1, digits=3, enable_hierarchy=False, indent_spaces=4):
     """
     批量创建目录
     
@@ -192,6 +192,8 @@ def create_dirs(dir_names, parent_dir, structure=None, naming_rule=None,
     - start_value: 序号起始值
     - step: 序号步长
     - digits: 序号位数
+    - enable_hierarchy: 是否启用层级结构
+    - indent_spaces: 缩进空格数
     
     返回元组 (成功标志, 消息)
     """
@@ -215,44 +217,130 @@ def create_dirs(dir_names, parent_dir, structure=None, naming_rule=None,
     skipped_count = 0
     error_dirs = []
     
-    for i, name in enumerate(dir_names):
-        if not name.strip():
-            logger.warning(f"跳过空目录名，索引：{i+1}")
-            continue
+    # 处理层级结构
+    if enable_hierarchy:
+        logger.info("启用层级结构处理，缩进空格数：" + str(indent_spaces))
+        # 构建层级关系
+        dir_tree = []
+        current_path = parent_dir
+        parent_at_level = {0: parent_dir}  # 记录每个层级的父目录路径
         
-        seq = start_value + i * step
-        seq_str = str(seq).zfill(digits)
-        
-        try:
-            # 处理命名规则
-            if naming_rule:
-                dirname = apply_naming_rule(naming_rule, name, seq)
-            else:
-                dirname = name
+        for i, name in enumerate(dir_names):
+            # 计算当前行的缩进层级
+            original_name = name
+            indent_count = 0
+            while name.startswith(' '):
+                name = name[1:]
+                indent_count += 1
             
-            dir_path = os.path.join(parent_dir, dirname)
+            # 计算层级
+            level = indent_count // indent_spaces if indent_spaces > 0 else 0
             
-            # 检查目录是否已存在
-            if os.path.exists(dir_path):
-                logger.warning(f"目录已存在，跳过：{dir_path}")
-                skipped_count += 1
+            # 去除前导空格的目录名
+            clean_name = name.strip()
+            if not clean_name:
+                logger.warning(f"跳过空目录名，索引：{i+1}")
                 continue
             
-            # 创建主目录
-            os.makedirs(dir_path)
+            seq = start_value + i * step
+            seq_str = str(seq).zfill(digits)
             
-            # 创建子目录结构（如果有）
-            if structure:
-                for subdir in structure:
-                    os.makedirs(os.path.join(dir_path, subdir), exist_ok=True)
+            try:
+                # 处理命名规则
+                if naming_rule:
+                    dirname = apply_naming_rule(naming_rule, clean_name, seq)
+                else:
+                    dirname = clean_name
+                
+                # 确定父目录路径
+                if level == 0:
+                    # 顶层目录，父目录是parent_dir
+                    parent_path = parent_dir
+                elif level in parent_at_level:
+                    # 使用该层级的父目录
+                    parent_path = parent_at_level[level]
+                else:
+                    # 层级不连续，使用最近的上级层级作为父目录
+                    found = False
+                    for l in range(level-1, -1, -1):
+                        if l in parent_at_level:
+                            parent_path = parent_at_level[l]
+                            found = True
+                            logger.debug(f"找到不连续层级 {level} 的父目录: {parent_path} (层级 {l})")
+                            break
+                    
+                    if not found:
+                        parent_path = parent_dir
+                        logger.warning(f"未找到层级 {level} 的父目录，使用根目录: {parent_dir}")
+                
+                # 创建完整路径
+                dir_path = os.path.join(parent_path, dirname)
+                
+                # 检查目录是否已存在
+                if os.path.exists(dir_path):
+                    logger.warning(f"目录已存在，跳过：{dir_path}")
+                    skipped_count += 1
+                else:
+                    # 创建目录
+                    os.makedirs(dir_path, exist_ok=True)
+                    logger.info(f"创建目录成功：{dir_path}（层级：{level}）")
+                    created_count += 1
+                
+                # 记录当前目录为下一层级的父目录
+                parent_at_level[level+1] = dir_path
+                
+                # 创建子目录结构（如果有）
+                if structure:
+                    for subdir in structure:
+                        sub_path = os.path.join(dir_path, subdir)
+                        if not os.path.exists(sub_path):
+                            os.makedirs(sub_path, exist_ok=True)
+                            logger.info(f"创建子目录成功：{sub_path}")
+                
+            except Exception as e:
+                error_msg = f"处理目录 {original_name} 时出错：{str(e)}"
+                logger.error(error_msg)
+                error_dirs.append(original_name)
+    else:
+        # 不处理层级结构，直接创建目录
+        for i, name in enumerate(dir_names):
+            if not name.strip():
+                logger.warning(f"跳过空目录名，索引：{i+1}")
+                continue
             
-            logger.info(f"创建目录成功：{dir_path}")
-            created_count += 1
+            seq = start_value + i * step
+            seq_str = str(seq).zfill(digits)
             
-        except Exception as e:
-            error_msg = f"处理目录 {name} 时出错：{str(e)}"
-            logger.error(error_msg)
-            error_dirs.append(name)
+            try:
+                # 处理命名规则
+                if naming_rule:
+                    dirname = apply_naming_rule(naming_rule, name, seq)
+                else:
+                    dirname = name
+                
+                dir_path = os.path.join(parent_dir, dirname)
+                
+                # 检查目录是否已存在
+                if os.path.exists(dir_path):
+                    logger.warning(f"目录已存在，跳过：{dir_path}")
+                    skipped_count += 1
+                    continue
+                
+                # 创建主目录
+                os.makedirs(dir_path)
+                
+                # 创建子目录结构（如果有）
+                if structure:
+                    for subdir in structure:
+                        os.makedirs(os.path.join(dir_path, subdir), exist_ok=True)
+                
+                logger.info(f"创建目录成功：{dir_path}")
+                created_count += 1
+                
+            except Exception as e:
+                error_msg = f"处理目录 {name} 时出错：{str(e)}"
+                logger.error(error_msg)
+                error_dirs.append(name)
     
     result_msg = f"创建完成。成功：{created_count}个，跳过：{skipped_count}个，失败：{len(error_dirs)}个"
     if error_dirs:

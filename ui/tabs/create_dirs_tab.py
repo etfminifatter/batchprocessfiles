@@ -48,7 +48,8 @@ class CreateDirsTab(ttk.Frame):
         self.setup_input_area(left_pane)         # 左侧：输入区域
         self.setup_naming_rules(right_pane)      # 右上：命名规则
         self.setup_output_settings(right_pane)   # 右下：输出设置
-        self.setup_hierarchy_settings(right_pane) # 右中：层级结构设置
+        # 临时注释掉层级结构设置
+        # self.setup_hierarchy_settings(right_pane) # 右中：层级结构设置
         
         # 预览区域
         preview_frame = ttk.LabelFrame(main_frame, text="预览")
@@ -58,7 +59,11 @@ class CreateDirsTab(ttk.Frame):
         # 初始化界面状态
         self.toggle_input_method()
         self.toggle_naming_rule()
-        self.toggle_hierarchy()
+        # 临时注释掉层级结构切换
+        # self.toggle_hierarchy()
+        
+        # 禁用层级结构功能
+        self.enable_hierarchy = tk.BooleanVar(value=False)
     
     def setup_input_area(self, parent):
         """设置输入区域"""
@@ -217,21 +222,6 @@ class CreateDirsTab(ttk.Frame):
         browse_btn = ttk.Button(path_frame, text="浏览", command=self.browse_target_path, style="Auxiliary.TButton")
         browse_btn.pack(side=tk.LEFT, padx=(5, 0))
     
-    def setup_hierarchy_settings(self, parent):
-        """设置层级结构设置区域"""
-        hierarchy_frame = ttk.LabelFrame(parent, text="层级结构设置")
-        hierarchy_frame.pack(fill=tk.X, padx=0, pady=5)
-        
-        self.enable_hierarchy = tk.BooleanVar(value=False)
-        ttk.Checkbutton(hierarchy_frame, text="启用层级结构", variable=self.enable_hierarchy, 
-                       command=self.toggle_hierarchy).pack(anchor=tk.W, padx=10, pady=5)
-        
-        self.indent_frame = ttk.Frame(hierarchy_frame)
-        ttk.Label(self.indent_frame, text="缩进空格数:").pack(side=tk.LEFT, padx=10)
-        self.indent_spaces = ttk.Entry(self.indent_frame, width=5)
-        self.indent_spaces.pack(side=tk.LEFT, padx=5)
-        self.indent_spaces.insert(0, "4")
-    
     def setup_preview_area(self, parent):
         """设置预览区域"""
         # 预览表格
@@ -277,13 +267,6 @@ class CreateDirsTab(ttk.Frame):
             self.custom_rule_frame.pack_forget()
         else:
             self.custom_rule_frame.pack(fill=tk.X, padx=5, pady=5)
-    
-    def toggle_hierarchy(self):
-        """切换层级结构"""
-        if self.enable_hierarchy.get():
-            self.indent_frame.pack(fill=tk.X, padx=5, pady=5)
-        else:
-            self.indent_frame.pack_forget()
     
     def paste_from_clipboard(self):
         """从剪贴板粘贴"""
@@ -367,10 +350,13 @@ class CreateDirsTab(ttk.Frame):
                 messagebox.showerror("错误", "起始值、步长和位数必须是整数")
                 return
             
+            # 禁用层级结构设置
+            enable_hierarchy = False
+            
             # 获取日期信息
             now = datetime.now()
             
-            # 生成预览
+            # 普通预览，不处理层级
             for i, name in enumerate(dir_names):
                 seq = start_value + i * step
                 seq_str = str(seq).zfill(digits)
@@ -445,23 +431,35 @@ class CreateDirsTab(ttk.Frame):
                 messagebox.showerror("错误", "起始值、步长和位数必须是整数")
                 return
             
-            # 获取层级结构设置
-            structure = None
-            if self.enable_hierarchy.get():
-                # TODO: 实现层级结构处理
-                self.logger.debug("层级结构处理功能尚未实现")
-                pass
+            # 禁用层级结构
+            enable_hierarchy = False
+            indent_spaces = 4  # 默认值
             
             # 调用create_dirs函数创建目录
             self.logger.info(f"开始创建目录，共{len(dir_names)}个，目标路径: {target_path}")
+            
+            # 记录详细参数
+            params = {
+                "目录数量": len(dir_names),
+                "目标路径": target_path,
+                "启用层级": False,
+                "命名规则": naming_rule if naming_rule else "直接命名",
+                "起始序号": start_value,
+                "序号步长": step,
+                "序号位数": digits
+            }
+            self.logger.info(f"创建目录参数: {params}")
+            
             success, message = create_dirs(
                 dir_names=dir_names,
                 parent_dir=target_path,
-                structure=structure,
+                structure=None,
                 naming_rule=naming_rule,
                 start_value=start_value,
                 step=step,
-                digits=digits
+                digits=digits,
+                enable_hierarchy=False,
+                indent_spaces=4
             )
             
             if success:
@@ -501,7 +499,7 @@ class CreateDirsTab(ttk.Frame):
                     except UnicodeDecodeError:
                         continue
                     except Exception as e:
-                        print(f"使用{encoding}编码读取文件失败: {str(e)}")
+                        self.logger.error(f"使用{encoding}编码读取文件失败: {str(e)}")
                 
                 if not preview_text:
                     preview_text = "无法预览文件内容：未能以支持的编码方式读取文件"
@@ -517,7 +515,7 @@ class CreateDirsTab(ttk.Frame):
                     except UnicodeDecodeError:
                         continue
                     except Exception as e:
-                        print(f"使用{encoding}编码读取CSV文件失败: {str(e)}")
+                        self.logger.error(f"使用{encoding}编码读取CSV文件失败: {str(e)}")
                 
                 if not preview_text:
                     preview_text = "无法预览文件内容：未能以支持的编码方式读取CSV文件"
@@ -540,6 +538,7 @@ class CreateDirsTab(ttk.Frame):
                     wb.close()
                 except Exception as e:
                     preview_text = f"无法预览Excel文件: {str(e)}"
+                    self.logger.error(f"预览XLSX文件失败: {str(e)}")
             
             elif ext == '.xls':
                 try:
@@ -556,15 +555,17 @@ class CreateDirsTab(ttk.Frame):
                     preview_text = '\n'.join(preview_rows)
                 except Exception as e:
                     preview_text = f"无法预览Excel文件: {str(e)}"
+                    self.logger.error(f"预览XLS文件失败: {str(e)}")
             
             # 更新预览文本
             self.file_preview.config(state="normal")
             self.file_preview.delete(1.0, tk.END)
             self.file_preview.insert(1.0, preview_text)
             self.file_preview.config(state="disabled")
+            self.logger.info(f"已预览文件内容: {file_path}")
             
         except Exception as e:
-            print(f"预览文件内容失败: {str(e)}")
+            self.logger.error(f"预览文件内容失败: {str(e)}")
             self.file_preview.config(state="normal")
             self.file_preview.delete(1.0, tk.END)
             self.file_preview.insert(1.0, f"无法预览文件内容: {str(e)}")
