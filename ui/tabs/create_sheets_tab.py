@@ -54,25 +54,34 @@ class CreateSheetsTab(ttk.Frame):
         format_frame = ttk.LabelFrame(self, text="表格格式设置")
         format_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # 标题行设置
-        self.enable_title = tk.BooleanVar(value=False)
-        ttk.Checkbutton(format_frame, text="创建标题行", variable=self.enable_title, 
-                       command=self.toggle_title).pack(anchor=tk.W, padx=5, pady=5)
+        # 标题行设置区域
+        title_section = ttk.Frame(format_frame)
+        title_section.pack(fill=tk.X, padx=5, pady=5, anchor=tk.W)
         
-        self.title_frame = ttk.Frame(format_frame)
+        self.enable_title = tk.BooleanVar(value=False)
+        ttk.Checkbutton(title_section, text="创建标题行", variable=self.enable_title, 
+                       command=self.toggle_title).pack(anchor=tk.W)
+        
+        # 标题行输入框直接放在标题行设置区域下
+        self.title_frame = ttk.Frame(title_section)
         ttk.Label(self.title_frame, text="标题文本:").pack(side=tk.LEFT, padx=5)
-        self.title_text = ttk.Entry(self.title_frame)
+        self.title_text = ttk.Entry(self.title_frame, width=40)
         self.title_text.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
         
-        # 表头行设置
-        self.enable_header = tk.BooleanVar(value=False)
-        ttk.Checkbutton(format_frame, text="创建表头行", variable=self.enable_header, 
-                       command=self.toggle_header).pack(anchor=tk.W, padx=5, pady=5)
+        # 表头行设置区域
+        header_section = ttk.Frame(format_frame)
+        header_section.pack(fill=tk.X, padx=5, pady=5, anchor=tk.W)
         
-        self.header_frame = ttk.Frame(format_frame)
-        ttk.Label(self.header_frame, text="表头名称:").pack(side=tk.LEFT, padx=5)
-        self.header_text = ttk.Entry(self.header_frame)
-        self.header_text.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+        self.enable_header = tk.BooleanVar(value=False)
+        ttk.Checkbutton(header_section, text="创建表头行", variable=self.enable_header, 
+                       command=self.toggle_header).pack(anchor=tk.W)
+        
+        # 表头行输入框直接放在表头行设置区域下，改为多行文本框
+        self.header_frame = ttk.Frame(header_section)
+        ttk.Label(self.header_frame, text="表头名称:").pack(side=tk.TOP, anchor=tk.W, padx=5, pady=2)
+        ttk.Label(self.header_frame, text="(每行一个表头，按回车分隔)", font=("", 8)).pack(side=tk.TOP, anchor=tk.W, padx=5)
+        self.header_text = tk.Text(self.header_frame, height=4, width=40)
+        self.header_text.pack(side=tk.TOP, fill=tk.X, expand=True, padx=5, pady=2)
         
         # 输出设置区域
         output_frame = ttk.LabelFrame(self, text="输出设置")
@@ -303,14 +312,13 @@ class CreateSheetsTab(ttk.Frame):
                 content_list.append(f"标题: {self.title_text.get().strip()}")
                 self.logger.info(f"预览标题行: {self.title_text.get().strip()}")
                 
-            if self.enable_header.get() and self.header_text.get().strip():
-                header_text = self.header_text.get().strip()
-                if ',' in header_text:
-                    headers = [h.strip() for h in header_text.split(',')]
+            if self.enable_header.get():
+                # 从多行文本框中获取表头
+                header_lines = self.header_text.get("1.0", tk.END).strip().split('\n')
+                if header_lines and any(line.strip() for line in header_lines):
+                    headers = [line.strip() for line in header_lines if line.strip()]
                     content_list.append(f"表头: {', '.join(headers)}")
-                else:
-                    content_list.append(f"表头: {header_text}")
-                self.logger.info(f"预览表头行: {self.header_text.get().strip()}")
+                    self.logger.info(f"预览表头行: {', '.join(headers)}")
             
             content_str = ", ".join(content_list) if content_list else "无附加内容"
             
@@ -376,14 +384,12 @@ class CreateSheetsTab(ttk.Frame):
                 self.logger.info(f"设置标题行: {title_row}")
             
             header_row = None
-            if self.enable_header.get() and self.header_text.get().strip():
-                # 如果表头包含逗号，则拆分为多列
-                header_text = self.header_text.get().strip()
-                if ',' in header_text:
-                    header_row = [h.strip() for h in header_text.split(',')]
-                else:
-                    header_row = [header_text]
-                self.logger.info(f"设置表头行: {header_row}")
+            if self.enable_header.get():
+                # 从多行文本框中获取表头
+                header_lines = self.header_text.get("1.0", tk.END).strip().split('\n')
+                if header_lines and any(line.strip() for line in header_lines):
+                    header_row = [line.strip() for line in header_lines if line.strip()]
+                    self.logger.info(f"设置表头行: {header_row}")
             
             # 调用create_sheets函数创建工作表
             from utils.excel_utils import create_sheets
