@@ -164,8 +164,8 @@ class RenameTab(ttk.Frame):
                 self.preview_tree.column(col, width=40, stretch=False)
             elif col in ("原文件名", "新文件名"):
                 self.preview_tree.column(col, width=150)
-            else:
-                self.preview_tree.column(col, width=300)
+            else:  # 路径列
+                self.preview_tree.column(col, width=350, stretch=True)
         
         # 添加滚动条
         y_scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.preview_tree.yview)

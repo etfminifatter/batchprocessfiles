@@ -199,8 +199,10 @@ class MoveCopyTab(ttk.Frame):
                 self.preview_tree.column(col, width=40, stretch=False)
             elif col == "文件名":
                 self.preview_tree.column(col, width=120)
-            else:
-                self.preview_tree.column(col, width=250)
+            elif col == "源路径":
+                self.preview_tree.column(col, width=300)
+            else:  # 目标路径
+                self.preview_tree.column(col, width=300, stretch=True)
         
         # 添加滚动条
         y_scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.preview_tree.yview)

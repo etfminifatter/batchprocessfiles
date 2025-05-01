@@ -117,9 +117,27 @@ class CreateDirsTab(ttk.Frame):
         
         for col in columns:
             self.preview_tree.heading(col, text=col)
-            self.preview_tree.column(col, width=100)
+            if col == "序号":
+                self.preview_tree.column(col, width=50, stretch=False)
+            elif col == "原始输入":
+                self.preview_tree.column(col, width=150)
+            elif col == "生成目录名":
+                self.preview_tree.column(col, width=180)
+            else:  # 完整路径
+                self.preview_tree.column(col, width=350, stretch=True)
         
-        self.preview_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # 添加水平滚动条
+        x_scrollbar = ttk.Scrollbar(preview_frame, orient="horizontal", command=self.preview_tree.xview)
+        self.preview_tree.configure(xscrollcommand=x_scrollbar.set)
+        
+        # 垂直滚动条
+        y_scrollbar = ttk.Scrollbar(preview_frame, orient="vertical", command=self.preview_tree.yview)
+        self.preview_tree.configure(yscrollcommand=y_scrollbar.set)
+        
+        # 布局
+        self.preview_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0), pady=5)
+        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y, pady=5, padx=(0, 5))
+        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X, padx=5)
         
         # 初始化界面状态
         self.toggle_input_method()

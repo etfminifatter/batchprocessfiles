@@ -527,10 +527,214 @@ AttributeError: 'MainWindow' object has no attribute 'status_var'
                    btn.configure(text=tab_text.replace(" (当前选中)", ""))
    ```
 
-## 4. [其他Bug标题]
+## 4. Excel文件数字格式显示问题
 
 ### 异常情况
 
+**问题表现**：从xls格式的Excel文件导入数据时，数字类型的值在程序中显示时会带有小数点和零（例如"777.0"、"888.0"、"999.0"），而不是预期的整数形式。这导致创建的文件名也包含了不必要的小数部分。
+
+**相关日志**：
+```
+创建文件成功：C:/Users/zhang/Desktop/test/222\7777.0.txt
+创建文件成功：C:/Users/zhang/Desktop/test/222\888.0.txt
+创建文件成功：C:/Users/zhang/Desktop/test/222\999.0.txt
+```
+
+**问题原因**：
+1. **数据类型转换不完整**：xlrd库读取Excel数字单元格时，将数值解析为浮点数（float），在转换为字符串时保留了".0"小数部分
+2. **缺少数字格式处理**：程序未对从Excel文件读取的数值进行适当的格式化处理
+3. **文件预览和导入处理逻辑不一致**：文件预览和实际导入时对数据的处理方式不同
+
 ### 修改方案
 
-### 改进建议 
+1. **添加数值格式化辅助方法**：创建一个辅助方法，专门处理数字类型的转换，移除不必要的小数点
+   ```python
+   def _format_cell_value(self, value):
+       """格式化单元格值，处理数字格式
+       
+       将浮点数转换为整数(如果可能)，移除.0后缀
+       """
+       if isinstance(value, float) and value.is_integer():
+           return str(int(value))
+       return str(value)
+   ```
+
+2. **修改Excel文件预览代码**：使用刚添加的格式化方法处理预览内容
+   ```python
+   # 读取前5行
+   preview_rows = []
+   for i, row in enumerate(ws.iter_rows(max_row=5)):
+       cells = [cell.value if cell.value is not None else '' for cell in row]
+       preview_rows.append(','.join(self._format_cell_value(c) for c in cells))
+       if i >= 4:  # 最多5行
+           break
+   ```
+
+3. **修改xls文件处理代码**：采用相同的格式化方法处理单元格值
+   ```python
+   # 读取前5行
+   preview_rows = []
+   for i in range(min(5, ws.nrows)):
+       cells = [ws.cell_value(i, j) for j in range(ws.ncols)]
+       preview_rows.append(','.join(self._format_cell_value(c) for c in cells))
+   ```
+
+4. **更新文件导入数据处理**：在`get_input_names`方法中也应用相同的格式化处理
+   ```python
+   # xlsx文件处理
+   cell_value = row[column_idx].value
+   if cell_value is not None:
+       formatted_value = self._format_cell_value(cell_value)
+       if formatted_value.strip():
+           names.append(formatted_value)
+           
+   # xls文件处理
+   cell_value = ws.cell_value(i, column_idx)
+   if cell_value is not None:
+       formatted_value = self._format_cell_value(cell_value)
+       if formatted_value.strip():
+           names.append(formatted_value)
+   ```
+
+### 改进建议
+
+1. **实现通用的数据格式化处理模块**：将数据格式化逻辑抽取到单独的工具模块中
+   ```python
+   # utils/data_format_utils.py
+   class DataFormatter:
+       @staticmethod
+       def format_numeric_value(value):
+           """格式化数值，移除整数浮点数的小数部分"""
+           if isinstance(value, float) and value.is_integer():
+               return str(int(value))
+           return str(value)
+       
+       @staticmethod
+       def format_date_value(value, format='%Y-%m-%d'):
+           """格式化日期值"""
+           # 日期格式化逻辑
+           # ...
+           
+       @staticmethod
+       def detect_and_format(value):
+           """自动检测值类型并应用适当的格式化"""
+           if isinstance(value, (int, float)):
+               return DataFormatter.format_numeric_value(value)
+           # 其他类型处理
+           return str(value)
+   ```
+
+2. **添加通用的Excel数据处理类**：简化Excel文件的读取和处理
+   ```python
+   # utils/excel_reader.py
+   class ExcelReader:
+       def __init__(self, file_path):
+           self.file_path = file_path
+           self.ext = os.path.splitext(file_path)[1].lower()
+           
+       def read_preview(self, max_rows=5):
+           """读取前几行作为预览"""
+           if self.ext == '.xlsx':
+               return self._read_xlsx_preview(max_rows)
+           elif self.ext == '.xls':
+               return self._read_xls_preview(max_rows)
+           else:
+               raise ValueError(f"不支持的文件类型: {self.ext}")
+               
+       def read_column(self, column_idx, has_header=False):
+           """读取指定列的所有数据"""
+           # 实现读取逻辑
+           # ...
+           
+       def _read_xlsx_preview(self, max_rows):
+           # xlsx预览实现
+           # ...
+           
+       def _read_xls_preview(self, max_rows):
+           # xls预览实现
+           # ...
+   ```
+
+3. **使用pandas库增强Excel处理能力**：考虑引入pandas库，提升Excel文件处理的能力和灵活性
+   ```python
+   def read_excel_with_pandas(self, file_path, column_idx, has_header=False):
+       """使用pandas读取Excel文件指定列数据"""
+       try:
+           import pandas as pd
+           # 确定header参数
+           header = 0 if has_header else None
+           
+           # 读取Excel文件
+           df = pd.read_excel(file_path, header=header)
+           
+           # 调整列索引（pandas使用0基索引）
+           if has_header and header is not None:
+               # 如果有列名，可以通过列名访问
+               col_name = df.columns[column_idx]
+               values = df[col_name].tolist()
+           else:
+               # 没有列名就通过位置索引访问
+               values = df.iloc[:, column_idx].tolist()
+               
+           # 格式化处理（pandas会自动处理数字格式）
+           return [str(val) for val in values if pd.notna(val)]
+       except ImportError:
+           self.logger.warning("未安装pandas库，无法使用增强的Excel处理能力")
+           # 回退到基本处理方法
+           return self.get_excel_column_basic(file_path, column_idx, has_header)
+   ```
+
+4. **增加输入预览反馈**：在文件导入时添加实时预览，让用户可以看到处理后的实际数据格式
+   ```python
+   def on_excel_type_change(self, *args):
+       """Excel类型变更时更新预览"""
+       file_path = self.file_path.get()
+       if file_path and os.path.exists(file_path):
+           self.show_file_preview(file_path)
+           
+   def on_column_index_change(self, *args):
+       """列索引变更时更新预览"""
+       file_path = self.file_path.get()
+       if file_path and os.path.exists(file_path):
+           # 更新特定列的预览
+           self.preview_column_data()
+   ```
+
+5. **添加文件格式自动检测**：根据文件内容而非扩展名自动判断文件类型
+   ```python
+   def detect_file_type(self, file_path):
+       """根据文件内容自动检测文件类型"""
+       try:
+           # 尝试作为Excel文件打开
+           import xlrd
+           try:
+               xlrd.open_workbook(file_path)
+               return '.xls'
+           except Exception:
+               pass
+               
+           # 尝试作为XLSX文件打开
+           try:
+               import openpyxl
+               openpyxl.load_workbook(file_path)
+               return '.xlsx'
+           except Exception:
+               pass
+           
+           # 检查是否为CSV文件
+           try:
+               with open(file_path, 'r') as f:
+                   sample = f.read(1024)
+                   if ',' in sample or ';' in sample:
+                       # 简单启发式判断
+                       return '.csv'
+           except Exception:
+               pass
+               
+           # 默认作为文本文件处理
+           return '.txt'
+       except Exception as e:
+           self.logger.error(f"文件类型检测失败: {str(e)}")
+           # 回退到扩展名检测
+           return os.path.splitext(file_path)[1].lower()
+   ``` 

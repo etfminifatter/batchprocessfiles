@@ -96,6 +96,30 @@ class CreateFilesTab(ttk.Frame):
         ttk.Entry(file_select_frame, textvariable=self.file_path, width=30).pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Button(file_select_frame, text="浏览", command=self.browse_file, style="Auxiliary.TButton").pack(side=tk.LEFT, padx=(5, 0))
         
+        # 文件类型选择
+        file_type_frame = ttk.Frame(self.file_input_frame)
+        file_type_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(file_type_frame, text="文件类型:").pack(side=tk.LEFT)
+        self.file_import_type = tk.StringVar(value=".txt")
+        file_type_combo = ttk.Combobox(file_type_frame, textvariable=self.file_import_type, width=15)
+        file_type_combo['values'] = ('.txt', '.csv', '.xlsx', '.xls')
+        file_type_combo.pack(side=tk.LEFT, padx=(5, 0))
+        
+        # 表头和列选择选项
+        options_frame = ttk.Frame(self.file_input_frame)
+        options_frame.pack(fill=tk.X, pady=5)
+        
+        self.file_has_header = tk.BooleanVar(value=False)
+        ttk.Checkbutton(options_frame, text="包含表头", variable=self.file_has_header).pack(side=tk.LEFT)
+        
+        column_frame = ttk.Frame(options_frame)
+        column_frame.pack(side=tk.LEFT, padx=(20, 0))
+        
+        ttk.Label(column_frame, text="列索引:").pack(side=tk.LEFT)
+        self.column_index = tk.StringVar(value="1")
+        ttk.Entry(column_frame, textvariable=self.column_index, width=5).pack(side=tk.LEFT, padx=(5, 0))
+        
         # 文件预览区域
         ttk.Label(self.file_input_frame, text="文件内容预览:").pack(anchor=tk.W, pady=(5, 0))
         
@@ -211,7 +235,7 @@ class CreateFilesTab(ttk.Frame):
     def setup_preview_area(self, parent):
         """设置预览区域"""
         # 预览表格
-        columns = ("序号", "文件名", "路径")
+        columns = ("序号", "原始名称", "文件名", "完整路径")
         self.preview_tree = ttk.Treeview(parent, columns=columns, show="headings", selectmode="browse")
         
         # 设置列标题
@@ -219,6 +243,8 @@ class CreateFilesTab(ttk.Frame):
             self.preview_tree.heading(col, text=col)
             if col == "序号":
                 self.preview_tree.column(col, width=50, stretch=False)
+            elif col == "原始名称":
+                self.preview_tree.column(col, width=150)
             elif col == "文件名":
                 self.preview_tree.column(col, width=200)
             else:
@@ -294,6 +320,12 @@ class CreateFilesTab(ttk.Frame):
                 self.read_file_content(file_path)
             else:
                 self.file_path.set(file_path)
+                # 根据文件扩展名自动设置导入类型
+                ext = os.path.splitext(file_path)[1].lower()
+                if ext in ['.txt', '.csv', '.xlsx', '.xls']:
+                    self.file_import_type.set(ext)
+                # 预览文件内容
+                self.show_file_preview(file_path)
         except Exception as e:
             self.logger.error(f"处理拖放失败: {str(e)}")
             messagebox.showerror("错误", f"处理拖放失败: {str(e)}")
@@ -365,6 +397,8 @@ class CreateFilesTab(ttk.Frame):
                 self.input_method.set("file")
                 self.toggle_input_method()
                 self.file_path.set(file_path)
+                self.file_import_type.set(ext)
+                self.show_file_preview(file_path)
                 
             else:
                 self.logger.warning(f"不支持的文件类型: {ext}")
@@ -386,7 +420,109 @@ class CreateFilesTab(ttk.Frame):
         filename = filedialog.askopenfilename(filetypes=filetypes)
         if filename:
             self.file_path.set(filename)
+            # 根据文件扩展名自动设置导入类型
+            ext = os.path.splitext(filename)[1].lower()
+            if ext in ['.txt', '.csv', '.xlsx', '.xls']:
+                self.file_import_type.set(ext)
+            # 尝试预览文件内容
+            self.show_file_preview(filename)
             self.logger.info(f"已选择文件: {filename}")
+    
+    def _format_cell_value(self, value):
+        """格式化单元格值，处理数字格式
+        
+        将浮点数转换为整数(如果可能)，移除.0后缀
+        """
+        if isinstance(value, float) and value.is_integer():
+            return str(int(value))
+        return str(value)
+    
+    def show_file_preview(self, file_path):
+        """显示文件内容预览"""
+        try:
+            self.logger.info(f"预览文件内容: {file_path}")
+            ext = os.path.splitext(file_path)[1].lower()
+            preview_text = ""
+            
+            if ext == '.txt':
+                # 尝试不同编码读取前10行
+                for encoding in ['utf-8', 'gbk', 'gb2312', 'latin-1']:
+                    try:
+                        with open(file_path, 'r', encoding=encoding) as f:
+                            lines = [next(f, '') for _ in range(10)]
+                        preview_text = ''.join(lines)
+                        break
+                    except UnicodeDecodeError:
+                        continue
+                    except Exception as e:
+                        self.logger.error(f"使用{encoding}编码读取文件失败: {str(e)}")
+                
+                if not preview_text:
+                    preview_text = "无法预览文件内容：未能以支持的编码方式读取文件"
+            
+            elif ext == '.csv':
+                # 尝试不同编码读取前5行
+                for encoding in ['utf-8', 'gbk', 'gb2312', 'latin-1']:
+                    try:
+                        with open(file_path, 'r', encoding=encoding) as f:
+                            lines = [next(f, '') for _ in range(5)]
+                        preview_text = ''.join(lines)
+                        break
+                    except UnicodeDecodeError:
+                        continue
+                    except Exception as e:
+                        self.logger.error(f"使用{encoding}编码读取CSV文件失败: {str(e)}")
+                
+                if not preview_text:
+                    preview_text = "无法预览文件内容：未能以支持的编码方式读取CSV文件"
+            
+            elif ext == '.xlsx':
+                try:
+                    import openpyxl
+                    wb = openpyxl.load_workbook(file_path, read_only=True)
+                    ws = wb.active
+                    
+                    # 读取前5行
+                    preview_rows = []
+                    for i, row in enumerate(ws.iter_rows(max_row=5)):
+                        cells = [cell.value if cell.value is not None else '' for cell in row]
+                        preview_rows.append(','.join(self._format_cell_value(c) for c in cells))
+                        if i >= 4:  # 最多5行
+                            break
+                    
+                    preview_text = '\n'.join(preview_rows)
+                    wb.close()
+                except Exception as e:
+                    preview_text = f"无法预览Excel文件: {str(e)}"
+            
+            elif ext == '.xls':
+                try:
+                    import xlrd
+                    wb = xlrd.open_workbook(file_path)
+                    ws = wb.sheet_by_index(0)  # 获取第一个工作表
+                    
+                    # 读取前5行
+                    preview_rows = []
+                    for i in range(min(5, ws.nrows)):
+                        cells = [ws.cell_value(i, j) for j in range(ws.ncols)]
+                        preview_rows.append(','.join(self._format_cell_value(c) for c in cells))
+                    
+                    preview_text = '\n'.join(preview_rows)
+                except Exception as e:
+                    preview_text = f"无法预览Excel文件: {str(e)}"
+            
+            # 更新预览文本
+            self.file_preview.config(state="normal")
+            self.file_preview.delete(1.0, tk.END)
+            self.file_preview.insert(1.0, preview_text)
+            self.file_preview.config(state="disabled")
+            
+        except Exception as e:
+            self.logger.error(f"预览文件内容失败: {str(e)}")
+            self.file_preview.config(state="normal")
+            self.file_preview.delete(1.0, tk.END)
+            self.file_preview.insert(1.0, f"无法预览文件内容: {str(e)}")
+            self.file_preview.config(state="disabled")
     
     def browse_target_path(self):
         """浏览目标路径"""
@@ -413,45 +549,105 @@ class CreateFilesTab(ttk.Frame):
                 messagebox.showerror("错误", "请选择一个文件")
                 return []
             
-            # 根据文件类型读取
-            ext = os.path.splitext(file_path)[1].lower()
+            # 获取文件导入类型
+            import_type = self.file_import_type.get()
             names = []
             
             try:
-                column_idx = int(self.column_index.get()) - 1
+                # 从UI获取列索引和表头设置
+                column_idx = int(self.column_index.get()) - 1  # 转换为0基索引
                 has_header = self.file_has_header.get()
                 
-                if ext == '.txt':
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        lines = f.readlines()
-                        if has_header and lines:
-                            lines = lines[1:]
-                        names = [line.strip() for line in lines if line.strip()]
+                if import_type == '.txt':
+                    # 尝试不同编码读取文件
+                    for encoding in ['utf-8', 'gbk', 'gb2312', 'latin-1']:
+                        try:
+                            with open(file_path, 'r', encoding=encoding) as f:
+                                lines = f.readlines()
+                                if has_header and lines:
+                                    lines = lines[1:]  # 跳过表头
+                                names = [line.strip() for line in lines if line.strip()]
+                            # 成功读取，跳出循环
+                            self.logger.info(f"使用{encoding}编码成功读取TXT文件")
+                            break
+                        except UnicodeDecodeError:
+                            continue
+                        except Exception as e:
+                            self.logger.error(f"使用{encoding}编码读取TXT文件失败: {str(e)}")
+                    
+                    if not names:
+                        self.logger.error("无法以任何支持的编码方式读取TXT文件")
+                        messagebox.showerror("错误", "无法读取文件，请检查文件编码")
+                        return []
                 
-                elif ext == '.csv':
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        reader = csv.reader(f)
-                        if has_header:
-                            next(reader, None)  # 跳过表头
-                        for row in reader:
+                elif import_type == '.csv':
+                    # 尝试不同编码读取CSV
+                    for encoding in ['utf-8', 'gbk', 'gb2312', 'latin-1']:
+                        try:
+                            with open(file_path, 'r', encoding=encoding) as f:
+                                reader = csv.reader(f)
+                                rows = list(reader)  # 将所有行读入内存
+                                
+                                if has_header and rows:
+                                    rows = rows[1:]  # 跳过表头
+                                
+                                for row in rows:
+                                    if row and len(row) > column_idx:
+                                        name = row[column_idx].strip()
+                                        if name:
+                                            names.append(name)
+                            # 成功读取，跳出循环
+                            self.logger.info(f"使用{encoding}编码成功读取CSV文件")
+                            break
+                        except UnicodeDecodeError:
+                            continue
+                        except Exception as e:
+                            self.logger.error(f"使用{encoding}编码读取CSV文件失败: {str(e)}")
+                    
+                    if not names:
+                        self.logger.error("无法以任何支持的编码方式读取CSV文件")
+                        messagebox.showerror("错误", "无法读取CSV文件，请检查文件编码")
+                        return []
+                
+                elif import_type == '.xlsx':
+                    try:
+                        import openpyxl
+                        wb = openpyxl.load_workbook(file_path, read_only=True)
+                        ws = wb.active
+                        start_row = 2 if has_header else 1  # 如果有表头，从第2行开始
+                        for row in ws.iter_rows(min_row=start_row):
                             if len(row) > column_idx:
-                                name = row[column_idx].strip()
-                                if name:
-                                    names.append(name)
+                                cell_value = row[column_idx].value
+                                if cell_value is not None:
+                                    formatted_value = self._format_cell_value(cell_value)
+                                    if formatted_value.strip():
+                                        names.append(formatted_value)
+                        wb.close()
+                    except ImportError:
+                        self.logger.error("未安装openpyxl库，无法读取Excel文件")
+                        messagebox.showerror("错误", "读取Excel文件需要安装openpyxl库")
+                        return []
                 
-                elif ext in ['.xlsx', '.xls']:
-                    import openpyxl
-                    wb = openpyxl.load_workbook(file_path, read_only=True)
-                    ws = wb.active
-                    start_row = 2 if has_header else 1
-                    for row in ws.iter_rows(min_row=start_row):
-                        if len(row) > column_idx:
-                            cell_value = row[column_idx].value
-                            if cell_value:
-                                names.append(str(cell_value).strip())
-                    wb.close()
+                elif import_type == '.xls':
+                    try:
+                        import xlrd
+                        wb = xlrd.open_workbook(file_path)
+                        ws = wb.sheet_by_index(0)  # 获取第一个工作表
+                        
+                        start_row = 1 if has_header else 0  # 如果有表头，从第2行开始
+                        for i in range(start_row, ws.nrows):
+                            if ws.ncols > column_idx:
+                                cell_value = ws.cell_value(i, column_idx)
+                                if cell_value is not None:
+                                    formatted_value = self._format_cell_value(cell_value)
+                                    if formatted_value.strip():
+                                        names.append(formatted_value)
+                    except ImportError:
+                        self.logger.error("未安装xlrd库，无法读取旧版Excel文件")
+                        messagebox.showerror("错误", "读取.xls格式Excel文件需要安装xlrd库")
+                        return []
                 
-                self.logger.info(f"从文件{ext}中读取了{len(names)}个名称")
+                self.logger.info(f"从文件{import_type}中读取了{len(names)}个名称")
                 return names
                 
             except Exception as e:
