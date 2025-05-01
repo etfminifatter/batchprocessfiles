@@ -233,5 +233,75 @@ class CreateDirsTab(ttk.Frame):
     
     def execute(self):
         """执行创建操作"""
-        # TODO: 实现目录创建逻辑
-        messagebox.showinfo("提示", "目录创建完成") 
+        try:
+            # 获取输入内容
+            if self.input_method.get() == "direct":
+                content = self.text_input.get(1.0, tk.END).strip().split('\n')
+                dir_names = [name.strip() for name in content if name.strip()]
+            else:
+                # 从文件读取内容
+                file_path = self.file_path.get()
+                if not file_path or not os.path.exists(file_path):
+                    messagebox.showerror("错误", "请选择有效的文件")
+                    return
+                
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.readlines()
+                        dir_names = [name.strip() for name in content if name.strip()]
+                except Exception as e:
+                    messagebox.showerror("错误", f"读取文件失败: {str(e)}")
+                    return
+            
+            # 检查是否有目录名
+            if not dir_names:
+                messagebox.showerror("错误", "没有输入任何目录名")
+                return
+            
+            # 获取目标路径
+            target_path = self.target_path.get()
+            if not target_path:
+                messagebox.showerror("错误", "请选择目标路径")
+                return
+            
+            # 获取命名规则
+            naming_rule = None
+            if self.naming_rule.get() == "custom":
+                naming_rule = self.rule_pattern.get()
+                if not naming_rule:
+                    messagebox.showerror("错误", "请输入命名规则")
+                    return
+            
+            # 获取其他参数
+            try:
+                start_value = int(self.start_value.get())
+                step = int(self.step.get())
+                digits = int(self.digits.get())
+            except ValueError:
+                messagebox.showerror("错误", "起始值、步长和位数必须是整数")
+                return
+            
+            # 获取层级结构设置
+            structure = None
+            if self.enable_hierarchy.get():
+                # TODO: 实现层级结构处理
+                pass
+            
+            # 调用create_dirs函数创建目录
+            success, message = create_dirs(
+                dir_names=dir_names,
+                parent_dir=target_path,
+                structure=structure,
+                naming_rule=naming_rule,
+                start_value=start_value,
+                step=step,
+                digits=digits
+            )
+            
+            if success:
+                messagebox.showinfo("成功", message)
+            else:
+                messagebox.showerror("错误", message)
+                
+        except Exception as e:
+            messagebox.showerror("错误", f"创建目录时发生错误: {str(e)}") 
