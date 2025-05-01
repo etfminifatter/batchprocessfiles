@@ -1,12 +1,19 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from utils.excel_utils import create_sheets
+from utils.excel_utils import create_sheets, read_sheet_names
 import os
+import logging
 
 class CreateSheetsTab(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+        # 初始化日志记录器
+        self.logger = logging.getLogger("create_sheets_tab")
+        self.logger.info("初始化创建工作表标签页")
+        # 保存对root窗口的引用，用于访问剪贴板
+        self.root = self.winfo_toplevel()
         self.setup_ui()
+        self.logger.info("创建工作表标签页初始化完成")
         
     def setup_ui(self):
         # 输入区域
@@ -137,13 +144,104 @@ class CreateSheetsTab(ttk.Frame):
     
     def browse_excel(self):
         """浏览Excel文件"""
+        self.logger.info("浏览Excel文件")
         filetypes = [
-            ("Excel文件", "*.xlsx"),
+            ("Excel文件", "*.xlsx *.xls"),
             ("所有文件", "*.*")
         ]
         filename = filedialog.askopenfilename(filetypes=filetypes)
         if filename:
             self.excel_path.set(filename)
+            self.logger.info(f"已选择Excel文件: {filename}")
+            # 添加一个预览按钮，直接读取Excel文件的工作表信息
+            ttk.Button(self.excel_input_frame, text="读取工作表", style="Auxiliary.TButton", 
+                      command=self.read_excel_sheets).pack(side=tk.LEFT, padx=5)
+    
+    def read_excel_sheets(self):
+        """读取Excel文件的工作表信息"""
+        self.logger.info("读取Excel文件的工作表信息")
+        # 检查文件是否存在
+        excel_path = self.excel_path.get()
+        if not excel_path:
+            messagebox.showerror("错误", "请先选择Excel文件")
+            return
+        
+        # 调用excel_utils中的函数读取工作表
+        success, result = read_sheet_names(excel_path)
+        
+        if success:
+            # 将工作表名称显示在界面上
+            sheet_list_window = tk.Toplevel(self)
+            sheet_list_window.title("工作表列表")
+            sheet_list_window.geometry("300x400")
+            
+            # 显示工作表列表
+            sheet_list_frame = ttk.Frame(sheet_list_window, padding=10)
+            sheet_list_frame.pack(fill=tk.BOTH, expand=True)
+            
+            ttk.Label(sheet_list_frame, text=f"在 {os.path.basename(excel_path)} 中找到 {len(result)} 个工作表:").pack(anchor=tk.W, pady=(0, 10))
+            
+            # 创建列表框和滚动条
+            list_frame = ttk.Frame(sheet_list_frame)
+            list_frame.pack(fill=tk.BOTH, expand=True)
+            
+            scrollbar = ttk.Scrollbar(list_frame)
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            
+            sheet_listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set)
+            sheet_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            
+            scrollbar.config(command=sheet_listbox.yview)
+            
+            # 添加工作表名称
+            for sheet in result:
+                sheet_listbox.insert(tk.END, sheet)
+            
+            # 添加操作按钮
+            button_frame = ttk.Frame(sheet_list_window)
+            button_frame.pack(fill=tk.X, pady=10)
+            
+            ttk.Button(button_frame, text="使用选中项", 
+                     command=lambda: self.use_selected_sheets(sheet_listbox.curselection(), result, sheet_list_window)).pack(side=tk.LEFT, padx=5)
+            ttk.Button(button_frame, text="使用全部", 
+                     command=lambda: self.use_all_sheets(result, sheet_list_window)).pack(side=tk.LEFT, padx=5)
+            ttk.Button(button_frame, text="取消", 
+                     command=sheet_list_window.destroy).pack(side=tk.RIGHT, padx=5)
+        else:
+            messagebox.showerror("错误", result)
+    
+    def use_selected_sheets(self, selection, sheet_list, window):
+        """使用选中的工作表名称"""
+        self.logger.info("使用选中的工作表名称")
+        selected_sheets = [sheet_list[i] for i in selection]
+        if not selected_sheets:
+            messagebox.showwarning("警告", "请至少选择一个工作表")
+            return
+        
+        # 清空现有输入
+        self.text_input.delete(1.0, tk.END)
+        # 插入选中的工作表名称
+        self.text_input.insert(1.0, "\n".join(selected_sheets))
+        # 切换到直接输入模式
+        self.input_method.set("direct")
+        self.toggle_input_method()
+        # 关闭窗口
+        window.destroy()
+        self.logger.info(f"已导入 {len(selected_sheets)} 个工作表名称")
+    
+    def use_all_sheets(self, sheet_list, window):
+        """使用所有工作表名称"""
+        self.logger.info("使用所有工作表名称")
+        # 清空现有输入
+        self.text_input.delete(1.0, tk.END)
+        # 插入所有工作表名称
+        self.text_input.insert(1.0, "\n".join(sheet_list))
+        # 切换到直接输入模式
+        self.input_method.set("direct")
+        self.toggle_input_method()
+        # 关闭窗口
+        window.destroy()
+        self.logger.info(f"已导入 {len(sheet_list)} 个工作表名称")
     
     def browse_output(self):
         """浏览输出文件"""
@@ -157,38 +255,148 @@ class CreateSheetsTab(ttk.Frame):
     
     def preview(self):
         """预览生成结果"""
-        # 清空预览表格
-        for item in self.preview_tree.get_children():
-            self.preview_tree.delete(item)
-        
-        # 获取输入内容
-        if self.input_method.get() == "direct":
-            content = self.text_input.get(1.0, tk.END).strip().split('\n')
-        else:
-            # TODO: 从Excel文件读取内容
-            content = []
-        
-        # 获取输出文件路径
-        output_path = self.output_path.get()
-        if not output_path:
-            messagebox.showerror("错误", "请选择输出文件")
-            return
-        
-        # 生成预览
-        for i, name in enumerate(content):
-            if not name.strip():
-                continue
+        self.logger.info("开始预览生成结果")
+        try:
+            # 清空预览表格
+            for item in self.preview_tree.get_children():
+                self.preview_tree.delete(item)
+            
+            # 获取输入内容
+            if self.input_method.get() == "direct":
+                content = self.text_input.get(1.0, tk.END).strip().split('\n')
+                sheet_names = [name.strip() for name in content if name.strip()]
+                self.logger.info(f"从直接输入获取了 {len(sheet_names)} 个工作表名称")
+            else:
+                # 从Excel文件读取内容
+                if not self.excel_path.get():
+                    self.logger.warning("未选择Excel文件")
+                    messagebox.showerror("错误", "请选择Excel文件")
+                    return
+                
+                # 读取Excel文件中的工作表名称
+                from utils.excel_utils import read_sheet_names
+                success, result = read_sheet_names(self.excel_path.get())
+                
+                if not success:
+                    self.logger.error(f"读取Excel文件失败: {result}")
+                    messagebox.showerror("错误", f"读取Excel文件失败: {result}")
+                    return
+                
+                sheet_names = result
+                self.logger.info(f"从Excel文件获取了 {len(sheet_names)} 个工作表名称")
+            
+            if not sheet_names:
+                self.logger.warning("没有有效的工作表名称")
+                messagebox.showerror("错误", "没有有效的工作表名称")
+                return
+            
+            # 获取输出文件路径
+            output_path = self.output_path.get()
+            if not output_path:
+                self.logger.warning("未选择输出文件")
+                messagebox.showerror("错误", "请选择输出文件")
+                return
             
             # 获取包含内容
             content_list = []
-            if self.enable_title.get():
-                content_list.append(f"标题: {self.title_text.get()}")
-            if self.enable_header.get():
-                content_list.append(f"表头: {self.header_text.get()}")
+            if self.enable_title.get() and self.title_text.get().strip():
+                content_list.append(f"标题: {self.title_text.get().strip()}")
+                self.logger.info(f"预览标题行: {self.title_text.get().strip()}")
+                
+            if self.enable_header.get() and self.header_text.get().strip():
+                header_text = self.header_text.get().strip()
+                if ',' in header_text:
+                    headers = [h.strip() for h in header_text.split(',')]
+                    content_list.append(f"表头: {', '.join(headers)}")
+                else:
+                    content_list.append(f"表头: {header_text}")
+                self.logger.info(f"预览表头行: {self.header_text.get().strip()}")
             
-            self.preview_tree.insert("", tk.END, values=(i+1, name, ", ".join(content_list)))
+            content_str = ", ".join(content_list) if content_list else "无附加内容"
+            
+            # 添加预览项
+            for i, name in enumerate(sheet_names):
+                self.preview_tree.insert("", tk.END, values=(i+1, name, content_str))
+            
+            self.logger.info(f"预览完成，显示了 {len(sheet_names)} 个工作表")
+            
+            # 更新输出文件显示
+            if os.path.exists(output_path):
+                # 如果文件已存在，显示警告
+                messagebox.showwarning("警告", f"文件 {output_path} 已存在，执行时将更新该文件")
+        
+        except Exception as e:
+            self.logger.error(f"预览失败: {str(e)}")
+            messagebox.showerror("错误", f"预览失败: {str(e)}")
     
     def execute(self):
         """执行创建操作"""
-        # TODO: 实现工作表创建逻辑
-        messagebox.showinfo("提示", "工作表创建完成") 
+        try:
+            self.logger.info("开始执行创建工作表")
+            # 获取输入内容
+            if self.input_method.get() == "direct":
+                content = self.text_input.get(1.0, tk.END).strip().split('\n')
+                sheet_names = [name.strip() for name in content if name.strip()]
+                self.logger.info(f"从直接输入获取了 {len(sheet_names)} 个工作表名称")
+            else:
+                # 从Excel文件读取内容
+                if not self.excel_path.get():
+                    self.logger.warning("未选择Excel文件")
+                    messagebox.showerror("错误", "请选择Excel文件")
+                    return
+                
+                # 读取Excel文件中的工作表名称
+                from utils.excel_utils import read_sheet_names
+                success, result = read_sheet_names(self.excel_path.get())
+                
+                if not success:
+                    self.logger.error(f"读取Excel文件失败: {result}")
+                    messagebox.showerror("错误", f"读取Excel文件失败: {result}")
+                    return
+                
+                sheet_names = result
+                self.logger.info(f"从Excel文件获取了 {len(sheet_names)} 个工作表名称")
+            
+            if not sheet_names:
+                self.logger.warning("没有有效的工作表名称")
+                messagebox.showerror("错误", "没有有效的工作表名称")
+                return
+            
+            # 获取输出文件路径
+            output_path = self.output_path.get()
+            if not output_path:
+                self.logger.warning("未选择输出文件")
+                messagebox.showerror("错误", "请选择输出文件")
+                return
+            
+            # 准备标题和表头
+            title_row = None
+            if self.enable_title.get() and self.title_text.get().strip():
+                title_row = self.title_text.get().strip()
+                self.logger.info(f"设置标题行: {title_row}")
+            
+            header_row = None
+            if self.enable_header.get() and self.header_text.get().strip():
+                # 如果表头包含逗号，则拆分为多列
+                header_text = self.header_text.get().strip()
+                if ',' in header_text:
+                    header_row = [h.strip() for h in header_text.split(',')]
+                else:
+                    header_row = [header_text]
+                self.logger.info(f"设置表头行: {header_row}")
+            
+            # 调用create_sheets函数创建工作表
+            from utils.excel_utils import create_sheets
+            self.logger.info(f"调用create_sheets函数，输出文件: {output_path}")
+            success, message = create_sheets(output_path, sheet_names, title_row, header_row)
+            
+            if success:
+                self.logger.info(f"创建工作表成功: {message}")
+                messagebox.showinfo("成功", message)
+            else:
+                self.logger.error(f"创建工作表失败: {message}")
+                messagebox.showerror("错误", message)
+            
+        except Exception as e:
+            self.logger.error(f"创建工作表时发生异常: {str(e)}")
+            messagebox.showerror("错误", f"创建工作表时发生错误: {str(e)}") 
