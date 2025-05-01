@@ -737,4 +737,115 @@ AttributeError: 'MainWindow' object has no attribute 'status_var'
            self.logger.error(f"文件类型检测失败: {str(e)}")
            # 回退到扩展名检测
            return os.path.splitext(file_path)[1].lower()
+   ```
+
+## 5. 文件导入表头处理逻辑问题
+
+### 异常情况
+
+**问题表现**：从文件导入功能中，"包含表头"复选框的行为与用户期望相反。当"包含表头"被选中时，预览结果不包含表头行（只显示非表头数据），而当"包含表头"未被选中时，预览结果却包含了表头行数据。这种行为与选项名称的直观理解不符。
+
+**相关日志**：
+```
+[2025-05-01 16:46:06,409][INFO][create_files_tab][create_files_tab.py:650] 从文件.xls中读取了4个名称
+[2025-05-01 16:46:16,770][INFO][create_files_tab][create_files_tab.py:650] 从文件.xls中读取了3个名称
+```
+
+**问题原因**：
+1. **UI标签与实际行为不一致**：当选中"包含表头"选项时，代码实际执行的是跳过表头行的操作，这与选项名称的直觉理解相反
+2. **逻辑处理正确但标签命名不当**：代码本身的逻辑是正确的（选中时跳过第一行），但UI标签"包含表头"使用户产生了错误的期望
+
+### 修改方案
+
+将"包含表头"选项更名为"跳过表头行"，使其与实际行为保持一致：
+
+```python
+# 修改前
+self.file_has_header = tk.BooleanVar(value=False)
+ttk.Checkbutton(options_frame, text="包含表头", variable=self.file_has_header).pack(side=tk.LEFT)
+
+# 修改后
+self.file_has_header = tk.BooleanVar(value=False)
+ttk.Checkbutton(options_frame, text="跳过表头行", variable=self.file_has_header).pack(side=tk.LEFT)
+```
+
+### 改进建议
+
+1. **使用更明确的变量命名**：将`file_has_header`变量改名为`skip_header_row`，使代码更具自解释性
+   ```python
+   # 改进示例
+   self.skip_header_row = tk.BooleanVar(value=False)
+   ttk.Checkbutton(options_frame, text="跳过表头行", variable=self.skip_header_row).pack(side=tk.LEFT)
+   
+   # 使用时更加直观
+   if self.skip_header_row.get() and rows:
+       rows = rows[1:]  # 跳过表头
+   ```
+
+2. **添加工具提示**：添加鼠标悬停提示，进一步解释该选项的作用
+   ```python
+   header_checkbox = ttk.Checkbutton(options_frame, text="跳过表头行", variable=self.file_has_header)
+   header_checkbox.pack(side=tk.LEFT)
+   
+   # 使用tooltip提供额外说明
+   from utils.tooltip import create_tooltip
+   create_tooltip(header_checkbox, "选中此项将忽略文件的第一行，通常用于跳过列标题行")
+   ```
+
+3. **优化UI布局**：使用更明确的分组和标签
+   ```python
+   # 创建带标题的子框架
+   import_options_frame = ttk.LabelFrame(self.file_input_frame, text="导入选项")
+   import_options_frame.pack(fill=tk.X, pady=5, padx=5)
+   
+   # 在子框架中添加选项
+   ttk.Checkbutton(import_options_frame, text="跳过表头行", 
+                  variable=self.file_has_header).pack(side=tk.LEFT, padx=5, pady=5)
+   
+   # 列选择选项
+   column_frame = ttk.Frame(import_options_frame)
+   column_frame.pack(side=tk.LEFT, padx=(20, 5), pady=5)
+   ```
+
+4. **添加预览效果**：在文件预览中突出显示将被选择的行
+   ```python
+   def update_file_preview_highlighting(self):
+       """更新文件预览中的行高亮显示"""
+       has_header = self.file_has_header.get()
+       
+       self.file_preview.tag_remove("header_row", "1.0", tk.END)
+       self.file_preview.tag_remove("selected_row", "1.0", tk.END)
+       
+       # 配置标签样式
+       self.file_preview.tag_configure("header_row", background="#FFD700", foreground="#000000")
+       self.file_preview.tag_configure("selected_row", background="#E6F3FF")
+       
+       # 获取每行的位置
+       line_count = int(self.file_preview.index('end-1c').split('.')[0])
+       
+       # 为表头行添加标记
+       if line_count > 0:
+           self.file_preview.tag_add("header_row", "1.0", "2.0")
+           
+           # 标记将被导入的行
+           start_row = 2 if has_header else 1
+           for i in range(start_row, line_count + 1):
+               self.file_preview.tag_add("selected_row", f"{i}.0", f"{i+1}.0")
+   ```
+
+5. **提供更灵活的表头处理选项**：比如添加"使用表头作为列名"选项
+   ```python
+   # 添加更多表头处理选项
+   header_frame = ttk.Frame(import_options_frame)
+   header_frame.pack(fill=tk.X, pady=2)
+   
+   self.skip_header = tk.BooleanVar(value=False)
+   ttk.Checkbutton(header_frame, text="跳过表头行", 
+                  variable=self.skip_header,
+                  command=self.update_preview).pack(side=tk.LEFT, padx=5)
+   
+   self.use_header_for_columns = tk.BooleanVar(value=False)
+   ttk.Checkbutton(header_frame, text="使用表头作为列名", 
+                  variable=self.use_header_for_columns,
+                  command=self.update_column_selection).pack(side=tk.LEFT, padx=5)
    ``` 

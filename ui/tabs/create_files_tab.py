@@ -111,7 +111,7 @@ class CreateFilesTab(ttk.Frame):
         options_frame.pack(fill=tk.X, pady=5)
         
         self.file_has_header = tk.BooleanVar(value=False)
-        ttk.Checkbutton(options_frame, text="包含表头", variable=self.file_has_header).pack(side=tk.LEFT)
+        ttk.Checkbutton(options_frame, text="跳过表头行", variable=self.file_has_header).pack(side=tk.LEFT)
         
         column_frame = ttk.Frame(options_frame)
         column_frame.pack(side=tk.LEFT, padx=(20, 0))
