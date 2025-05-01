@@ -216,4 +216,73 @@ def read_column_data(file_path, sheet_name, column_index, has_header=True):
     except Exception as e:
         log_exception(logger, e, "读取列数据")
         log_operation_end(logger, "读取列数据", "失败")
-        return False, f"读取列数据失败: {str(e)}" 
+        return False, f"读取列数据失败: {str(e)}"
+
+def read_column_headers(file_path, sheet_name):
+    """
+    从Excel文件的指定工作表读取所有列名
+    
+    Args:
+        file_path: Excel文件路径
+        sheet_name: 工作表名称
+    
+    Returns:
+        (success, result): 成功时result为列名列表，失败时result为错误信息
+    """
+    log_operation_start(logger, "读取列名", {
+        "file_path": file_path,
+        "sheet_name": sheet_name
+    })
+    
+    try:
+        # 检查文件是否存在
+        if not os.path.exists(file_path):
+            logger.error(f"文件不存在: {file_path}")
+            log_operation_end(logger, "读取列名", "失败 - 文件不存在")
+            return False, "文件不存在"
+        
+        # 验证文件类型
+        _, ext = os.path.splitext(file_path)
+        valid_extensions = ['.xlsx', '.xlsm', '.xltx', '.xltm']
+        
+        is_valid = ext.lower() in valid_extensions
+        log_validation_result(
+            logger, "Excel文件类型", ext, 
+            is_valid, None if is_valid else f"不支持的文件类型，仅支持: {', '.join(valid_extensions)}"
+        )
+        
+        if not is_valid:
+            log_operation_end(logger, "读取列名", "失败 - 不支持的文件类型")
+            return False, f"不支持的文件类型，仅支持: {', '.join(valid_extensions)}"
+        
+        # 打开工作簿
+        wb = openpyxl.load_workbook(file_path, read_only=True)
+        logger.info(f"打开工作簿: {file_path}")
+        
+        # 检查工作表是否存在
+        if sheet_name not in wb.sheetnames:
+            logger.error(f"工作表不存在: {sheet_name}")
+            log_operation_end(logger, "读取列名", "失败 - 工作表不存在")
+            return False, "工作表不存在"
+        
+        # 获取工作表
+        ws = wb[sheet_name]
+        logger.debug(f"获取工作表: {sheet_name}")
+        
+        # 读取第一行作为列名
+        headers = []
+        for cell in ws[1]:
+            if cell.value is not None:
+                headers.append(str(cell.value))
+        
+        # 记录列名数量
+        logger.info(f"从 {sheet_name} 工作表读取了 {len(headers)} 个列名")
+        logger.debug(f"列名列表: {headers}")
+        
+        log_operation_end(logger, "读取列名", "成功", len(headers))
+        return True, headers
+    
+    except Exception as e:
+        log_exception(logger, e, "读取列名")
+        log_operation_end(logger, "读取列名", "失败")
+        return False, f"读取列名失败: {str(e)}" 

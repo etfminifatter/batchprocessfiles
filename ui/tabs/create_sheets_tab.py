@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from utils.excel_utils import create_sheets, read_sheet_names
+from utils.excel_utils import create_sheets, read_sheet_names, read_column_headers, read_column_data
 import os
 import logging
 
@@ -43,12 +43,41 @@ class CreateSheetsTab(ttk.Frame):
         ttk.Button(button_frame, text="从剪贴板粘贴", style="Auxiliary.TButton", command=self.paste_from_clipboard).pack(side=tk.LEFT)
         ttk.Button(button_frame, text="清空", style="Auxiliary.TButton", command=self.clear_input).pack(side=tk.LEFT)
         
-        # Excel导入区域
+        # Excel导入区域 - 修改布局
         self.excel_input_frame = ttk.Frame(input_frame)
         
+        # 第一行：Excel文件选择
+        file_select_frame = ttk.Frame(self.excel_input_frame)
+        file_select_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        ttk.Label(file_select_frame, text="导入Excel:").pack(side=tk.LEFT, padx=(0, 5))
         self.excel_path = tk.StringVar()
-        ttk.Entry(self.excel_input_frame, textvariable=self.excel_path, state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        ttk.Button(self.excel_input_frame, text="浏览", style="Auxiliary.TButton", command=self.browse_excel).pack(side=tk.LEFT, padx=5)
+        ttk.Entry(file_select_frame, textvariable=self.excel_path, state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True)
+        ttk.Button(file_select_frame, text="浏览", style="Auxiliary.TButton", command=self.browse_excel).pack(side=tk.LEFT, padx=5)
+        
+        # 第二行：读取工作表按钮和工作表设置
+        sheet_settings_frame = ttk.Frame(self.excel_input_frame)
+        sheet_settings_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        self.read_sheets_button = ttk.Button(sheet_settings_frame, text="读取工作表", style="Auxiliary.TButton", 
+                                            command=self.read_excel_sheets)
+        self.read_sheets_button.pack(side=tk.LEFT, padx=(0, 10))
+        
+        # 工作表名称列选择区域
+        self.sheet_column_frame = ttk.Frame(sheet_settings_frame)
+        self.sheet_column_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        ttk.Label(self.sheet_column_frame, text="工作表名称列:").pack(side=tk.LEFT, padx=(0, 5))
+        self.column_var = tk.StringVar()
+        self.column_combo = ttk.Combobox(self.sheet_column_frame, textvariable=self.column_var, width=20, state='readonly')
+        self.column_combo.pack(side=tk.LEFT, padx=(0, 10))
+        self.column_combo.bind("<<ComboboxSelected>>", self.on_column_selected)
+        
+        # 包含表头勾选框
+        self.has_header_var = tk.BooleanVar(value=True)
+        self.header_checkbox = ttk.Checkbutton(sheet_settings_frame, text="跳过表头行", 
+                                             variable=self.has_header_var, command=self.preview_selected_column)
+        self.header_checkbox.pack(side=tk.LEFT)
         
         # 表格格式设置
         format_frame = ttk.LabelFrame(self, text="表格格式设置")
@@ -120,6 +149,11 @@ class CreateSheetsTab(ttk.Frame):
         if self.input_method.get() == "direct":
             self.direct_input_frame.pack(fill=tk.X, padx=5, pady=5)
             self.excel_input_frame.pack_forget()
+            
+            # 如果已经从Excel导入了数据，并且直接输入框为空，则显示导入的数据
+            if hasattr(self, 'excel_imported_data') and not self.text_input.get(1.0, tk.END).strip():
+                self.text_input.delete(1.0, tk.END)
+                self.text_input.insert(1.0, "\n".join(self.excel_imported_data))
         else:
             self.direct_input_frame.pack_forget()
             self.excel_input_frame.pack(fill=tk.X, padx=5, pady=5)
@@ -150,6 +184,7 @@ class CreateSheetsTab(ttk.Frame):
     def clear_input(self):
         """清空输入"""
         self.text_input.delete(1.0, tk.END)
+        # 不清除Excel导入的数据，这样切换后可以恢复
     
     def browse_excel(self):
         """浏览Excel文件"""
@@ -162,9 +197,9 @@ class CreateSheetsTab(ttk.Frame):
         if filename:
             self.excel_path.set(filename)
             self.logger.info(f"已选择Excel文件: {filename}")
-            # 添加一个预览按钮，直接读取Excel文件的工作表信息
-            ttk.Button(self.excel_input_frame, text="读取工作表", style="Auxiliary.TButton", 
-                      command=self.read_excel_sheets).pack(side=tk.LEFT, padx=5)
+            # 清空列选择下拉框
+            self.column_combo['values'] = []
+            self.column_var.set("")
     
     def read_excel_sheets(self):
         """读取Excel文件的工作表信息"""
@@ -179,9 +214,9 @@ class CreateSheetsTab(ttk.Frame):
         success, result = read_sheet_names(excel_path)
         
         if success:
-            # 将工作表名称显示在界面上
+            # 将工作表名称显示在界面上，允许选择一个工作表
             sheet_list_window = tk.Toplevel(self)
-            sheet_list_window.title("工作表列表")
+            sheet_list_window.title("选择一个工作表")
             sheet_list_window.geometry("300x400")
             
             # 显示工作表列表
@@ -189,6 +224,7 @@ class CreateSheetsTab(ttk.Frame):
             sheet_list_frame.pack(fill=tk.BOTH, expand=True)
             
             ttk.Label(sheet_list_frame, text=f"在 {os.path.basename(excel_path)} 中找到 {len(result)} 个工作表:").pack(anchor=tk.W, pady=(0, 10))
+            ttk.Label(sheet_list_frame, text="请选择一个工作表:").pack(anchor=tk.W, pady=(0, 5))
             
             # 创建列表框和滚动条
             list_frame = ttk.Frame(sheet_list_frame)
@@ -210,47 +246,97 @@ class CreateSheetsTab(ttk.Frame):
             button_frame = ttk.Frame(sheet_list_window)
             button_frame.pack(fill=tk.X, pady=10)
             
-            ttk.Button(button_frame, text="使用选中项", 
-                     command=lambda: self.use_selected_sheets(sheet_listbox.curselection(), result, sheet_list_window)).pack(side=tk.LEFT, padx=5)
-            ttk.Button(button_frame, text="使用全部", 
-                     command=lambda: self.use_all_sheets(result, sheet_list_window)).pack(side=tk.LEFT, padx=5)
+            ttk.Button(button_frame, text="选择", 
+                     command=lambda: self.select_sheet_and_show_columns(excel_path, sheet_listbox.curselection(), result, sheet_list_window)).pack(side=tk.LEFT, padx=5)
             ttk.Button(button_frame, text="取消", 
                      command=sheet_list_window.destroy).pack(side=tk.RIGHT, padx=5)
         else:
             messagebox.showerror("错误", result)
     
-    def use_selected_sheets(self, selection, sheet_list, window):
-        """使用选中的工作表名称"""
-        self.logger.info("使用选中的工作表名称")
-        selected_sheets = [sheet_list[i] for i in selection]
-        if not selected_sheets:
-            messagebox.showwarning("警告", "请至少选择一个工作表")
+    def select_sheet_and_show_columns(self, excel_path, selection, sheet_list, window):
+        """选择工作表并显示列名"""
+        if not selection:
+            messagebox.showwarning("警告", "请选择一个工作表")
             return
         
-        # 清空现有输入
-        self.text_input.delete(1.0, tk.END)
-        # 插入选中的工作表名称
-        self.text_input.insert(1.0, "\n".join(selected_sheets))
-        # 切换到直接输入模式
-        self.input_method.set("direct")
-        self.toggle_input_method()
-        # 关闭窗口
+        # 获取选中的工作表名称
+        self.selected_sheet = sheet_list[selection[0]]
+        self.logger.info(f"已选择工作表: {self.selected_sheet}")
+        
+        # 关闭工作表选择窗口
         window.destroy()
-        self.logger.info(f"已导入 {len(selected_sheets)} 个工作表名称")
+        
+        # 读取选中工作表的列名
+        success, headers = read_column_headers(excel_path, self.selected_sheet)
+        
+        if not success:
+            messagebox.showerror("错误", f"读取列名失败: {headers}")
+            return
+        
+        if not headers:
+            messagebox.showinfo("提示", "选中的工作表没有列名或者是空表")
+            return
+        
+        # 更新列选择下拉框
+        column_values = [f"{i+1}: {header}" for i, header in enumerate(headers)]
+        self.column_combo['values'] = column_values
+        self.column_var.set(column_values[0] if column_values else "")
+        
+        # 存储headers信息以供后续使用
+        self.headers = headers
+        
+        # 切换到Excel导入模式（确保显示Excel导入区域）
+        self.input_method.set("excel")
+        self.toggle_input_method()
+        
+        # 不要立即预览，让用户选择列并决定是否跳过表头
+        # self.preview_selected_column()
     
-    def use_all_sheets(self, sheet_list, window):
-        """使用所有工作表名称"""
-        self.logger.info("使用所有工作表名称")
-        # 清空现有输入
-        self.text_input.delete(1.0, tk.END)
-        # 插入所有工作表名称
-        self.text_input.insert(1.0, "\n".join(sheet_list))
-        # 切换到直接输入模式
-        self.input_method.set("direct")
-        self.toggle_input_method()
-        # 关闭窗口
-        window.destroy()
-        self.logger.info(f"已导入 {len(sheet_list)} 个工作表名称")
+    def on_column_selected(self, event):
+        """当用户选择列时触发预览"""
+        self.preview_selected_column()
+    
+    def preview_selected_column(self):
+        """预览当前选中列的数据"""
+        if not hasattr(self, 'selected_sheet') or not hasattr(self, 'headers'):
+            return
+        
+        # 获取选中的列信息
+        selected_column = self.column_var.get()
+        if not selected_column:
+            return
+        
+        # 提取列索引
+        try:
+            column_index = int(selected_column.split(":")[0])
+        except (ValueError, IndexError):
+            return
+        
+        excel_path = self.excel_path.get()
+        # 修正逻辑：勾选"跳过表头行"时has_header应为true
+        has_header = self.has_header_var.get()
+        
+        # 读取列数据
+        success, data = read_column_data(excel_path, self.selected_sheet, column_index, has_header)
+        
+        if not success:
+            messagebox.showerror("错误", f"读取列数据失败: {data}")
+            return
+        
+        # 保存导入的数据，以便在切换输入方式时使用
+        if data:
+            self.excel_imported_data = data
+            
+            # 如果当前是直接输入模式，则显示数据
+            if self.input_method.get() == "direct":
+                self.text_input.delete(1.0, tk.END)
+                self.text_input.insert(1.0, "\n".join(data))
+                
+            self.logger.info(f"已预览 {len(data)} 个工作表名称")
+        else:
+            if hasattr(self, 'excel_imported_data'):
+                del self.excel_imported_data
+            self.logger.info("没有可用数据")
     
     def browse_output(self):
         """浏览输出文件"""
@@ -277,22 +363,28 @@ class CreateSheetsTab(ttk.Frame):
                 self.logger.info(f"从直接输入获取了 {len(sheet_names)} 个工作表名称")
             else:
                 # 从Excel文件读取内容
-                if not self.excel_path.get():
-                    self.logger.warning("未选择Excel文件")
-                    messagebox.showerror("错误", "请选择Excel文件")
-                    return
-                
-                # 读取Excel文件中的工作表名称
-                from utils.excel_utils import read_sheet_names
-                success, result = read_sheet_names(self.excel_path.get())
-                
-                if not success:
-                    self.logger.error(f"读取Excel文件失败: {result}")
-                    messagebox.showerror("错误", f"读取Excel文件失败: {result}")
-                    return
-                
-                sheet_names = result
-                self.logger.info(f"从Excel文件获取了 {len(sheet_names)} 个工作表名称")
+                if hasattr(self, 'excel_imported_data') and self.excel_imported_data:
+                    # 使用已导入的数据
+                    sheet_names = self.excel_imported_data
+                    self.logger.info(f"使用已导入的Excel数据，包含 {len(sheet_names)} 个工作表名称")
+                else:
+                    # 未导入数据，检查Excel路径
+                    if not self.excel_path.get():
+                        self.logger.warning("未选择Excel文件")
+                        messagebox.showerror("错误", "请选择Excel文件或导入数据")
+                        return
+                    
+                    # 读取Excel文件中的工作表名称，这是兜底方案
+                    from utils.excel_utils import read_sheet_names
+                    success, result = read_sheet_names(self.excel_path.get())
+                    
+                    if not success:
+                        self.logger.error(f"读取Excel文件失败: {result}")
+                        messagebox.showerror("错误", f"读取Excel文件失败: {result}")
+                        return
+                    
+                    sheet_names = result
+                    self.logger.info(f"从Excel文件获取了 {len(sheet_names)} 个工作表名称")
             
             if not sheet_names:
                 self.logger.warning("没有有效的工作表名称")
@@ -348,22 +440,28 @@ class CreateSheetsTab(ttk.Frame):
                 self.logger.info(f"从直接输入获取了 {len(sheet_names)} 个工作表名称")
             else:
                 # 从Excel文件读取内容
-                if not self.excel_path.get():
-                    self.logger.warning("未选择Excel文件")
-                    messagebox.showerror("错误", "请选择Excel文件")
-                    return
-                
-                # 读取Excel文件中的工作表名称
-                from utils.excel_utils import read_sheet_names
-                success, result = read_sheet_names(self.excel_path.get())
-                
-                if not success:
-                    self.logger.error(f"读取Excel文件失败: {result}")
-                    messagebox.showerror("错误", f"读取Excel文件失败: {result}")
-                    return
-                
-                sheet_names = result
-                self.logger.info(f"从Excel文件获取了 {len(sheet_names)} 个工作表名称")
+                if hasattr(self, 'excel_imported_data') and self.excel_imported_data:
+                    # 使用已导入的数据
+                    sheet_names = self.excel_imported_data
+                    self.logger.info(f"使用已导入的Excel数据，包含 {len(sheet_names)} 个工作表名称")
+                else:
+                    # 未导入数据，检查Excel路径
+                    if not self.excel_path.get():
+                        self.logger.warning("未选择Excel文件")
+                        messagebox.showerror("错误", "请选择Excel文件或导入数据")
+                        return
+                    
+                    # 读取Excel文件中的工作表名称，这是兜底方案
+                    from utils.excel_utils import read_sheet_names
+                    success, result = read_sheet_names(self.excel_path.get())
+                    
+                    if not success:
+                        self.logger.error(f"读取Excel文件失败: {result}")
+                        messagebox.showerror("错误", f"读取Excel文件失败: {result}")
+                        return
+                    
+                    sheet_names = result
+                    self.logger.info(f"从Excel文件获取了 {len(sheet_names)} 个工作表名称")
             
             if not sheet_names:
                 self.logger.warning("没有有效的工作表名称")
@@ -405,4 +503,39 @@ class CreateSheetsTab(ttk.Frame):
             
         except Exception as e:
             self.logger.error(f"创建工作表时发生异常: {str(e)}")
-            messagebox.showerror("错误", f"创建工作表时发生错误: {str(e)}") 
+            messagebox.showerror("错误", f"创建工作表时发生错误: {str(e)}")
+            
+# 以下是废弃的函数，保留以备后用
+
+def use_selected_sheets(self, selection, sheet_list, window):
+    """使用选中的工作表名称（废弃，保留以备后用）"""
+    self.logger.info("使用选中的工作表名称")
+    selected_sheets = [sheet_list[i] for i in selection]
+    if not selected_sheets:
+        messagebox.showwarning("警告", "请至少选择一个工作表")
+        return
+    
+    # 清空现有输入
+    self.text_input.delete(1.0, tk.END)
+    # 插入选中的工作表名称
+    self.text_input.insert(1.0, "\n".join(selected_sheets))
+    # 切换到直接输入模式
+    self.input_method.set("direct")
+    self.toggle_input_method()
+    # 关闭窗口
+    window.destroy()
+    self.logger.info(f"已导入 {len(selected_sheets)} 个工作表名称")
+    
+def use_all_sheets(self, sheet_list, window):
+    """使用所有工作表名称（废弃，保留以备后用）"""
+    self.logger.info("使用所有工作表名称")
+    # 清空现有输入
+    self.text_input.delete(1.0, tk.END)
+    # 插入所有工作表名称
+    self.text_input.insert(1.0, "\n".join(sheet_list))
+    # 切换到直接输入模式
+    self.input_method.set("direct")
+    self.toggle_input_method()
+    # 关闭窗口
+    window.destroy()
+    self.logger.info(f"已导入 {len(sheet_list)} 个工作表名称") 
