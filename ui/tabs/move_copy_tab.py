@@ -11,7 +11,7 @@ class MoveCopyTab(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
-        self.files_to_process = []  # 存储选中的文件路径列表
+        self.files_to_process = []  # 存储选中的文件和文件夹路径列表
         
         self.logger = logging.getLogger("move_copy_tab")
         self.logger.debug("初始化移动/复制标签页")
@@ -221,9 +221,11 @@ class MoveCopyTab(ttk.Frame):
         try:
             filepaths = filedialog.askopenfilenames(title="选择文件", filetypes=[("所有文件", "*.*")])
             if filepaths:
+                added_count = 0
                 for filepath in filepaths:
-                    self._add_file_to_tree(filepath)
-                self.logger.info(f"已添加 {len(filepaths)} 个文件")
+                    if self._add_file_to_tree(filepath):
+                        added_count += 1
+                self.logger.info(f"已添加 {added_count} 个文件")
         except Exception as e:
             self.logger.error(f"添加文件时出错: {str(e)}")
             messagebox.showerror("错误", f"添加文件时出错: {str(e)}")
@@ -233,39 +235,79 @@ class MoveCopyTab(ttk.Frame):
         try:
             folder = filedialog.askdirectory(title="选择文件夹")
             if folder:
-                count = 0
-                # 遍历文件夹中的所有文件
-                for root, _, files in os.walk(folder):
-                    for file in files:
-                        filepath = os.path.join(root, file)
-                        self._add_file_to_tree(filepath)
-                        count += 1
-                
-                if count > 0:
-                    self.logger.info(f"已添加文件夹 {folder} 中的 {count} 个文件")
+                # 直接添加文件夹而不是遍历其中的文件
+                if self._add_folder_to_tree(folder):
+                    self.logger.info(f"已添加文件夹: {folder}")
                 else:
-                    messagebox.showinfo("提示", f"文件夹 {folder} 中没有文件")
+                    self.logger.info(f"文件夹已存在，未添加: {folder}")
         except Exception as e:
             self.logger.error(f"添加文件夹时出错: {str(e)}")
             messagebox.showerror("错误", f"添加文件夹时出错: {str(e)}")
     
     def _add_file_to_tree(self, filepath):
         """将文件添加到树状视图中"""
-        if filepath not in self.files_to_process:
+        # 规范化路径
+        filepath = os.path.normpath(filepath)
+        
+        # 检查是否已存在
+        exists = False
+        for path in self.files_to_process:
+            if os.path.normpath(path) == filepath:
+                exists = True
+                break
+                
+        if not exists:
             self.files_to_process.append(filepath)
             
             # 获取文件名和目录
             filename = os.path.basename(filepath)
             directory = os.path.dirname(filepath)
             
-            # 添加到树状视图
-            self.files_tree.insert("", tk.END, values=(filename, directory))
+            # 添加到树状视图，标记为文件
+            item_id = self.files_tree.insert("", tk.END, values=(filename, directory))
+            # 标记为文件
+            self.files_tree.item(item_id, tags=("file",))
+            self.logger.debug(f"已添加文件到列表: {filepath}, 当前列表长度: {len(self.files_to_process)}")
+            return True
+        else:
+            self.logger.debug(f"文件已存在，未添加: {filepath}")
+            return False
+    
+    def _add_folder_to_tree(self, folderpath):
+        """将文件夹添加到树状视图中"""
+        # 规范化路径
+        folderpath = os.path.normpath(folderpath)
+        
+        # 检查是否已存在
+        exists = False
+        for path in self.files_to_process:
+            if os.path.normpath(path) == folderpath:
+                exists = True
+                break
+                
+        if not exists:
+            self.files_to_process.append(folderpath)
+            
+            # 获取文件夹名和父目录
+            foldername = os.path.basename(folderpath)
+            parent_dir = os.path.dirname(folderpath)
+            
+            # 添加到树状视图，标记为文件夹
+            item_id = self.files_tree.insert("", tk.END, values=(foldername, parent_dir))
+            # 标记为文件夹
+            self.files_tree.item(item_id, tags=("folder",))
+            self.logger.debug(f"已添加文件夹到列表: {folderpath}, 当前列表长度: {len(self.files_to_process)}")
+            return True
+        else:
+            self.logger.debug(f"文件夹已存在，未添加: {folderpath}")
+            return False
     
     def clear_selection(self):
-        """清空选择的文件"""
+        """清空选择的文件和文件夹"""
+        old_count = len(self.files_to_process)
         self.files_to_process = []
         self.files_tree.delete(*self.files_tree.get_children())
-        self.logger.info("已清空文件选择")
+        self.logger.info(f"已清空文件和文件夹选择，移除了 {old_count} 个项目")
     
     def show_context_menu(self, event):
         """显示右键菜单"""
@@ -278,22 +320,115 @@ class MoveCopyTab(ttk.Frame):
             self.context_menu.post(event.x_root, event.y_root)
     
     def remove_selected_files(self):
-        """从列表中移除选中的文件"""
+        """从列表中移除选中的文件和文件夹"""
         selected_items = self.files_tree.selection()
         if not selected_items:
             return
         
         # 移除选中项
+        removed_count = 0
         for item in selected_items:
             values = self.files_tree.item(item, "values")
-            file_path = os.path.join(values[1], values[0])
-            # 从文件列表中移除
-            if file_path in self.files_to_process:
-                self.files_to_process.remove(file_path)
+            filename = values[0]
+            directory = values[1]
+            
+            # 构建完整路径，避免直接拼接可能导致的问题
+            if directory:
+                path = os.path.normpath(os.path.join(directory, filename))
+            else:
+                path = os.path.normpath(filename)
+            
+            # 从文件列表中移除，使用规范化路径比较
+            found = False
+            for i, existing_path in enumerate(self.files_to_process):
+                if os.path.normpath(existing_path) == path:
+                    self.files_to_process.pop(i)
+                    found = True
+                    removed_count += 1
+                    self.logger.debug(f"已从列表移除项目: {path}")
+                    break
+            
+            # 记录未找到的情况
+            if not found:
+                self.logger.warning(f"无法在列表中找到路径: {path}")
+                # 尝试直接使用filename作为备选查找方式
+                for i, existing_path in enumerate(self.files_to_process):
+                    if os.path.basename(existing_path) == filename:
+                        self.files_to_process.pop(i)
+                        self.logger.debug(f"通过文件名找到并移除项目: {existing_path}")
+                        removed_count += 1
+                        found = True
+                        break
+                
+                if not found:
+                    self.logger.warning(f"尝试所有方法后仍无法找到要移除的项目: {filename} in {directory}")
+            
             # 从树状视图中移除
             self.files_tree.delete(item)
         
-        self.logger.info(f"已移除 {len(selected_items)} 个文件")
+        # 打印当前列表的状态
+        self.logger.info(f"已移除 {removed_count} 个项目，当前列表包含 {len(self.files_to_process)} 个项目")
+        
+        # 验证文件列表
+        if len(self.files_to_process) != len(self.files_tree.get_children()):
+            self.logger.warning(f"文件列表与树视图不一致！列表长度: {len(self.files_to_process)}，树项目数: {len(self.files_tree.get_children())}")
+            self._synchronize_list_and_tree()
+    
+    def _synchronize_list_and_tree(self):
+        """同步内部列表和树视图，确保它们一致"""
+        self.logger.debug("开始同步列表和树视图")
+        
+        # 获取树视图中的所有项目
+        tree_items = {}
+        for item_id in self.files_tree.get_children():
+            values = self.files_tree.item(item_id, "values")
+            filename = values[0]
+            directory = values[1]
+            if directory:
+                full_path = os.path.normpath(os.path.join(directory, filename))
+            else:
+                full_path = os.path.normpath(filename)
+            tree_items[full_path] = item_id
+        
+        # 获取列表中的所有规范化路径
+        list_paths = [os.path.normpath(p) for p in self.files_to_process]
+        
+        # 找出差异
+        tree_only = set(tree_items.keys()) - set(list_paths)
+        list_only = set(list_paths) - set(tree_items.keys())
+        
+        # 处理差异
+        if tree_only:
+            self.logger.warning(f"发现 {len(tree_only)} 个仅在树视图中存在的项目")
+            for path in tree_only:
+                # 从树视图中移除
+                self.files_tree.delete(tree_items[path])
+                self.logger.debug(f"从树视图中移除多余项目: {path}")
+        
+        if list_only:
+            self.logger.warning(f"发现 {len(list_only)} 个仅在列表中存在的项目")
+            # 过滤掉不存在的路径
+            valid_list_only = [p for p in list_only if os.path.exists(p)]
+            invalid_list_only = list_only - set(valid_list_only)
+            
+            # 移除不存在的路径
+            new_list = [p for p in self.files_to_process if os.path.normpath(p) not in invalid_list_only]
+            self.files_to_process = new_list
+            
+            # 添加有效的路径到树视图
+            for path in valid_list_only:
+                if os.path.isdir(path):
+                    self._add_folder_to_tree(path)
+                    self.logger.debug(f"添加目录到树视图: {path}")
+                else:
+                    self._add_file_to_tree(path)
+                    self.logger.debug(f"添加文件到树视图: {path}")
+        
+        # 完成后再次验证
+        if len(self.files_to_process) != len(self.files_tree.get_children()):
+            self.logger.error(f"同步后仍不一致! 列表长度: {len(self.files_to_process)}，树项目数: {len(self.files_tree.get_children())}")
+        else:
+            self.logger.info("列表与树视图已成功同步")
     
     def browse_target_path(self):
         """浏览目标路径按钮回调"""
@@ -311,16 +446,23 @@ class MoveCopyTab(ttk.Frame):
         if not file_paths:
             return ""
         
+        # 规范化路径
+        normalized_paths = [os.path.normpath(p) for p in file_paths]
+        
         # 分离每个路径的各个部分
-        split_paths = [os.path.dirname(p).split(os.sep) for p in file_paths]
+        split_paths = [os.path.dirname(p).split(os.sep) for p in normalized_paths]
         
         # 查找公共前缀
         common_parts = []
-        for parts in zip(*split_paths):
-            if len(set(parts)) == 1:  # 所有路径在这一层级都相同
-                common_parts.append(parts[0])
-            else:
-                break
+        try:
+            for parts in zip(*split_paths):
+                if len(set(parts)) == 1:  # 所有路径在这一层级都相同
+                    common_parts.append(parts[0])
+                else:
+                    break
+        except Exception as e:
+            self.logger.warning(f"查找公共路径时出错: {str(e)}")
+            return ""
         
         if not common_parts:
             return ""
@@ -330,14 +472,22 @@ class MoveCopyTab(ttk.Frame):
     
     def preview(self):
         """预览移动/复制操作"""
+        # 首先确保列表和树视图一致
+        if len(self.files_to_process) != len(self.files_tree.get_children()):
+            self.logger.warning("预览前检测到列表与树视图不一致，执行同步")
+            self._synchronize_list_and_tree()
+        
         if not self.files_to_process:
-            messagebox.showinfo("提示", "请先选择要处理的文件")
+            messagebox.showinfo("提示", "请先选择要处理的文件或文件夹")
             return
         
         target_dir = self.target_path_var.get()
         if not target_dir:
             messagebox.showinfo("提示", "请选择目标路径")
             return
+        
+        # 确保目标路径规范化
+        target_dir = os.path.normpath(target_dir)
         
         # 获取操作参数
         operation = self.operation_type.get()
@@ -347,39 +497,123 @@ class MoveCopyTab(ttk.Frame):
         self.preview_tree.delete(*self.preview_tree.get_children())
         
         try:
-            for i, file_path in enumerate(self.files_to_process, 1):
-                # 获取原始文件名和目录
-                filename = os.path.basename(file_path)
-                source_dir = os.path.dirname(file_path)
+            # 调试：打印当前列表内容
+            self.logger.debug(f"预览开始，当前处理列表包含 {len(self.files_to_process)} 个项目")
+            for i, path in enumerate(self.files_to_process):
+                self.logger.debug(f"列表项 {i+1}: {path}")
+            
+            # 检查无效路径
+            invalid_paths = [p for p in self.files_to_process if not os.path.exists(p)]
+            if invalid_paths:
+                self.logger.warning(f"预览时发现 {len(invalid_paths)} 个无效路径，将被排除")
+                valid_paths = [p for p in self.files_to_process if os.path.exists(p)]
+            else:
+                valid_paths = self.files_to_process
+            
+            # 计算公共基础路径（用于保留结构）
+            common_base = self._find_common_base_path(valid_paths) if preserve_structure else ""
+            if preserve_structure and common_base:
+                self.logger.debug(f"找到公共基础路径: {common_base}")
+            
+            # 添加到预览表格
+            for i, path in enumerate(valid_paths, 1):
+                # 规范化路径
+                path = os.path.normpath(path)
+                
+                # 验证路径是否存在
+                if not os.path.exists(path):
+                    self.logger.warning(f"路径不存在，跳过预览: {path}")
+                    continue
+                
+                # 获取原始名称和目录
+                name = os.path.basename(path)
+                source_dir = os.path.dirname(path)
                 
                 # 确定目标路径
-                if preserve_structure:
+                if preserve_structure and common_base:
                     # 如果保留文件结构，需要计算相对路径
-                    # 查找公共基础路径
-                    common_base = self._find_common_base_path(self.files_to_process)
-                    if common_base and file_path.startswith(common_base):
+                    if path.startswith(common_base):
                         rel_path = os.path.relpath(source_dir, common_base)
-                        target_full_path = os.path.join(target_dir, rel_path, filename)
+                        # 确保相对路径不以点开头
+                        if rel_path == '.':
+                            target_full_path = os.path.join(target_dir, name)
+                        else:
+                            target_full_path = os.path.join(target_dir, rel_path, name)
                     else:
                         # 没有共同基础，直接使用完整路径
-                        target_full_path = os.path.join(target_dir, filename)
+                        target_full_path = os.path.join(target_dir, name)
                 else:
-                    target_full_path = os.path.join(target_dir, filename)
+                    target_full_path = os.path.join(target_dir, name)
+                
+                # 规范化目标路径
+                target_full_path = os.path.normpath(target_full_path)
+                
+                # 判断是文件还是文件夹
+                item_type = "文件夹" if os.path.isdir(path) else "文件"
                 
                 # 添加到预览表格
-                self.preview_tree.insert("", tk.END, values=(i, filename, source_dir, os.path.dirname(target_full_path)))
+                item_id = self.preview_tree.insert("", tk.END, values=(i, name, source_dir, os.path.dirname(target_full_path)))
+                
+                # 根据类型设置标签
+                if os.path.isdir(path):
+                    self.preview_tree.item(item_id, tags=("folder",))
+                else:
+                    self.preview_tree.item(item_id, tags=("file",))
             
             # 操作类型文本
             op_text = "复制" if operation == "copy" else "移动"
-            self.logger.info(f"已预览 {len(self.files_to_process)} 个文件的{op_text}操作")
+            total_files = sum(1 for p in valid_paths if os.path.isfile(p))
+            total_folders = sum(1 for p in valid_paths if os.path.isdir(p))
+            
+            self.logger.info(f"已预览 {op_text}操作: {total_files}个文件, {total_folders}个文件夹")
+            
+            # 检查列表和预览是否一致
+            if len(self.preview_tree.get_children()) != len(valid_paths):
+                self.logger.warning(f"预览不一致! 预览项目数: {len(self.preview_tree.get_children())}, 有效路径数: {len(valid_paths)}")
+                
+                # 如果有无效路径，现在是清理它们的好时机
+                if invalid_paths:
+                    self._cleanup_invalid_paths()
+                
         except Exception as e:
             self.logger.error(f"预览操作时出错: {str(e)}")
             messagebox.showerror("错误", f"预览操作时出错: {str(e)}")
     
+    def _cleanup_invalid_paths(self):
+        """清理不存在的路径"""
+        initial_count = len(self.files_to_process)
+        
+        # 清理不存在的路径
+        valid_paths = []
+        for path in self.files_to_process:
+            norm_path = os.path.normpath(path)
+            if os.path.exists(norm_path):
+                valid_paths.append(norm_path)
+            else:
+                self.logger.warning(f"清理不存在的路径: {path}")
+        
+        # 更新列表
+        if len(valid_paths) != initial_count:
+            self.files_to_process = valid_paths
+            self.logger.info(f"已清理 {initial_count - len(valid_paths)} 个无效路径，当前列表长度: {len(valid_paths)}")
+            
+            # 重建树视图
+            self.files_tree.delete(*self.files_tree.get_children())
+            for path in valid_paths:
+                if os.path.isdir(path):
+                    self._add_folder_to_tree(path)
+                else:
+                    self._add_file_to_tree(path)
+    
     def execute(self):
         """执行移动/复制操作"""
+        # 首先确保列表和树视图一致
+        if len(self.files_to_process) != len(self.files_tree.get_children()):
+            self.logger.warning("执行前检测到列表与树视图不一致，执行同步")
+            self._synchronize_list_and_tree()
+        
         if not self.files_to_process:
-            messagebox.showinfo("提示", "请先选择要处理的文件")
+            messagebox.showinfo("提示", "请先选择要处理的文件或文件夹")
             return
         
         target_dir = self.target_path_var.get()
@@ -407,11 +641,45 @@ class MoveCopyTab(ttk.Frame):
         # 操作类型文本
         op_text = "复制" if operation == "copy" else "移动"
         
+        # 统计文件和文件夹数量
+        total_files = sum(1 for p in self.files_to_process if os.path.isfile(p))
+        total_folders = sum(1 for p in self.files_to_process if os.path.isdir(p))
+        
+        # 检查路径是否有效
+        invalid_paths = [p for p in self.files_to_process if not os.path.exists(p)]
+        if invalid_paths:
+            self.logger.warning(f"发现 {len(invalid_paths)} 个无效路径，将被自动移除")
+            # 从列表中移除无效路径
+            self.files_to_process = [p for p in self.files_to_process if os.path.exists(p)]
+            # 重新同步UI
+            self._synchronize_list_and_tree()
+            # 更新统计数据
+            total_files = sum(1 for p in self.files_to_process if os.path.isfile(p))
+            total_folders = sum(1 for p in self.files_to_process if os.path.isdir(p))
+        
+        # 如果没有有效路径，则停止
+        if not self.files_to_process:
+            messagebox.showinfo("提示", "没有有效的文件或文件夹可处理")
+            return
+        
         # 确认操作
-        if not messagebox.askyesno("确认", f"确定要{op_text} {len(self.files_to_process)} 个文件吗？"):
+        confirm_msg = f"确定要{op_text}"
+        if total_files > 0 and total_folders > 0:
+            confirm_msg += f" {total_files}个文件和{total_folders}个文件夹吗？"
+        elif total_folders > 0:
+            confirm_msg += f" {total_folders}个文件夹吗？"
+        else:
+            confirm_msg += f" {total_files}个文件吗？"
+            
+        if not messagebox.askyesno("确认", confirm_msg):
             return
         
         try:
+            # 记录将要处理的路径
+            self.logger.debug(f"准备{op_text} {len(self.files_to_process)}个项目:")
+            for i, path in enumerate(self.files_to_process):
+                self.logger.debug(f"项目 {i+1}: {path} ({os.path.isdir(path) and '文件夹' or '文件'})")
+            
             # 调用文件工具类执行移动/复制
             success_count, failed_count = move_copy_files(
                 self.files_to_process,
@@ -423,13 +691,14 @@ class MoveCopyTab(ttk.Frame):
             
             # 显示操作结果
             if failed_count == 0:
-                messagebox.showinfo("完成", f"成功{op_text} {success_count} 个文件")
+                result_msg = f"成功{op_text} {success_count}个项目"
+                messagebox.showinfo("完成", result_msg)
                 # 如果是移动操作，清空文件列表和预览
                 if operation == "move":
                     self.clear_selection()
                     self.preview_tree.delete(*self.preview_tree.get_children())
             else:
-                messagebox.showwarning("部分完成", f"已{op_text} {success_count} 个文件，{failed_count} 个文件失败")
+                messagebox.showwarning("部分完成", f"已{op_text} {success_count}个项目，{failed_count}个项目失败")
         
         except Exception as e:
             self.logger.error(f"执行{op_text}操作时出错: {str(e)}")

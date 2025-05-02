@@ -697,10 +697,10 @@ def show_conflict_dialog(file_path, target_path):
 
 def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", preserve_structure=False):
     """
-    批量移动或复制文件
+    批量移动或复制文件和文件夹
     
     参数:
-    - files: 文件路径列表
+    - files: 文件和文件夹路径列表
     - target_dir: 目标目录
     - operation: 操作类型，"move" 或 "copy"
     - conflict_action: 冲突处理方式，"ask"(询问), "overwrite"(覆盖), "skip"(跳过), "rename"(自动重命名)
@@ -708,8 +708,8 @@ def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", 
     
     返回元组 (成功数量, 失败数量)
     """
-    log_operation_start(logger, f"{operation}文件", {
-        "文件数量": len(files),
+    log_operation_start(logger, f"{operation}文件/文件夹", {
+        "项目数量": len(files),
         "目标目录": target_dir,
         "冲突处理": conflict_action,
         "保留结构": preserve_structure
@@ -745,17 +745,17 @@ def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", 
     # 首先检查有多少个文件会冲突，如果数量过多可以提前警告用户
     if conflict_action == "ask":
         conflict_count = 0
-        for file_path in files:
-            if not os.path.exists(file_path):
+        for path in files:
+            if not os.path.exists(path):
                 continue
             
-            # 确定目标文件路径
+            # 确定目标路径
             if preserve_structure and common_base:
-                rel_path = os.path.relpath(os.path.dirname(file_path), common_base)
+                rel_path = os.path.relpath(os.path.dirname(path), common_base)
                 target_subdir = os.path.join(target_dir, rel_path)
-                target_path = os.path.join(target_subdir, os.path.basename(file_path))
+                target_path = os.path.join(target_subdir, os.path.basename(path))
             else:
-                target_path = os.path.join(target_dir, os.path.basename(file_path))
+                target_path = os.path.join(target_dir, os.path.basename(path))
             
             # 检查是否存在冲突
             if os.path.exists(target_path):
@@ -809,45 +809,59 @@ def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", 
                 # 如果对话框显示失败，记录错误并继续
                 logger.error(f"显示冲突警告对话框出错: {str(e)}")
     
-    for file_path in files:
+    for path in files:
         if operation_cancelled:
             logger.info("操作已被用户取消")
             break
             
-        if not os.path.exists(file_path):
-            logger.warning(f"文件不存在，跳过：{file_path}")
+        if not os.path.exists(path):
+            logger.warning(f"路径不存在，跳过：{path}")
             failed_count += 1
             continue
         
         try:
-            # 确定目标文件路径
+            # 确定目标路径
             if preserve_structure and common_base:
                 # 计算相对路径
-                rel_path = os.path.relpath(os.path.dirname(file_path), common_base)
+                rel_path = os.path.relpath(os.path.dirname(path), common_base)
                 # 创建目标子目录
                 target_subdir = os.path.join(target_dir, rel_path)
                 if not os.path.exists(target_subdir):
                     os.makedirs(target_subdir)
-                target_path = os.path.join(target_subdir, os.path.basename(file_path))
+                target_path = os.path.join(target_subdir, os.path.basename(path))
             else:
-                target_path = os.path.join(target_dir, os.path.basename(file_path))
+                target_path = os.path.join(target_dir, os.path.basename(path))
             
-            # 检查目标文件是否已存在
+            # 检查目标路径是否已存在
             if os.path.exists(target_path):
                 if conflict_action == "skip":
-                    logger.info(f"目标文件已存在，跳过：{target_path}")
+                    logger.info(f"目标路径已存在，跳过：{target_path}")
                     continue
                 elif conflict_action == "overwrite":
-                    logger.info(f"目标文件已存在，将覆盖：{target_path}")
+                    logger.info(f"目标路径已存在，将覆盖：{target_path}")
+                    # 如果是文件夹且选择覆盖，先删除目标文件夹
+                    if os.path.isdir(target_path):
+                        shutil.rmtree(target_path)
                 elif conflict_action == "rename":
                     # 自动重命名，添加数字后缀
-                    filename, ext = os.path.splitext(os.path.basename(file_path))
+                    base_name = os.path.basename(path)
                     counter = 1
-                    while os.path.exists(target_path):
-                        new_filename = f"{filename}_{counter}{ext}"
-                        target_path = os.path.join(os.path.dirname(target_path), new_filename)
-                        counter += 1
-                    logger.info(f"目标文件已存在，重命名为：{os.path.basename(target_path)}")
+                    if os.path.isdir(path):
+                        # 文件夹重命名
+                        while os.path.exists(target_path):
+                            new_name = f"{base_name}_{counter}"
+                            target_path = os.path.join(os.path.dirname(target_path), new_name)
+                            counter += 1
+                    else:
+                        # 文件重命名
+                        filename, ext = os.path.splitext(base_name)
+                        while os.path.exists(target_path):
+                            new_filename = f"{filename}_{counter}{ext}"
+                            target_path = os.path.join(os.path.dirname(target_path), new_filename)
+                            counter += 1
+                    
+                    item_type = "文件夹" if os.path.isdir(path) else "文件"
+                    logger.info(f"目标{item_type}已存在，重命名为：{os.path.basename(target_path)}")
                 elif conflict_action == "ask":
                     # 如果用户已经为所有冲突选择了相同的处理方式
                     if conflict_choice_for_all is not None:
@@ -856,7 +870,7 @@ def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", 
                         cancel_all = False
                     else:
                         # 显示冲突对话框
-                        user_choice, apply_to_all, cancel_all = show_conflict_dialog(file_path, target_path)
+                        user_choice, apply_to_all, cancel_all = show_conflict_dialog(path, target_path)
                         
                         # 如果用户选择对所有应用相同操作
                         if apply_to_all:
@@ -874,38 +888,68 @@ def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", 
                         continue
                     elif user_choice == "overwrite":
                         logger.info(f"用户选择覆盖：{target_path}")
+                        # 如果是文件夹且选择覆盖，先删除目标文件夹
+                        if os.path.isdir(target_path):
+                            shutil.rmtree(target_path)
                     elif user_choice == "rename":
                         # 自动重命名，添加数字后缀
-                        filename, ext = os.path.splitext(os.path.basename(file_path))
+                        base_name = os.path.basename(path)
                         counter = 1
-                        while os.path.exists(target_path):
-                            new_filename = f"{filename}_{counter}{ext}"
-                            target_path = os.path.join(os.path.dirname(target_path), new_filename)
-                            counter += 1
-                        logger.info(f"用户选择重命名：{os.path.basename(target_path)}")
+                        if os.path.isdir(path):
+                            # 文件夹重命名
+                            while os.path.exists(target_path):
+                                new_name = f"{base_name}_{counter}"
+                                target_path = os.path.join(os.path.dirname(target_path), new_name)
+                                counter += 1
+                        else:
+                            # 文件重命名
+                            filename, ext = os.path.splitext(base_name)
+                            while os.path.exists(target_path):
+                                new_filename = f"{filename}_{counter}{ext}"
+                                target_path = os.path.join(os.path.dirname(target_path), new_filename)
+                                counter += 1
+                        
+                        item_type = "文件夹" if os.path.isdir(path) else "文件"
+                        logger.info(f"用户选择重命名{item_type}：{os.path.basename(target_path)}")
             
-            # 执行文件操作
+            # 执行移动/复制操作
+            # 判断是文件还是文件夹
+            is_dir = os.path.isdir(path)
+            
             if operation == "move":
-                shutil.move(file_path, target_path)
-                log_file_operation(logger, "移动", file_path, target_path, True)
+                # 移动操作 - 文件和文件夹使用相同的shutil.move
+                shutil.move(path, target_path)
+                item_type = "文件夹" if is_dir else "文件"
+                log_file_operation(logger, "移动", path, target_path, True)
             else:  # copy
-                shutil.copy2(file_path, target_path)
-                log_file_operation(logger, "复制", file_path, target_path, True)
+                if is_dir:
+                    # 复制文件夹 - 使用shutil.copytree
+                    if os.path.exists(target_path) and conflict_action != "overwrite":
+                        # 文件夹已存在且不覆盖，跳过
+                        logger.warning(f"目标文件夹已存在（不覆盖），跳过：{target_path}")
+                        continue
+                    # 复制整个目录树
+                    shutil.copytree(path, target_path, dirs_exist_ok=True)
+                    log_file_operation(logger, "复制", path, target_path, True)
+                else:
+                    # 复制文件 - 使用shutil.copy2
+                    shutil.copy2(path, target_path)
+                    log_file_operation(logger, "复制", path, target_path, True)
             
             success_count += 1
             
         except Exception as e:
-            log_exception(logger, e, f"{operation}文件 {file_path}")
-            log_file_operation(logger, operation, file_path, target_path if 'target_path' in locals() else None, False, str(e))
+            log_exception(logger, e, f"{operation}{' 文件夹' if os.path.isdir(path) else ' 文件'} {path}")
+            log_file_operation(logger, operation, path, target_path if 'target_path' in locals() else None, False, str(e))
             failed_count += 1
     
     # 如果操作被取消，记录取消信息
     if operation_cancelled:
         operation_name = "移动" if operation == "move" else "复制"
-        log_operation_end(logger, f"{operation_name}文件", "已取消", success_count, failed_count)
+        log_operation_end(logger, f"{operation_name}文件/文件夹", "已取消", success_count, failed_count)
         return success_count, failed_count
     
     operation_name = "移动" if operation == "move" else "复制"
-    log_operation_end(logger, f"{operation_name}文件", "成功" if failed_count == 0 else "部分成功", success_count, failed_count)
+    log_operation_end(logger, f"{operation_name}文件/文件夹", "成功" if failed_count == 0 else "部分成功", success_count, failed_count)
     
     return success_count, failed_count 
