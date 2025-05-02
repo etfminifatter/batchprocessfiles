@@ -16,9 +16,50 @@ class CreateSheetsTab(ttk.Frame):
         self.logger.info("创建工作表标签页初始化完成")
         
     def setup_ui(self):
-        # 输入区域
-        input_frame = ttk.LabelFrame(self, text="输入区域")
-        input_frame.pack(fill=tk.X, padx=5, pady=5)
+        # 主框架
+        main_frame = ttk.Frame(self, padding=(10, 10))
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # 上部分：功能区域
+        top_frame = ttk.Frame(main_frame)
+        top_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        
+        # 设置左右布局
+        left_pane = ttk.Frame(top_frame)
+        left_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        
+        right_pane = ttk.Frame(top_frame)
+        right_pane.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
+        
+        # 左侧：输入区域
+        self.setup_input_area(left_pane)
+        
+        # 右侧：表格格式设置和输出设置
+        self.setup_format_and_output(right_pane)
+        
+        # 预览区域
+        preview_frame = ttk.LabelFrame(main_frame, text="预览")
+        preview_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # 预览表格
+        columns = ("序号", "工作表名称", "包含内容")
+        self.preview_tree = ttk.Treeview(preview_frame, columns=columns, show="headings")
+        
+        for col in columns:
+            self.preview_tree.heading(col, text=col)
+            self.preview_tree.column(col, width=100)
+        
+        self.preview_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        # 初始化界面状态
+        self.toggle_input_method()
+        self.toggle_title()
+        self.toggle_header()
+    
+    def setup_input_area(self, parent):
+        """设置输入区域"""
+        input_frame = ttk.LabelFrame(parent, text="输入区域")
+        input_frame.pack(fill=tk.BOTH, expand=True)
         
         # 输入方式选择
         input_method_frame = ttk.Frame(input_frame)
@@ -32,10 +73,10 @@ class CreateSheetsTab(ttk.Frame):
         
         # 直接输入区域
         self.direct_input_frame = ttk.Frame(input_frame)
-        self.direct_input_frame.pack(fill=tk.X, padx=5, pady=5)
+        self.direct_input_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.text_input = tk.Text(self.direct_input_frame, height=5)
-        self.text_input.pack(fill=tk.X, padx=5, pady=5)
+        self.text_input = tk.Text(self.direct_input_frame, height=10)
+        self.text_input.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         button_frame = ttk.Frame(self.direct_input_frame)
         button_frame.pack(fill=tk.X, padx=5, pady=5)
@@ -43,7 +84,7 @@ class CreateSheetsTab(ttk.Frame):
         ttk.Button(button_frame, text="从剪贴板粘贴", style="Auxiliary.TButton", command=self.paste_from_clipboard).pack(side=tk.LEFT)
         ttk.Button(button_frame, text="清空", style="Auxiliary.TButton", command=self.clear_input).pack(side=tk.LEFT)
         
-        # Excel导入区域 - 修改布局
+        # Excel导入区域
         self.excel_input_frame = ttk.Frame(input_frame)
         
         # 第一行：Excel文件选择
@@ -98,10 +139,12 @@ class CreateSheetsTab(ttk.Frame):
             )
         )
         help_button.pack(side=tk.LEFT, padx=(2, 0))
-        
+    
+    def setup_format_and_output(self, parent):
+        """设置格式和输出区域"""
         # 表格格式设置
-        format_frame = ttk.LabelFrame(self, text="表格格式设置")
-        format_frame.pack(fill=tk.X, padx=5, pady=5)
+        format_frame = ttk.LabelFrame(parent, text="表格格式设置")
+        format_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 5))
         
         # 标题行设置区域
         title_section = ttk.Frame(format_frame)
@@ -133,8 +176,8 @@ class CreateSheetsTab(ttk.Frame):
         self.header_text.pack(side=tk.TOP, fill=tk.X, expand=True, padx=5, pady=2)
         
         # 输出设置区域
-        output_frame = ttk.LabelFrame(self, text="输出设置")
-        output_frame.pack(fill=tk.X, padx=5, pady=5)
+        output_frame = ttk.LabelFrame(parent, text="输出设置")
+        output_frame.pack(fill=tk.BOTH, expand=True)
         
         # 输出文件
         file_frame = ttk.Frame(output_frame)
@@ -144,25 +187,6 @@ class CreateSheetsTab(ttk.Frame):
         self.output_path = tk.StringVar()
         ttk.Entry(file_frame, textvariable=self.output_path, state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
         ttk.Button(file_frame, text="浏览", style="Auxiliary.TButton", command=self.browse_output).pack(side=tk.LEFT, padx=5)
-        
-        # 预览区域
-        preview_frame = ttk.LabelFrame(self, text="预览")
-        preview_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # 预览表格
-        columns = ("序号", "工作表名称", "包含内容")
-        self.preview_tree = ttk.Treeview(preview_frame, columns=columns, show="headings")
-        
-        for col in columns:
-            self.preview_tree.heading(col, text=col)
-            self.preview_tree.column(col, width=100)
-        
-        self.preview_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        # 初始化界面状态
-        self.toggle_input_method()
-        self.toggle_title()
-        self.toggle_header()
     
     def toggle_input_method(self):
         """切换输入方式"""
@@ -194,7 +218,7 @@ class CreateSheetsTab(ttk.Frame):
         else:
             # 从直接输入模式切换到Excel导入模式
             self.direct_input_frame.pack_forget()
-            self.excel_input_frame.pack(fill=tk.X, padx=5, pady=5)
+            self.excel_input_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
     
     def toggle_title(self):
         """切换标题行"""
