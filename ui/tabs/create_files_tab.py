@@ -41,20 +41,23 @@ class CreateFilesTab(ttk.Frame):
         top_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
         
         # 设置左右布局
-        left_pane = ttk.Frame(top_frame)
+        left_pane = ttk.Frame(top_frame, width=400)  # 设置固定宽度
         left_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        left_pane.pack_propagate(False)  # 防止子组件改变frame大小
         
-        right_pane = ttk.Frame(top_frame)
+        right_pane = ttk.Frame(top_frame, width=400)  # 设置固定宽度
         right_pane.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
+        right_pane.pack_propagate(False)  # 防止子组件改变frame大小
         
         # 设置各部分
         self.setup_input_area(left_pane)      # 左侧：输入区域
         self.setup_naming_rules(right_pane)   # 右上：命名规则
         self.setup_output_settings(right_pane) # 右下：输出设置
         
-        # 预览区域
-        preview_frame = ttk.LabelFrame(main_frame, text="预览")
-        preview_frame.pack(fill=tk.BOTH, expand=True)
+        # 预览区域 - 限制高度
+        preview_frame = ttk.LabelFrame(main_frame, text="预览", height=150)
+        preview_frame.pack(fill=tk.X, expand=False)
+        preview_frame.pack_propagate(False)  # 防止子组件改变frame高度
         
         self.setup_preview_area(preview_frame)
     

@@ -25,11 +25,13 @@ class RenameTab(ttk.Frame):
         top_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
         
         # 设置左右布局
-        left_pane = ttk.Frame(top_frame)
+        left_pane = ttk.Frame(top_frame, width=400)  # 设置固定宽度
         left_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        left_pane.pack_propagate(False)  # 防止子组件改变frame大小
         
-        right_pane = ttk.Frame(top_frame)
+        right_pane = ttk.Frame(top_frame, width=400)  # 设置固定宽度
         right_pane.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
+        right_pane.pack_propagate(False)  # 防止子组件改变frame大小
         
         # 左侧：文件选择
         self.setup_file_selection(left_pane)
@@ -37,9 +39,10 @@ class RenameTab(ttk.Frame):
         # 右侧：重命名规则
         self.setup_rename_rules(right_pane)
         
-        # 预览区域
-        preview_frame = ttk.LabelFrame(main_frame, text="预览")
-        preview_frame.pack(fill=tk.BOTH, expand=True)
+        # 预览区域 - 限制高度
+        preview_frame = ttk.LabelFrame(main_frame, text="预览", height=150)
+        preview_frame.pack(fill=tk.X, expand=False)
+        preview_frame.pack_propagate(False)  # 防止子组件改变frame高度
         
         self.setup_preview_area(preview_frame)
     

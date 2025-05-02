@@ -59,11 +59,13 @@ class MoveCopyTab(ttk.Frame):
         top_frame.pack(fill=tk.BOTH, expand=True)
         
         # 设置左右布局
-        left_pane = ttk.Frame(top_frame)
+        left_pane = ttk.Frame(top_frame, width=400)  # 设置固定宽度
         left_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        left_pane.pack_propagate(False)  # 防止子组件改变frame大小
         
-        right_pane = ttk.Frame(top_frame)
+        right_pane = ttk.Frame(top_frame, width=400)  # 设置固定宽度
         right_pane.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
+        right_pane.pack_propagate(False)  # 防止子组件改变frame大小
         
         # 设置左侧文件选择部分
         self.setup_file_selection(left_pane)
@@ -75,9 +77,10 @@ class MoveCopyTab(ttk.Frame):
         self.setup_target_path(right_top_frame)
         self.setup_options(right_top_frame)
         
-        # 设置预览区域
-        preview_frame = ttk.LabelFrame(main_frame, text="预览")
-        preview_frame.pack(fill=tk.BOTH, expand=True, pady=(10, 5))
+        # 设置预览区域 - 限制高度
+        preview_frame = ttk.LabelFrame(main_frame, text="预览", height=150)
+        preview_frame.pack(fill=tk.X, expand=False, pady=(10, 5))
+        preview_frame.pack_propagate(False)  # 防止子组件改变frame高度
         
         self.setup_preview_area(preview_frame)
     
