@@ -120,20 +120,28 @@ class CreateDirsTab(ttk.Frame):
         file_type_combo = ttk.Combobox(file_type_frame, textvariable=self.file_import_type, width=15)
         file_type_combo['values'] = ('.txt', '.csv', '.xlsx', '.xls')
         file_type_combo.pack(side=tk.LEFT, padx=(5, 0))
+        # 监听文件类型变化
+        file_type_combo.bind("<<ComboboxSelected>>", lambda e: self.refresh_file_preview())
         
         # 表头和列选择选项
         options_frame = ttk.Frame(self.file_input_frame)
         options_frame.pack(fill=tk.X, pady=5)
         
         self.file_has_header = tk.BooleanVar(value=False)
-        ttk.Checkbutton(options_frame, text="跳过表头行", variable=self.file_has_header).pack(side=tk.LEFT)
+        header_checkbox = ttk.Checkbutton(options_frame, text="跳过表头行", variable=self.file_has_header, 
+                                         command=self.refresh_file_preview)
+        header_checkbox.pack(side=tk.LEFT)
         
         column_frame = ttk.Frame(options_frame)
         column_frame.pack(side=tk.LEFT, padx=(20, 0))
         
         ttk.Label(column_frame, text="列索引:").pack(side=tk.LEFT)
         self.column_index = tk.StringVar(value="1")
-        ttk.Entry(column_frame, textvariable=self.column_index, width=5).pack(side=tk.LEFT, padx=(5, 0))
+        column_entry = ttk.Entry(column_frame, textvariable=self.column_index, width=5)
+        column_entry.pack(side=tk.LEFT, padx=(5, 0))
+        # 绑定列索引变更事件
+        column_entry.bind("<FocusOut>", lambda e: self.refresh_file_preview())
+        self.column_index.trace_add("write", lambda *args: self.refresh_file_preview())
         
         # 文件预览区域
         ttk.Label(self.file_input_frame, text="文件内容预览:").pack(anchor=tk.W, pady=(5, 0))
@@ -180,14 +188,8 @@ class CreateDirsTab(ttk.Frame):
         tip_frame = ttk.LabelFrame(self.custom_rule_frame, text="命名规则说明")
         tip_frame.pack(fill=tk.BOTH, expand=True, pady=5)
         
-        tips = """
-        $NAME - 替换为原始名称
-        $ISEQ - 替换为序号，如 1, 2, 3...
-        $ISEQ3 - 替换为固定位数序号，如 001, 002...
-        $YYYY - 替换为年份
-        $MM - 替换为月份
-        $DD - 替换为日期
-        """
+        tips = """$NAME - 替换为原始名称  $ISEQ - 替换为序号，如 1, 2, 3...  $ISEQ3 - 替换为固定位数序号，如 001, 002...
+$YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
         ttk.Label(tip_frame, text=tips, justify=tk.LEFT).pack(padx=5, pady=5)
         
         # 序号设置
@@ -498,16 +500,26 @@ class CreateDirsTab(ttk.Frame):
     def show_file_preview(self, file_path):
         """显示文件内容预览"""
         try:
+            if not file_path:
+                return
+                
             ext = os.path.splitext(file_path)[1].lower()
             preview_text = ""
+            
+            # 获取是否跳过表头行的设置
+            skip_header = self.file_has_header.get()
             
             if ext == '.txt':
                 # 尝试不同编码读取前10行
                 for encoding in ['utf-8', 'gbk', 'gb2312', 'latin-1']:
                     try:
                         with open(file_path, 'r', encoding=encoding) as f:
-                            lines = [next(f, '') for _ in range(10)]
-                        preview_text = ''.join(lines)
+                            lines = f.readlines()
+                            if skip_header and lines:  # 如果需要跳过表头
+                                lines = lines[1:]
+                            # 最多显示10行
+                            preview_lines = lines[:10]
+                            preview_text = ''.join(preview_lines)
                         break
                     except UnicodeDecodeError:
                         continue
@@ -518,12 +530,16 @@ class CreateDirsTab(ttk.Frame):
                     preview_text = "无法预览文件内容：未能以支持的编码方式读取文件"
             
             elif ext == '.csv':
-                # 尝试不同编码读取前5行
+                # 尝试不同编码读取CSV
                 for encoding in ['utf-8', 'gbk', 'gb2312', 'latin-1']:
                     try:
                         with open(file_path, 'r', encoding=encoding) as f:
-                            lines = [next(f, '') for _ in range(5)]
-                        preview_text = ''.join(lines)
+                            lines = f.readlines()
+                            if skip_header and lines:  # 如果需要跳过表头
+                                lines = lines[1:]
+                            # 最多显示5行
+                            preview_lines = lines[:5]
+                            preview_text = ''.join(preview_lines)
                         break
                     except UnicodeDecodeError:
                         continue
@@ -541,11 +557,14 @@ class CreateDirsTab(ttk.Frame):
                     
                     # 读取前5行
                     preview_rows = []
-                    for i, row in enumerate(ws.iter_rows(max_row=5)):
+                    start_row = 1
+                    if skip_header:  # 如果需要跳过表头
+                        start_row = 2
+                    
+                    max_rows = min(start_row + 4, ws.max_row + 1)  # 最多显示5行
+                    for i, row in enumerate(ws.iter_rows(min_row=start_row, max_row=max_rows)):
                         cells = [cell.value if cell.value is not None else '' for cell in row]
                         preview_rows.append(','.join(self._format_cell_value(c) for c in cells))
-                        if i >= 4:  # 最多5行
-                            break
                     
                     preview_text = '\n'.join(preview_rows)
                     wb.close()
@@ -561,7 +580,11 @@ class CreateDirsTab(ttk.Frame):
                     
                     # 读取前5行
                     preview_rows = []
-                    for i in range(min(5, ws.nrows)):
+                    start_row = 0
+                    if skip_header:  # 如果需要跳过表头
+                        start_row = 1
+                    
+                    for i in range(start_row, min(start_row + 5, ws.nrows)):
                         cells = [ws.cell_value(i, j) for j in range(ws.ncols)]
                         preview_rows.append(','.join(self._format_cell_value(c) for c in cells))
                     
@@ -714,3 +737,22 @@ class CreateDirsTab(ttk.Frame):
                 self.logger.error(f"从文件获取名称失败: {str(e)}")
                 messagebox.showerror("错误", f"读取文件失败: {str(e)}")
                 return [] 
+
+    def refresh_file_preview(self):
+        """刷新文件预览"""
+        self.logger.info("刷新文件预览")
+        try:
+            # 获取文件路径
+            file_path = self.file_path.get()
+            if not file_path:
+                self.logger.warning("未选择文件")
+                return
+                
+            # 预览文件内容
+            self.show_file_preview(file_path)
+        except Exception as e:
+            self.logger.error(f"刷新文件预览失败: {str(e)}")
+            self.file_preview.config(state="normal")
+            self.file_preview.delete(1.0, tk.END)
+            self.file_preview.insert(1.0, f"刷新文件预览失败: {str(e)}")
+            self.file_preview.config(state="disabled") 
