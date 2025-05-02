@@ -126,11 +126,11 @@ class MainWindow:
         # 定义功能按钮
         self.nav_buttons = []
         nav_options = [
-            {"text": "创建文件", "command": lambda: self.switch_tab(0)},
-            {"text": "创建目录", "command": lambda: self.switch_tab(1)},
-            {"text": "创建工作表", "command": lambda: self.switch_tab(2)},
-            {"text": "重命名", "command": lambda: self.switch_tab(3)},
-            {"text": "移动/复制", "command": lambda: self.switch_tab(4)}
+            {"text": "批量创建文件", "command": lambda: self.switch_tab(0)},
+            {"text": "批量创建目录", "command": lambda: self.switch_tab(1)},
+            {"text": "批量创建工作表", "command": lambda: self.switch_tab(2)},
+            {"text": "批量重命名", "command": lambda: self.switch_tab(3)},
+            {"text": "批量移动/复制", "command": lambda: self.switch_tab(4)}
         ]
         
         # 创建按钮
@@ -140,7 +140,7 @@ class MainWindow:
                 text=opt["text"],
                 command=opt["command"],
                 style="Tab.TButton",
-                width=12
+                width=15
             )
             btn.pack(side=tk.LEFT, padx=3)  # 增加按钮间距
             
@@ -216,7 +216,7 @@ class MainWindow:
             self.current_tab_index = 0
             self.tabs[0].pack(fill=tk.BOTH, expand=True)
             # 更新状态栏
-            tab_names = ["创建文件", "创建目录", "创建工作表", "重命名", "移动/复制"]
+            tab_names = ["批量创建文件", "批量创建目录", "批量创建工作表", "批量重命名", "批量移动/复制"]
             self.status_var.set(f"当前: {tab_names[0]}")
             # 标记选中的按钮
             self.mark_selected_button()
@@ -255,7 +255,7 @@ class MainWindow:
         self.mark_selected_button()
         
         # 更新状态栏
-        tab_names = ["创建文件", "创建目录", "创建工作表", "重命名", "移动/复制"]
+        tab_names = ["批量创建文件", "批量创建目录", "批量创建工作表", "批量重命名", "批量移动/复制"]
         self.status_var.set(f"当前: {tab_names[index]}")
         
         self.logger.info(f"切换到标签页: {tab_names[index]}")
