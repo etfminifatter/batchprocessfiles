@@ -353,112 +353,62 @@ def create_dirs(dir_names, parent_dir, structure=None, naming_rule=None,
 
 def rename_files(file_paths, find_text, replace_text, case_sensitive=True, whole_word=False, use_regex=False, rename_scope="both"):
     """
-    批量重命名文件
+    批量重命名文件或文件夹
     
     参数:
-    - file_paths: 文件路径列表
+    - file_paths: 文件或文件夹路径列表
     - find_text: 要查找的文本
     - replace_text: 要替换的文本
     - case_sensitive: 是否区分大小写
     - whole_word: 是否全词匹配
     - use_regex: 是否使用正则表达式
-    - rename_scope: 重命名范围，可选值："name_only"(仅文件名)，"ext_only"(仅扩展名)，"both"(文件名和扩展名)
+    - rename_scope: 重命名范围，可选值："name_only"(仅文件名)，"ext_only"(仅扩展名，文件夹忽略此选项)，"both"(文件名和扩展名)
     
     返回:
-    - 成功重命名的文件数量
+    - 成功重命名的项目数量
     """
     logger = logging.getLogger("file_utils")
-    logger.info(f"开始重命名文件，共{len(file_paths)}个")
+    logger.info(f"开始重命名操作，共{len(file_paths)}个项目")
     
     renamed_count = 0
     skipped_count = 0
     error_files = []
     
-    name_mapping = {}  # 用于存储文件名映射 {原文件名: 新文件名}
+    name_mapping = {}  # 用于存储文件名映射 {原路径: 新名称}
     
     # 生成文件名映射
     for file_path in file_paths:
         if not os.path.exists(file_path):
-            logger.warning(f"文件不存在，跳过：{file_path}")
+            logger.warning(f"路径不存在，跳过：{file_path}")
             skipped_count += 1
             continue
         
+        # 判断是文件还是文件夹
+        is_dir = os.path.isdir(file_path)
         file_name = os.path.basename(file_path)
         new_name = file_name  # 默认不变
         
-        # 分离文件名和扩展名
-        name_part, ext_part = os.path.splitext(file_name)
-        
-        # 根据应用范围确定要替换的部分
-        if rename_scope == "name_only":
-            # 只替换文件名部分
-            if not use_regex:
-                if case_sensitive:
-                    if whole_word:
-                        # 全词匹配需要考虑边界
-                        import re
-                        name_pattern = r'\b' + re.escape(find_text) + r'\b'
-                        new_name_part = re.sub(name_pattern, replace_text, name_part)
-                    else:
-                        new_name_part = name_part.replace(find_text, replace_text)
-                else:
-                    if whole_word:
-                        import re
-                        name_pattern = r'\b' + re.escape(find_text) + r'\b'
-                        new_name_part = re.sub(name_pattern, replace_text, name_part, flags=re.IGNORECASE)
-                    else:
-                        # 不区分大小写的替换
-                        new_name_part = _replace_case_insensitive(name_part, find_text, replace_text)
-            else:
-                # 使用正则表达式
-                import re
-                flags = 0 if case_sensitive else re.IGNORECASE
-                new_name_part = re.sub(find_text, replace_text, name_part, flags=flags)
+        if is_dir:
+            # 处理文件夹名称（对文件夹忽略扩展名设置）
+            if rename_scope == "ext_only":
+                # 对于文件夹，如果只替换扩展名则跳过
+                logger.debug(f"文件夹不支持仅替换扩展名，跳过：{file_path}")
+                continue
             
-            new_name = new_name_part + ext_part
-        
-        elif rename_scope == "ext_only":
-            # 只替换扩展名部分（不包括点）
-            ext_to_replace = ext_part[1:] if ext_part else ""
-            
+            # 替换文件夹名称
             if not use_regex:
                 if case_sensitive:
                     if whole_word:
                         import re
-                        ext_pattern = r'\b' + re.escape(find_text) + r'\b'
-                        new_ext = re.sub(ext_pattern, replace_text, ext_to_replace)
-                    else:
-                        new_ext = ext_to_replace.replace(find_text, replace_text)
-                else:
-                    if whole_word:
-                        import re
-                        ext_pattern = r'\b' + re.escape(find_text) + r'\b'
-                        new_ext = re.sub(ext_pattern, replace_text, ext_to_replace, flags=re.IGNORECASE)
-                    else:
-                        new_ext = _replace_case_insensitive(ext_to_replace, find_text, replace_text)
-            else:
-                # 使用正则表达式
-                import re
-                flags = 0 if case_sensitive else re.IGNORECASE
-                new_ext = re.sub(find_text, replace_text, ext_to_replace, flags=flags)
-            
-            new_name = name_part + ("." + new_ext if new_ext else "")
-        
-        else:  # "both"
-            # 替换整个文件名
-            if not use_regex:
-                if case_sensitive:
-                    if whole_word:
-                        import re
-                        filename_pattern = r'\b' + re.escape(find_text) + r'\b'
-                        new_name = re.sub(filename_pattern, replace_text, file_name)
+                        folder_pattern = r'\b' + re.escape(find_text) + r'\b'
+                        new_name = re.sub(folder_pattern, replace_text, file_name)
                     else:
                         new_name = file_name.replace(find_text, replace_text)
                 else:
                     if whole_word:
                         import re
-                        filename_pattern = r'\b' + re.escape(find_text) + r'\b'
-                        new_name = re.sub(filename_pattern, replace_text, file_name, flags=re.IGNORECASE)
+                        folder_pattern = r'\b' + re.escape(find_text) + r'\b'
+                        new_name = re.sub(folder_pattern, replace_text, file_name, flags=re.IGNORECASE)
                     else:
                         new_name = _replace_case_insensitive(file_name, find_text, replace_text)
             else:
@@ -466,6 +416,88 @@ def rename_files(file_paths, find_text, replace_text, case_sensitive=True, whole
                 import re
                 flags = 0 if case_sensitive else re.IGNORECASE
                 new_name = re.sub(find_text, replace_text, file_name, flags=flags)
+        else:
+            # 处理文件
+            # 分离文件名和扩展名
+            name_part, ext_part = os.path.splitext(file_name)
+            
+            # 根据应用范围确定要替换的部分
+            if rename_scope == "name_only":
+                # 只替换文件名部分
+                if not use_regex:
+                    if case_sensitive:
+                        if whole_word:
+                            # 全词匹配需要考虑边界
+                            import re
+                            name_pattern = r'\b' + re.escape(find_text) + r'\b'
+                            new_name_part = re.sub(name_pattern, replace_text, name_part)
+                        else:
+                            new_name_part = name_part.replace(find_text, replace_text)
+                    else:
+                        if whole_word:
+                            import re
+                            name_pattern = r'\b' + re.escape(find_text) + r'\b'
+                            new_name_part = re.sub(name_pattern, replace_text, name_part, flags=re.IGNORECASE)
+                        else:
+                            # 不区分大小写的替换
+                            new_name_part = _replace_case_insensitive(name_part, find_text, replace_text)
+                else:
+                    # 使用正则表达式
+                    import re
+                    flags = 0 if case_sensitive else re.IGNORECASE
+                    new_name_part = re.sub(find_text, replace_text, name_part, flags=flags)
+                
+                new_name = new_name_part + ext_part
+            
+            elif rename_scope == "ext_only":
+                # 只替换扩展名部分（不包括点）
+                ext_to_replace = ext_part[1:] if ext_part else ""
+                
+                if not use_regex:
+                    if case_sensitive:
+                        if whole_word:
+                            import re
+                            ext_pattern = r'\b' + re.escape(find_text) + r'\b'
+                            new_ext = re.sub(ext_pattern, replace_text, ext_to_replace)
+                        else:
+                            new_ext = ext_to_replace.replace(find_text, replace_text)
+                    else:
+                        if whole_word:
+                            import re
+                            ext_pattern = r'\b' + re.escape(find_text) + r'\b'
+                            new_ext = re.sub(ext_pattern, replace_text, ext_to_replace, flags=re.IGNORECASE)
+                        else:
+                            new_ext = _replace_case_insensitive(ext_to_replace, find_text, replace_text)
+                else:
+                    # 使用正则表达式
+                    import re
+                    flags = 0 if case_sensitive else re.IGNORECASE
+                    new_ext = re.sub(find_text, replace_text, ext_to_replace, flags=flags)
+                
+                new_name = name_part + ("." + new_ext if new_ext else "")
+            
+            else:  # "both"
+                # 替换整个文件名
+                if not use_regex:
+                    if case_sensitive:
+                        if whole_word:
+                            import re
+                            filename_pattern = r'\b' + re.escape(find_text) + r'\b'
+                            new_name = re.sub(filename_pattern, replace_text, file_name)
+                        else:
+                            new_name = file_name.replace(find_text, replace_text)
+                    else:
+                        if whole_word:
+                            import re
+                            filename_pattern = r'\b' + re.escape(find_text) + r'\b'
+                            new_name = re.sub(filename_pattern, replace_text, file_name, flags=re.IGNORECASE)
+                        else:
+                            new_name = _replace_case_insensitive(file_name, find_text, replace_text)
+                else:
+                    # 使用正则表达式
+                    import re
+                    flags = 0 if case_sensitive else re.IGNORECASE
+                    new_name = re.sub(find_text, replace_text, file_name, flags=flags)
         
         # 如果文件名发生了变化，则添加到映射中
         if new_name != file_name:
@@ -479,23 +511,24 @@ def rename_files(file_paths, find_text, replace_text, case_sensitive=True, whole
         try:
             # 检查新路径是否已存在且不是自身
             if os.path.exists(new_path) and os.path.normpath(new_path) != os.path.normpath(file_path):
-                logger.warning(f"目标文件已存在，跳过：{new_path}")
+                logger.warning(f"目标路径已存在，跳过：{new_path}")
                 skipped_count += 1
                 continue
             
-            # 重命名文件
+            # 重命名文件或文件夹
             shutil.move(file_path, new_path)
-            logger.info(f"重命名文件成功：{file_path} -> {new_path}")
+            item_type = "文件夹" if os.path.isdir(new_path) else "文件"
+            logger.info(f"重命名{item_type}成功：{file_path} -> {new_path}")
             renamed_count += 1
             
         except Exception as e:
-            error_msg = f"处理文件 {file_path} 时出错：{str(e)}"
+            error_msg = f"处理路径 {file_path} 时出错：{str(e)}"
             logger.error(error_msg)
             error_files.append(file_path)
     
-    result_msg = f"重命名完成。成功：{renamed_count}个，跳过：{skipped_count}个，失败：{len(error_files)}个"
+    result_msg = f"重命名完成。成功：{renamed_count}项，跳过：{skipped_count}项，失败：{len(error_files)}项"
     if error_files:
-        result_msg += f"，失败文件：{', '.join([os.path.basename(f) for f in error_files[:5]])}"
+        result_msg += f"，失败项：{', '.join([os.path.basename(f) for f in error_files[:5]])}"
         if len(error_files) > 5:
             result_msg += f" 等{len(error_files)}个"
     
