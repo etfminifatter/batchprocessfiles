@@ -7,6 +7,8 @@ import re
 import json
 import csv
 import openpyxl
+import tkinter as tk
+from tkinter import messagebox, simpledialog
 
 # 创建文件工具模块的日志记录器
 logger = setup_logger('file_utils', level=logging.DEBUG)
@@ -558,6 +560,141 @@ def _replace_case_insensitive(text, find, replace):
     
     return result
 
+def show_conflict_dialog(file_path, target_path):
+    """
+    显示文件冲突对话框
+    
+    参数:
+    - file_path: 源文件路径
+    - target_path: 目标文件路径
+    
+    返回:
+    - 处理方式: "skip", "overwrite", "rename" 或 None (如果取消)
+    - 是否对所有应用: True/False
+    - 是否取消所有操作: True/False
+    """
+    try:
+        # 尝试获取现有的Tk实例，如果存在
+        try:
+            root = tk.Tk()
+            # 检查是否已存在其他Tk实例
+            if tk._default_root is not None and tk._default_root != root:
+                # 已存在其他Tk实例，关闭当前实例使用已有的
+                root.destroy()
+                root = tk.Toplevel(tk._default_root)
+            else:
+                # 没有其他Tk实例，使用当前创建的
+                pass
+        except Exception:
+            # 如果获取现有实例出错，创建新的Toplevel
+            try:
+                root = tk.Toplevel()
+            except Exception:
+                # 最后尝试创建一个新的Tk实例
+                root = tk.Tk()
+        
+        # 隐藏主窗口
+        root.withdraw()
+        
+        # 格式化文件路径，限制长度
+        max_path_length = 60
+        short_src_path = file_path
+        short_dst_path = target_path
+        if len(short_src_path) > max_path_length:
+            short_src_path = "..." + short_src_path[-(max_path_length-3):]
+        if len(short_dst_path) > max_path_length:
+            short_dst_path = "..." + short_dst_path[-(max_path_length-3):]
+        
+        # 获取文件信息
+        src_size = os.path.getsize(file_path)
+        src_mtime = os.path.getmtime(file_path)
+        dst_size = os.path.getsize(target_path)
+        dst_mtime = os.path.getmtime(target_path)
+        
+        # 格式化大小
+        def format_size(size_in_bytes):
+            if size_in_bytes < 1024:
+                return f"{size_in_bytes} 字节"
+            elif size_in_bytes < 1024 * 1024:
+                return f"{size_in_bytes / 1024:.2f} KB"
+            elif size_in_bytes < 1024 * 1024 * 1024:
+                return f"{size_in_bytes / (1024 * 1024):.2f} MB"
+            else:
+                return f"{size_in_bytes / (1024 * 1024 * 1024):.2f} GB"
+        
+        # 格式化日期时间
+        def format_time(timestamp):
+            return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+        
+        # 创建简单对话框，不使用Toplevel
+        dialog_result = {"choice": "skip", "apply_to_all": False, "cancel_all": False}
+        
+        # 使用messagebox替代自定义对话框
+        msg = (
+            f"文件冲突\n\n"
+            f"源文件:\n"
+            f"路径: {short_src_path}\n"
+            f"大小: {format_size(src_size)}\n"
+            f"修改时间: {format_time(src_mtime)}\n\n"
+            f"目标文件 (已存在):\n"
+            f"路径: {short_dst_path}\n"
+            f"大小: {format_size(dst_size)}\n"
+            f"修改时间: {format_time(dst_mtime)}\n\n"
+            f"如何处理此冲突?"
+        )
+        
+        # 创建一个简单的对话框
+        options = ["跳过", "覆盖", "重命名", "对所有应用相同操作", "取消所有操作"]
+        
+        choice = simpledialog.askstring(
+            "文件冲突", 
+            msg + "\n\n选项：\n1 - 跳过\n2 - 覆盖\n3 - 重命名\n4 - 对所有冲突应用相同操作\n5 - 取消所有操作",
+            initialvalue="1"
+        )
+        
+        if choice is None:
+            return "skip", False, True  # 用户关闭了对话框，取消所有操作
+        
+        try:
+            choice_num = int(choice.strip())
+            
+            if choice_num == 1:
+                return "skip", False, False
+            elif choice_num == 2:
+                return "overwrite", False, False
+            elif choice_num == 3:
+                return "rename", False, False
+            elif choice_num == 4:
+                # 用户选择对所有应用相同操作，再次询问使用哪个选项
+                all_choice = simpledialog.askstring(
+                    "对所有冲突应用", 
+                    "选择对所有冲突应用的操作:\n1 - 跳过\n2 - 覆盖\n3 - 重命名",
+                    initialvalue="1"
+                )
+                
+                if all_choice is None:
+                    return "skip", False, False
+                
+                all_choice_num = int(all_choice.strip())
+                if all_choice_num == 1:
+                    return "skip", True, False
+                elif all_choice_num == 2:
+                    return "overwrite", True, False
+                elif all_choice_num == 3:
+                    return "rename", True, False
+                else:
+                    return "skip", False, False
+            elif choice_num == 5:
+                return "skip", False, True  # 取消所有操作
+            else:
+                return "skip", False, False
+        except (ValueError, TypeError):
+            return "skip", False, False
+            
+    except Exception as e:
+        logger.error(f"显示冲突对话框出错: {str(e)}")
+        return "skip", False, False
+
 def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", preserve_structure=False):
     """
     批量移动或复制文件
@@ -599,7 +736,84 @@ def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", 
         common_base = os.path.commonpath([os.path.dirname(f) for f in files])
         logger.debug(f"找到共同基础路径: {common_base}")
     
+    # 冲突处理的全局选择，用于保存用户的对所有冲突使用相同选择
+    conflict_choice_for_all = None
+    
+    # 用户是否取消了整个操作
+    operation_cancelled = False
+    
+    # 首先检查有多少个文件会冲突，如果数量过多可以提前警告用户
+    if conflict_action == "ask":
+        conflict_count = 0
+        for file_path in files:
+            if not os.path.exists(file_path):
+                continue
+            
+            # 确定目标文件路径
+            if preserve_structure and common_base:
+                rel_path = os.path.relpath(os.path.dirname(file_path), common_base)
+                target_subdir = os.path.join(target_dir, rel_path)
+                target_path = os.path.join(target_subdir, os.path.basename(file_path))
+            else:
+                target_path = os.path.join(target_dir, os.path.basename(file_path))
+            
+            # 检查是否存在冲突
+            if os.path.exists(target_path):
+                conflict_count += 1
+        
+        if conflict_count > 10:
+            # 使用简单的消息框询问
+            try:
+                result = messagebox.askyesnocancel(
+                    "文件冲突警告",
+                    f"检测到 {conflict_count} 个文件将产生冲突，这可能会弹出多个询问对话框。\n\n"
+                    f"是否为所有冲突应用相同的处理方式？\n\n"
+                    f"• 是：设置一个全局处理方式\n"
+                    f"• 否：单独处理每个冲突\n"
+                    f"• 取消：取消整个操作",
+                    icon=messagebox.WARNING
+                )
+                
+                if result is None:  # 用户点击了取消
+                    logger.info("用户取消了操作")
+                    return 0, 0
+                elif result:  # 用户点击了是
+                    # 使用简单对话框询问用户选择
+                    from tkinter import simpledialog
+                    
+                    choice = simpledialog.askstring(
+                        "选择冲突处理方式", 
+                        "请选择对所有冲突的处理方式:\n1 - 跳过\n2 - 覆盖\n3 - 重命名",
+                        initialvalue="1"
+                    )
+                    
+                    if choice is None:
+                        logger.info("用户取消了操作")
+                        return 0, 0
+                    
+                    try:
+                        choice_num = int(choice.strip())
+                        if choice_num == 1:
+                            conflict_choice_for_all = "skip"
+                        elif choice_num == 2:
+                            conflict_choice_for_all = "overwrite"
+                        elif choice_num == 3:
+                            conflict_choice_for_all = "rename"
+                        else:
+                            conflict_choice_for_all = "skip"
+                    except (ValueError, TypeError):
+                        conflict_choice_for_all = "skip"
+                    
+                    logger.info(f"用户选择了对所有冲突使用相同的处理方式: {conflict_choice_for_all}")
+            except Exception as e:
+                # 如果对话框显示失败，记录错误并继续
+                logger.error(f"显示冲突警告对话框出错: {str(e)}")
+    
     for file_path in files:
+        if operation_cancelled:
+            logger.info("操作已被用户取消")
+            break
+            
         if not os.path.exists(file_path):
             logger.warning(f"文件不存在，跳过：{file_path}")
             failed_count += 1
@@ -635,10 +849,40 @@ def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", 
                         counter += 1
                     logger.info(f"目标文件已存在，重命名为：{os.path.basename(target_path)}")
                 elif conflict_action == "ask":
-                    # 在实际应用中，这里应该显示一个对话框询问用户
-                    # 但在工具类中，我们默认选择"skip"
-                    logger.info(f"目标文件已存在，需要询问用户，默认跳过：{target_path}")
-                    continue
+                    # 如果用户已经为所有冲突选择了相同的处理方式
+                    if conflict_choice_for_all is not None:
+                        user_choice = conflict_choice_for_all
+                        apply_to_all = True
+                        cancel_all = False
+                    else:
+                        # 显示冲突对话框
+                        user_choice, apply_to_all, cancel_all = show_conflict_dialog(file_path, target_path)
+                        
+                        # 如果用户选择对所有应用相同操作
+                        if apply_to_all:
+                            conflict_choice_for_all = user_choice
+                        
+                        # 如果用户取消所有操作
+                        if cancel_all:
+                            operation_cancelled = True
+                            logger.info("用户取消了所有操作")
+                            break
+                    
+                    # 处理用户选择
+                    if user_choice == "skip":
+                        logger.info(f"用户选择跳过：{target_path}")
+                        continue
+                    elif user_choice == "overwrite":
+                        logger.info(f"用户选择覆盖：{target_path}")
+                    elif user_choice == "rename":
+                        # 自动重命名，添加数字后缀
+                        filename, ext = os.path.splitext(os.path.basename(file_path))
+                        counter = 1
+                        while os.path.exists(target_path):
+                            new_filename = f"{filename}_{counter}{ext}"
+                            target_path = os.path.join(os.path.dirname(target_path), new_filename)
+                            counter += 1
+                        logger.info(f"用户选择重命名：{os.path.basename(target_path)}")
             
             # 执行文件操作
             if operation == "move":
@@ -654,6 +898,12 @@ def move_copy_files(files, target_dir, operation="copy", conflict_action="ask", 
             log_exception(logger, e, f"{operation}文件 {file_path}")
             log_file_operation(logger, operation, file_path, target_path if 'target_path' in locals() else None, False, str(e))
             failed_count += 1
+    
+    # 如果操作被取消，记录取消信息
+    if operation_cancelled:
+        operation_name = "移动" if operation == "move" else "复制"
+        log_operation_end(logger, f"{operation_name}文件", "已取消", success_count, failed_count)
+        return success_count, failed_count
     
     operation_name = "移动" if operation == "move" else "复制"
     log_operation_end(logger, f"{operation_name}文件", "成功" if failed_count == 0 else "部分成功", success_count, failed_count)
