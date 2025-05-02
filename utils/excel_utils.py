@@ -149,7 +149,7 @@ def read_sheet_names(file_path):
         log_operation_end(logger, "读取工作表名称", "失败")
         return False, f"读取工作表名称失败: {str(e)}"
 
-def read_column_data(file_path, sheet_name, column_index, has_header=True):
+def read_column_data(file_path, sheet_name, column_index, skip_header=True):
     """
     从Excel文件读取指定列的数据
     
@@ -157,13 +157,13 @@ def read_column_data(file_path, sheet_name, column_index, has_header=True):
         file_path: Excel文件路径
         sheet_name: 工作表名称
         column_index: 列索引（从1开始）
-        has_header: 是否包含表头
+        skip_header: 是否跳过第一行表头 (True=跳过表头，只返回数据行; False=包含表头行)
     """
     log_operation_start(logger, "读取列数据", {
         "file_path": file_path,
         "sheet_name": sheet_name,
         "column_index": column_index,
-        "has_header": has_header
+        "skip_header": skip_header
     })
     
     try:
@@ -201,13 +201,14 @@ def read_column_data(file_path, sheet_name, column_index, has_header=True):
         
         # 读取列数据
         data = []
-        start_row = 2 if has_header else 1
+        # 从第2行开始（跳过表头）或第1行开始（包含表头）
+        start_row = 2 if skip_header else 1
         
         for row in ws.iter_rows(min_row=start_row, min_col=column_index, max_col=column_index):
             if row[0].value is not None:
                 data.append(str(row[0].value))
         
-        logger.info(f"从 {sheet_name} 工作表读取了 {len(data)} 行数据")
+        logger.info(f"从 {sheet_name} 工作表读取了 {len(data)} 行数据，跳过表头: {skip_header}")
         logger.debug(f"读取的数据: {data[:10]}{'...' if len(data) > 10 else ''}")
         
         log_operation_end(logger, "读取列数据", "成功", len(data))

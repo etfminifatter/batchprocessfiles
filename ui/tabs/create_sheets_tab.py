@@ -75,9 +75,29 @@ class CreateSheetsTab(ttk.Frame):
         
         # 包含表头勾选框
         self.has_header_var = tk.BooleanVar(value=True)
-        self.header_checkbox = ttk.Checkbutton(sheet_settings_frame, text="跳过表头行", 
-                                             variable=self.has_header_var, command=self.preview_selected_column)
+        header_checkbox_frame = ttk.Frame(sheet_settings_frame)
+        header_checkbox_frame.pack(side=tk.LEFT, padx=(5, 0))
+        
+        self.header_checkbox = ttk.Checkbutton(
+            header_checkbox_frame, 
+            text="跳过表头行", 
+            variable=self.has_header_var, 
+            command=self.header_checkbox_clicked
+        )
         self.header_checkbox.pack(side=tk.LEFT)
+        
+        # 添加帮助提示按钮
+        help_button = ttk.Button(
+            header_checkbox_frame, 
+            text="?", 
+            width=2, 
+            command=lambda: messagebox.showinfo(
+                "跳过表头行说明", 
+                "勾选此复选框时，将不显示Excel中的第一行（表头行）\n"
+                "不勾选时，将显示包括表头在内的所有数据"
+            )
+        )
+        help_button.pack(side=tk.LEFT, padx=(2, 0))
         
         # 表格格式设置
         format_frame = ttk.LabelFrame(self, text="表格格式设置")
@@ -147,14 +167,32 @@ class CreateSheetsTab(ttk.Frame):
     def toggle_input_method(self):
         """切换输入方式"""
         if self.input_method.get() == "direct":
+            # 如果从Excel模式切换到直接输入模式，并且之前没有导入数据，则尝试预览当前选中的列
+            if not hasattr(self, 'excel_imported_data') and hasattr(self, 'column_var') and self.column_var.get():
+                self.preview_selected_column()  # 先尝试预览选中的列数据
+            
+            # 显示直接输入框架
             self.direct_input_frame.pack(fill=tk.X, padx=5, pady=5)
             self.excel_input_frame.pack_forget()
             
-            # 如果已经从Excel导入了数据，并且直接输入框为空，则显示导入的数据
-            if hasattr(self, 'excel_imported_data') and not self.text_input.get(1.0, tk.END).strip():
+            # 如果已经从Excel导入了数据，则显示导入的数据（不管文本框是否为空）
+            if hasattr(self, 'excel_imported_data'):
+                # 记录详细的数据状态
+                count = len(self.excel_imported_data)
+                if count > 0:
+                    data_preview = ", ".join(self.excel_imported_data[:3])
+                    if count > 3:
+                        data_preview += "..."
+                    self.logger.debug(f"将显示的数据({count}项): {data_preview}")
+                
+                # 始终更新文本框内容，确保显示最新数据
                 self.text_input.delete(1.0, tk.END)
                 self.text_input.insert(1.0, "\n".join(self.excel_imported_data))
+                
+                skip_header = self.has_header_var.get()
+                self.logger.info(f"已将导入的Excel数据（{count}项）显示在文本框中，跳过表头: {skip_header}")
         else:
+            # 从直接输入模式切换到Excel导入模式
             self.direct_input_frame.pack_forget()
             self.excel_input_frame.pack(fill=tk.X, padx=5, pady=5)
     
@@ -277,6 +315,12 @@ class CreateSheetsTab(ttk.Frame):
             messagebox.showinfo("提示", "选中的工作表没有列名或者是空表")
             return
         
+        # 记录表头信息用于调试
+        headers_preview = ", ".join(headers[:5])
+        if len(headers) > 5:
+            headers_preview += "..."
+        self.logger.debug(f"读取到的列名({len(headers)}个): {headers_preview}")
+        
         # 更新列选择下拉框
         column_values = [f"{i+1}: {header}" for i, header in enumerate(headers)]
         self.column_combo['values'] = column_values
@@ -285,57 +329,136 @@ class CreateSheetsTab(ttk.Frame):
         # 存储headers信息以供后续使用
         self.headers = headers
         
+        # 保存当前模式
+        old_mode = self.input_method.get()
+        
         # 切换到Excel导入模式（确保显示Excel导入区域）
         self.input_method.set("excel")
         self.toggle_input_method()
         
-        # 不要立即预览，让用户选择列并决定是否跳过表头
-        # self.preview_selected_column()
+        # 自动预览第一列数据，无需等待用户选择
+        self.preview_selected_column()
+        self.logger.info("已自动预览第一列数据")
+        
+        # 始终更新直接输入文本框，即使当前不在直接输入模式
+        if hasattr(self, 'excel_imported_data'):
+            # 暂存文本框内容
+            old_text = self.text_input.get(1.0, tk.END).strip()
+            
+            # 更新文本框内容
+            self.text_input.delete(1.0, tk.END)
+            self.text_input.insert(1.0, "\n".join(self.excel_imported_data))
+            
+            # 记录变化
+            skip_header = self.has_header_var.get()
+            current_count = len(self.excel_imported_data)
+            self.logger.info(f"已更新直接输入文本框内容: {current_count}项, 跳过表头: {skip_header}")
+            
+            # 如果文本内容发生变化，记录下来
+            if old_text != "\n".join(self.excel_imported_data):
+                self.logger.debug("文本框内容已更新")
     
     def on_column_selected(self, event):
         """当用户选择列时触发预览"""
+        self.logger.info(f"用户选择了列: {self.column_var.get()}")
+        
+        # 保存当前模式，以便在预览后恢复
+        current_mode = self.input_method.get()
+        
+        # 预览选中列数据
         self.preview_selected_column()
+        
+        # 确保文本框内容一定更新，无论当前模式
+        if current_mode != "direct":
+            # 暂时改变模式以便能显示数据
+            self.input_method.set("direct")
+            # 更新文本框数据
+            if hasattr(self, 'excel_imported_data'):
+                self.text_input.delete(1.0, tk.END)
+                self.text_input.insert(1.0, "\n".join(self.excel_imported_data))
+                self.logger.info("已在列选择后更新文本框内容")
+            # 恢复原模式
+            self.input_method.set(current_mode)
+        else:
+            # 如果已经是直接输入模式，确保数据立即显示
+            if hasattr(self, 'excel_imported_data'):
+                self.text_input.delete(1.0, tk.END)
+                self.text_input.insert(1.0, "\n".join(self.excel_imported_data))
+                self.logger.info("已将新选择的列数据更新到文本框")
     
     def preview_selected_column(self):
         """预览当前选中列的数据"""
-        if not hasattr(self, 'selected_sheet') or not hasattr(self, 'headers'):
+        if not hasattr(self, 'selected_sheet'):
+            self.logger.warning("尚未选择工作表，无法预览数据")
+            return
+            
+        if not hasattr(self, 'headers'):
+            self.logger.warning("未读取到列头信息，无法预览数据")
             return
         
         # 获取选中的列信息
         selected_column = self.column_var.get()
         if not selected_column:
+            self.logger.warning("未选择列，无法预览数据")
             return
         
         # 提取列索引
         try:
             column_index = int(selected_column.split(":")[0])
         except (ValueError, IndexError):
+            self.logger.error(f"无法从'{selected_column}'提取列索引")
             return
         
         excel_path = self.excel_path.get()
-        # 修正逻辑：勾选"跳过表头行"时has_header应为true
-        has_header = self.has_header_var.get()
+        if not excel_path:
+            self.logger.warning("Excel文件路径为空")
+            return
+            
+        # 获取"跳过表头行"复选框状态
+        skip_header = self.has_header_var.get()
+        self.logger.debug(f"预览列 {column_index}，跳过表头: {skip_header}")
         
         # 读取列数据
-        success, data = read_column_data(excel_path, self.selected_sheet, column_index, has_header)
+        success, data = read_column_data(excel_path, self.selected_sheet, column_index, skip_header)
         
         if not success:
+            self.logger.error(f"读取列数据失败: {data}")
             messagebox.showerror("错误", f"读取列数据失败: {data}")
             return
         
         # 保存导入的数据，以便在切换输入方式时使用
         if data:
+            # 记录变更前的数据量(如果有)
+            if hasattr(self, 'excel_imported_data'):
+                old_count = len(self.excel_imported_data)
+                self.logger.debug(f"原有数据量: {old_count}，更新为新数据量: {len(data)}")
+            
             self.excel_imported_data = data
+            self.logger.info(f"已读取 {len(data)} 条数据记录，跳过表头: {skip_header}")
+            
+            # 输出数据预览便于调试
+            data_preview = ", ".join(data[:4])  # 只显示前4条
+            if len(data) > 4:
+                data_preview += "..."
+            self.logger.debug(f"数据预览: {data_preview}")
             
             # 如果当前是直接输入模式，则显示数据
             if self.input_method.get() == "direct":
                 self.text_input.delete(1.0, tk.END)
                 self.text_input.insert(1.0, "\n".join(data))
+                self.logger.info(f"已将数据显示在文本框中")
                 
             self.logger.info(f"已预览 {len(data)} 个工作表名称")
         else:
-            if hasattr(self, 'excel_imported_data'):
-                del self.excel_imported_data
+            # 即使没有数据也创建一个空列表
+            self.excel_imported_data = []
+            self.logger.warning("读取到的数据为空")
+            
+            # 清空直接输入框
+            if self.input_method.get() == "direct":
+                self.text_input.delete(1.0, tk.END)
+                
+            messagebox.showinfo("提示", "未读取到任何数据，可能是该列为空或跳过表头设置不正确")
             self.logger.info("没有可用数据")
     
     def browse_output(self):
@@ -505,6 +628,43 @@ class CreateSheetsTab(ttk.Frame):
             self.logger.error(f"创建工作表时发生异常: {str(e)}")
             messagebox.showerror("错误", f"创建工作表时发生错误: {str(e)}")
             
+    def header_checkbox_clicked(self):
+        """处理跳过表头复选框点击事件"""
+        skip_header = self.has_header_var.get()
+        self.logger.info(f"用户{'' if skip_header else '取消'}勾选了跳过表头行")
+        
+        # 预览数据
+        self.preview_selected_column()
+        
+        # 无论当前是什么输入模式，都确保更新显示
+        # 先保存当前输入模式
+        current_mode = self.input_method.get()
+        
+        # 如果当前不是直接输入模式，临时切换到直接输入模式确保文本框更新
+        if current_mode != "direct":
+            # 暂存当前模式以便恢复
+            self.input_method.set("direct")
+            # 只更新文本框，不改变UI显示
+            if hasattr(self, 'excel_imported_data'):
+                self.text_input.delete(1.0, tk.END)
+                self.text_input.insert(1.0, "\n".join(self.excel_imported_data))
+                self.logger.info(f"已在切换模式前更新文本框内容")
+            # 恢复原模式
+            self.input_method.set(current_mode)
+        else:
+            # 如果已经是直接输入模式，直接更新文本框
+            if hasattr(self, 'excel_imported_data'):
+                self.text_input.delete(1.0, tk.END)
+                self.text_input.insert(1.0, "\n".join(self.excel_imported_data))
+                self.logger.info(f"已根据跳过表头设置({skip_header})更新文本框内容")
+        
+        # 记录详细的数据状态
+        if hasattr(self, 'excel_imported_data'):
+            data_preview = ", ".join(self.excel_imported_data[:3])
+            if len(self.excel_imported_data) > 3:
+                data_preview += "..."
+            self.logger.debug(f"更新后的数据({len(self.excel_imported_data)}项): {data_preview}")
+
 # 以下是废弃的函数，保留以备后用
 
 def use_selected_sheets(self, selection, sheet_list, window):
