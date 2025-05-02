@@ -71,11 +71,7 @@ class MoveCopyTab(ttk.Frame):
         self.setup_file_selection(left_pane)
         
         # 设置右侧目标和选项部分
-        right_top_frame = ttk.Frame(right_pane)
-        right_top_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 5))
-        
-        self.setup_target_path(right_top_frame)
-        self.setup_options(right_top_frame)
+        self.setup_target_options(right_pane)
         
         # 设置预览区域 - 限制高度
         preview_frame = ttk.LabelFrame(main_frame, text="预览", height=150)
@@ -87,137 +83,194 @@ class MoveCopyTab(ttk.Frame):
     def setup_file_selection(self, parent):
         """设置文件选择区域"""
         # 文件选择区域框架
-        selection_frame = ttk.LabelFrame(parent, text="文件选择")
-        selection_frame.pack(fill=tk.BOTH, expand=True)
+        file_frame = ttk.LabelFrame(parent, text="文件和文件夹选择")
+        file_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        # 按钮区域
-        button_frame = ttk.Frame(selection_frame)
-        button_frame.pack(fill=tk.X, padx=5, pady=5)
+        # 顶部按钮区域
+        button_frame = ttk.Frame(file_frame)
+        button_frame.pack(fill=tk.X, padx=8, pady=8)
         
-        # 添加文件和文件夹按钮
-        ttk.Button(button_frame, text="添加文件", command=self.add_files, style="Auxiliary.TButton").pack(side=tk.LEFT, padx=(0, 5))
-        ttk.Button(button_frame, text="添加文件夹", command=self.add_folder, style="Auxiliary.TButton").pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="清空", command=self.clear_selection, style="Auxiliary.TButton").pack(side=tk.LEFT, padx=5)
+        # 按钮组 - 统一按钮间距和大小
+        btn_container = ttk.Frame(button_frame)
+        btn_container.pack(side=tk.LEFT)
         
-        # 文件列表区域
-        list_frame = ttk.Frame(selection_frame)
-        list_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=(0, 5))
+        # 添加文件按钮
+        add_files_btn = ttk.Button(btn_container, text="添加文件", command=self.add_files, style="Auxiliary.TButton")
+        add_files_btn.pack(side=tk.LEFT, padx=(0, 5))
         
-        # 文件树状视图
+        # 添加文件夹按钮
+        add_folder_btn = ttk.Button(btn_container, text="添加文件夹", command=self.add_folder, style="Auxiliary.TButton")
+        add_folder_btn.pack(side=tk.LEFT, padx=(0, 5))
+        
+        # 清空选择按钮
+        clear_btn = ttk.Button(btn_container, text="清空选择", command=self.clear_selection, style="Auxiliary.TButton")
+        clear_btn.pack(side=tk.LEFT, padx=0)
+        
+        # 添加提示标签
+        tip_label = ttk.Label(button_frame, text="提示: 可反复点击添加文件/文件夹按钮添加多个项目", foreground="gray", font=("", 8))
+        tip_label.pack(side=tk.RIGHT, padx=5)
+        
+        # 文件列表显示区域，使用grid布局管理滚动条
+        list_container = ttk.Frame(file_frame)
+        list_container.pack(fill=tk.BOTH, expand=True, padx=8, pady=(0, 8))
+        
+        # 列配置
         columns = ("文件名", "路径")
-        self.files_tree = ttk.Treeview(list_frame, columns=columns, show="headings", selectmode="extended")
+        self.files_tree = ttk.Treeview(list_container, columns=columns, show="headings", selectmode="extended", height=8)
         
         # 设置列标题
-        self.files_tree.heading("文件名", text="文件名")
-        self.files_tree.heading("路径", text="路径")
+        for col in columns:
+            self.files_tree.heading(col, text=col)
+            # 设置列宽
+            if col == "文件名":
+                self.files_tree.column(col, width=150)
+            else:
+                self.files_tree.column(col, width=300)
         
-        # 设置列宽
-        self.files_tree.column("文件名", width=150)
-        self.files_tree.column("路径", width=300)
-        
-        # 添加滚动条
-        y_scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=self.files_tree.yview)
+        # 添加垂直滚动条
+        y_scrollbar = ttk.Scrollbar(list_container, orient="vertical", command=self.files_tree.yview)
         self.files_tree.configure(yscrollcommand=y_scrollbar.set)
         
-        x_scrollbar = ttk.Scrollbar(list_frame, orient="horizontal", command=self.files_tree.xview)
+        # 添加水平滚动条
+        x_scrollbar = ttk.Scrollbar(list_container, orient="horizontal", command=self.files_tree.xview)
         self.files_tree.configure(xscrollcommand=x_scrollbar.set)
         
-        # 布局
-        self.files_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        # 布局，使用grid而不是pack
+        self.files_tree.grid(row=0, column=0, sticky="nsew")
+        y_scrollbar.grid(row=0, column=1, sticky="ns")
+        x_scrollbar.grid(row=1, column=0, sticky="ew")
+        
+        # 配置list_container的行列权重
+        list_container.grid_rowconfigure(0, weight=1)
+        list_container.grid_columnconfigure(0, weight=1)
         
         # 右键菜单
         self.context_menu = tk.Menu(self.files_tree, tearoff=0)
         self.context_menu.add_command(label="删除选中项", command=self.remove_selected_files)
+        self.context_menu.add_command(label="全选", command=self.select_all_files)
         
         # 绑定右键菜单
         self.files_tree.bind("<Button-3>", self.show_context_menu)
+        
+        # 添加全选快捷键
+        self.files_tree.bind("<Control-a>", self.select_all_files)
     
-    def setup_target_path(self, parent):
-        """设置目标路径区域"""
-        # 目标路径区域框架
-        target_frame = ttk.LabelFrame(parent, text="目标路径")
-        target_frame.pack(fill=tk.X, padx=(0, 0), pady=(0, 5))
-        
-        # 添加目标路径输入和浏览按钮
-        path_frame = ttk.Frame(target_frame)
-        path_frame.pack(fill=tk.X, pady=5)
-        
-        ttk.Label(path_frame, text="目标路径:").pack(side=tk.LEFT, padx=5)
-        self.target_path_var = tk.StringVar()
-        self.target_path_entry = ttk.Entry(path_frame, textvariable=self.target_path_var)
-        self.target_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        
-        browse_btn = ttk.Button(path_frame, text="浏览", command=self.browse_target_path, style="Auxiliary.TButton")
-        browse_btn.pack(side=tk.LEFT, padx=5)
-    
-    def setup_options(self, parent):
-        """设置操作选项区域"""
-        # 操作选项区域框架
-        options_frame = ttk.LabelFrame(parent, text="操作选项")
-        options_frame.pack(fill=tk.BOTH, expand=True)
+    def setup_target_options(self, parent):
+        """设置目标和选项区域"""
+        # 目标和选项区域框架
+        options_frame = ttk.LabelFrame(parent, text="目标和选项")
+        options_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # 操作类型选择
         operation_frame = ttk.Frame(options_frame)
-        operation_frame.pack(fill=tk.X, padx=5, pady=5)
+        operation_frame.pack(fill=tk.X, padx=10, pady=(8, 5))
         
-        ttk.Label(operation_frame, text="操作类型:").pack(side=tk.LEFT)
+        ttk.Label(operation_frame, text="操作类型:").pack(side=tk.LEFT, padx=(0, 10))
         
-        # 操作类型单选按钮
-        self.operation_type = tk.StringVar(value="copy")
-        ttk.Radiobutton(operation_frame, text="复制", variable=self.operation_type, value="copy").pack(side=tk.LEFT, padx=(10, 5))
-        ttk.Radiobutton(operation_frame, text="移动", variable=self.operation_type, value="move").pack(side=tk.LEFT, padx=5)
+        self.operation_type = tk.StringVar(value="move")
+        ttk.Radiobutton(operation_frame, text="移动", variable=self.operation_type, value="move").pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Radiobutton(operation_frame, text="复制", variable=self.operation_type, value="copy").pack(side=tk.LEFT, padx=0)
         
-        # 冲突处理选项
-        conflict_frame = ttk.Frame(options_frame)
-        conflict_frame.pack(fill=tk.X, padx=5, pady=5)
+        # 分隔线增强视觉层次
+        separator = ttk.Separator(options_frame, orient="horizontal")
+        separator.pack(fill=tk.X, padx=5, pady=5)
         
-        ttk.Label(conflict_frame, text="冲突处理:").pack(side=tk.LEFT)
+        # 目标路径直接放在options_frame中，不再嵌套LabelFrame
+        path_frame = ttk.Frame(options_frame)
+        path_frame.pack(fill=tk.X, padx=10, pady=5)
         
-        self.conflict_action = tk.StringVar(value="询问")
-        conflict_combobox = ttk.Combobox(conflict_frame, textvariable=self.conflict_action, width=12)
-        conflict_combobox["values"] = ("询问", "覆盖", "跳过", "自动重命名")
-        conflict_combobox["state"] = "readonly"
-        conflict_combobox.pack(side=tk.LEFT, padx=(10, 0))
+        ttk.Label(path_frame, text="目标文件夹:").pack(side=tk.LEFT, padx=(0, 5))
         
-        # 保留文件结构选项
-        structure_frame = ttk.Frame(options_frame)
-        structure_frame.pack(fill=tk.X, padx=5, pady=5)
+        self.target_path = tk.StringVar()
+        # 设置固定宽度的条目以确保浏览按钮可见
+        path_entry_frame = ttk.Frame(path_frame)
+        path_entry_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
         
-        self.preserve_structure = tk.BooleanVar(value=False)
-        ttk.Checkbutton(structure_frame, text="保留文件夹结构", variable=self.preserve_structure).pack(anchor=tk.W)
+        path_entry = ttk.Entry(path_entry_frame, textvariable=self.target_path)
+        path_entry.pack(fill=tk.X, expand=True)
+        
+        browse_btn = ttk.Button(path_frame, text="浏览", command=self.browse_target_path, style="Auxiliary.TButton")
+        browse_btn.pack(side=tk.LEFT)
+        
+        # 高级选项
+        advanced_frame = ttk.LabelFrame(options_frame, text="高级选项")
+        advanced_frame.pack(fill=tk.X, padx=10, pady=(5, 8))
+        
+        # 保持文件夹结构选项
+        self.keep_structure = tk.BooleanVar(value=False)
+        ttk.Checkbutton(advanced_frame, text="保持文件夹结构", variable=self.keep_structure).pack(anchor=tk.W, padx=8, pady=2)
+        
+        # 文件冲突处理选项
+        conflict_frame = ttk.Frame(advanced_frame)
+        conflict_frame.pack(fill=tk.X, padx=8, pady=2)
+        
+        ttk.Label(conflict_frame, text="文件冲突处理:").pack(side=tk.LEFT, padx=(0, 5))
+        
+        # 创建中英文映射
+        self.conflict_map = {
+            '重命名': 'rename', 
+            '覆盖': 'overwrite', 
+            '跳过': 'skip', 
+            '询问': 'ask'
+        }
+        
+        # 添加反向映射，用于在内部值和显示值之间转换
+        self.conflict_reverse_map = {
+            'rename': '重命名', 
+            'overwrite': '覆盖', 
+            'skip': '跳过', 
+            'ask': '询问'
+        }
+        
+        self.conflict_display = tk.StringVar(value="重命名")  # 显示用变量
+        self.conflict_action = tk.StringVar(value="rename")   # 内部值变量
+        
+        conflict_combo = ttk.Combobox(conflict_frame, textvariable=self.conflict_display, width=15, state="readonly")
+        conflict_combo['values'] = tuple(self.conflict_map.keys())  # 使用中文选项
+        conflict_combo.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        # 绑定选择事件
+        conflict_combo.bind('<<ComboboxSelected>>', self.map_conflict_action)
+        
+        # 默认选择"重命名"
+        conflict_combo.current(0)
     
     def setup_preview_area(self, parent):
         """设置预览区域"""
+        # 创建一个容器框架，用于设置预览表格和滚动条
+        preview_container = ttk.Frame(parent)
+        preview_container.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
         # 预览表格
-        columns = ("序号", "文件名", "源路径", "目标路径")
-        self.preview_tree = ttk.Treeview(parent, columns=columns, show="headings", selectmode="browse")
+        columns = ("序号", "源文件", "目标路径")
+        self.preview_tree = ttk.Treeview(preview_container, columns=columns, show="headings", selectmode="browse", height=5)
         
         # 设置列标题
         for col in columns:
             self.preview_tree.heading(col, text=col)
-            # 设置列宽
             if col == "序号":
                 self.preview_tree.column(col, width=40, stretch=False)
-            elif col == "文件名":
-                self.preview_tree.column(col, width=120)
-            elif col == "源路径":
-                self.preview_tree.column(col, width=300)
+            elif col == "源文件":
+                self.preview_tree.column(col, width=200)
             else:  # 目标路径
-                self.preview_tree.column(col, width=300, stretch=True)
+                self.preview_tree.column(col, width=350, stretch=True)
         
-        # 添加滚动条
-        y_scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.preview_tree.yview)
+        # 添加垂直滚动条
+        y_scrollbar = ttk.Scrollbar(preview_container, orient="vertical", command=self.preview_tree.yview)
         self.preview_tree.configure(yscrollcommand=y_scrollbar.set)
         
-        x_scrollbar = ttk.Scrollbar(parent, orient="horizontal", command=self.preview_tree.xview)
+        # 添加水平滚动条
+        x_scrollbar = ttk.Scrollbar(preview_container, orient="horizontal", command=self.preview_tree.xview)
         self.preview_tree.configure(xscrollcommand=x_scrollbar.set)
         
-        # 布局
-        self.preview_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0), pady=5)
-        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y, pady=5, padx=(0, 5))
-        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X, padx=5)
+        # 布局，使用grid而不是pack
+        self.preview_tree.grid(row=0, column=0, sticky="nsew")
+        y_scrollbar.grid(row=0, column=1, sticky="ns")
+        x_scrollbar.grid(row=1, column=0, sticky="ew")
+        
+        # 配置容器的行列权重
+        preview_container.grid_rowconfigure(0, weight=1)
+        preview_container.grid_columnconfigure(0, weight=1)
     
     def add_files(self):
         """添加文件按钮回调"""
@@ -377,68 +430,29 @@ class MoveCopyTab(ttk.Frame):
             self.logger.warning(f"文件列表与树视图不一致！列表长度: {len(self.files_to_process)}，树项目数: {len(self.files_tree.get_children())}")
             self._synchronize_list_and_tree()
     
-    def _synchronize_list_and_tree(self):
-        """同步内部列表和树视图，确保它们一致"""
-        self.logger.debug("开始同步列表和树视图")
+    def select_all_files(self, event=None):
+        """选中所有文件"""
+        try:
+            self.files_tree.selection_set(self.files_tree.get_children())
+            self.logger.info("已选中所有文件")
+        except Exception as e:
+            self.logger.error(f"选中所有文件时出错: {e}")
+    
+    def map_conflict_action(self, event):
+        """映射冲突处理选项 - 从显示值到内部值"""
+        selected_display = self.conflict_display.get()  # 获取显示的中文值
         
-        # 获取树视图中的所有项目
-        tree_items = {}
-        for item_id in self.files_tree.get_children():
-            values = self.files_tree.item(item_id, "values")
-            filename = values[0]
-            directory = values[1]
-            if directory:
-                full_path = os.path.normpath(os.path.join(directory, filename))
-            else:
-                full_path = os.path.normpath(filename)
-            tree_items[full_path] = item_id
-        
-        # 获取列表中的所有规范化路径
-        list_paths = [os.path.normpath(p) for p in self.files_to_process]
-        
-        # 找出差异
-        tree_only = set(tree_items.keys()) - set(list_paths)
-        list_only = set(list_paths) - set(tree_items.keys())
-        
-        # 处理差异
-        if tree_only:
-            self.logger.warning(f"发现 {len(tree_only)} 个仅在树视图中存在的项目")
-            for path in tree_only:
-                # 从树视图中移除
-                self.files_tree.delete(tree_items[path])
-                self.logger.debug(f"从树视图中移除多余项目: {path}")
-        
-        if list_only:
-            self.logger.warning(f"发现 {len(list_only)} 个仅在列表中存在的项目")
-            # 过滤掉不存在的路径
-            valid_list_only = [p for p in list_only if os.path.exists(p)]
-            invalid_list_only = list_only - set(valid_list_only)
-            
-            # 移除不存在的路径
-            new_list = [p for p in self.files_to_process if os.path.normpath(p) not in invalid_list_only]
-            self.files_to_process = new_list
-            
-            # 添加有效的路径到树视图
-            for path in valid_list_only:
-                if os.path.isdir(path):
-                    self._add_folder_to_tree(path)
-                    self.logger.debug(f"添加目录到树视图: {path}")
-                else:
-                    self._add_file_to_tree(path)
-                    self.logger.debug(f"添加文件到树视图: {path}")
-        
-        # 完成后再次验证
-        if len(self.files_to_process) != len(self.files_tree.get_children()):
-            self.logger.error(f"同步后仍不一致! 列表长度: {len(self.files_to_process)}，树项目数: {len(self.files_tree.get_children())}")
-        else:
-            self.logger.info("列表与树视图已成功同步")
+        # 设置内部使用的英文值
+        if selected_display in self.conflict_map:
+            self.conflict_action.set(self.conflict_map[selected_display])
+            self.logger.debug(f"冲突处理选项: 显示值[{selected_display}] -> 内部值[{self.conflict_map[selected_display]}]")
     
     def browse_target_path(self):
         """浏览目标路径按钮回调"""
         try:
             target_dir = filedialog.askdirectory(title="选择目标文件夹")
             if target_dir:
-                self.target_path_var.set(target_dir)
+                self.target_path.set(target_dir)
                 self.logger.info(f"已选择目标路径: {target_dir}")
         except Exception as e:
             self.logger.error(f"选择目标路径时出错: {str(e)}")
@@ -484,7 +498,7 @@ class MoveCopyTab(ttk.Frame):
             messagebox.showinfo("提示", "请先选择要处理的文件或文件夹")
             return
         
-        target_dir = self.target_path_var.get()
+        target_dir = self.target_path.get()
         if not target_dir:
             messagebox.showinfo("提示", "请选择目标路径")
             return
@@ -494,7 +508,7 @@ class MoveCopyTab(ttk.Frame):
         
         # 获取操作参数
         operation = self.operation_type.get()
-        preserve_structure = self.preserve_structure.get()
+        preserve_structure = self.keep_structure.get()
         
         # 清空预览表格
         self.preview_tree.delete(*self.preview_tree.get_children())
@@ -619,7 +633,7 @@ class MoveCopyTab(ttk.Frame):
             messagebox.showinfo("提示", "请先选择要处理的文件或文件夹")
             return
         
-        target_dir = self.target_path_var.get()
+        target_dir = self.target_path.get()
         if not target_dir:
             messagebox.showinfo("提示", "请选择目标路径")
             return
@@ -630,16 +644,8 @@ class MoveCopyTab(ttk.Frame):
         
         # 获取操作参数
         operation = self.operation_type.get()
-        conflict_action = self.conflict_action.get()
-        preserve_structure = self.preserve_structure.get()
-        
-        # 冲突处理选项映射
-        conflict_map = {
-            "询问": "ask",
-            "覆盖": "overwrite",
-            "跳过": "skip",
-            "自动重命名": "rename"
-        }
+        conflict_action = self.conflict_action.get()  # 已经是内部值 (rename, overwrite, skip, ask)
+        preserve_structure = self.keep_structure.get()
         
         # 操作类型文本
         op_text = "复制" if operation == "copy" else "移动"
@@ -683,12 +689,15 @@ class MoveCopyTab(ttk.Frame):
             for i, path in enumerate(self.files_to_process):
                 self.logger.debug(f"项目 {i+1}: {path} ({os.path.isdir(path) and '文件夹' or '文件'})")
             
+            # 记录操作详情
+            self.logger.info(f"执行{op_text}操作, 冲突处理: {conflict_action}, 保持结构: {preserve_structure}")
+            
             # 调用文件工具类执行移动/复制
             success_count, failed_count = move_copy_files(
                 self.files_to_process,
                 target_dir,
                 operation=operation,
-                conflict_action=conflict_map.get(conflict_action, "ask"),
+                conflict_action=conflict_action,  # 直接使用内部值，无需再次映射
                 preserve_structure=preserve_structure
             )
             
@@ -705,4 +714,60 @@ class MoveCopyTab(ttk.Frame):
         
         except Exception as e:
             self.logger.error(f"执行{op_text}操作时出错: {str(e)}")
-            messagebox.showerror("错误", f"执行{op_text}操作时出错: {str(e)}") 
+            messagebox.showerror("错误", f"执行{op_text}操作时出错: {str(e)}")
+
+    def _synchronize_list_and_tree(self):
+        """同步内部列表和树视图，确保它们一致"""
+        self.logger.debug("开始同步列表和树视图")
+        
+        # 获取树视图中的所有项目
+        tree_items = {}
+        for item_id in self.files_tree.get_children():
+            values = self.files_tree.item(item_id, "values")
+            filename = values[0]
+            directory = values[1]
+            if directory:
+                full_path = os.path.normpath(os.path.join(directory, filename))
+            else:
+                full_path = os.path.normpath(filename)
+            tree_items[full_path] = item_id
+        
+        # 获取列表中的所有规范化路径
+        list_paths = [os.path.normpath(p) for p in self.files_to_process]
+        
+        # 找出差异
+        tree_only = set(tree_items.keys()) - set(list_paths)
+        list_only = set(list_paths) - set(tree_items.keys())
+        
+        # 处理差异
+        if tree_only:
+            self.logger.warning(f"发现 {len(tree_only)} 个仅在树视图中存在的项目")
+            for path in tree_only:
+                # 从树视图中移除
+                self.files_tree.delete(tree_items[path])
+                self.logger.debug(f"从树视图中移除多余项目: {path}")
+        
+        if list_only:
+            self.logger.warning(f"发现 {len(list_only)} 个仅在列表中存在的项目")
+            # 过滤掉不存在的路径
+            valid_list_only = [p for p in list_only if os.path.exists(p)]
+            invalid_list_only = list_only - set(valid_list_only)
+            
+            # 移除不存在的路径
+            new_list = [p for p in self.files_to_process if os.path.normpath(p) not in invalid_list_only]
+            self.files_to_process = new_list
+            
+            # 添加有效的路径到树视图
+            for path in valid_list_only:
+                if os.path.isdir(path):
+                    self._add_folder_to_tree(path)
+                    self.logger.debug(f"添加目录到树视图: {path}")
+                else:
+                    self._add_file_to_tree(path)
+                    self.logger.debug(f"添加文件到树视图: {path}")
+        
+        # 完成后再次验证
+        if len(self.files_to_process) != len(self.files_tree.get_children()):
+            self.logger.error(f"同步后仍不一致! 列表长度: {len(self.files_to_process)}，树项目数: {len(self.files_tree.get_children())}")
+        else:
+            self.logger.info("列表与树视图已成功同步") 

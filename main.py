@@ -83,7 +83,8 @@ def main():
         
         # 设置主窗口
         root.title("批量文件处理工具")
-        root.geometry("800x600")
+        root.geometry("960x680")  # 增加初始窗口尺寸
+        root.minsize(960, 680)    # 设置最小窗口尺寸，防止窗口被缩小到界面变形
         
         # 设置应用图标
         if getattr(sys, 'frozen', False):

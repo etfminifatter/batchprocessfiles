@@ -37,7 +37,7 @@ class CreateSheetsTab(ttk.Frame):
         self.setup_input_area(left_pane)
         self.setup_format_and_output(right_pane)
         
-        # 预览区域 - 限制高度，不再使用expand=True
+        # 预览区域 - 限制高度
         preview_frame = ttk.LabelFrame(main_frame, text="预览", height=150)
         preview_frame.pack(fill=tk.X, expand=False)
         preview_frame.pack_propagate(False)  # 防止子组件改变frame高度
@@ -52,7 +52,7 @@ class CreateSheetsTab(ttk.Frame):
     def setup_input_area(self, parent):
         """设置输入区域"""
         input_frame = ttk.LabelFrame(parent, text="输入区域")
-        input_frame.pack(fill=tk.BOTH, expand=True)
+        input_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # 输入方式选择
         input_method_frame = ttk.Frame(input_frame)
@@ -65,6 +65,10 @@ class CreateSheetsTab(ttk.Frame):
                        value="direct", command=self.toggle_input_method).pack(side=tk.LEFT, padx=5)
         ttk.Radiobutton(input_method_frame, text="从Excel导入", variable=self.input_method, 
                        value="excel", command=self.toggle_input_method).pack(side=tk.LEFT, padx=5)
+        
+        # 分隔线增强视觉层次
+        separator = ttk.Separator(input_frame, orient="horizontal")
+        separator.pack(fill=tk.X, padx=5, pady=5)
         
         # 直接输入区域
         self.direct_input_frame = ttk.Frame(input_frame)
@@ -139,7 +143,7 @@ class CreateSheetsTab(ttk.Frame):
         """设置格式和输出区域"""
         # 表格格式设置
         format_frame = ttk.LabelFrame(parent, text="表格格式设置")
-        format_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        format_frame.pack(fill=tk.X, padx=5, pady=(5, 10))
         
         # 标题行设置区域
         title_section = ttk.Frame(format_frame)
@@ -170,9 +174,13 @@ class CreateSheetsTab(ttk.Frame):
         self.header_text = tk.Text(self.header_frame, height=4, width=40)
         self.header_text.pack(side=tk.TOP, fill=tk.X, expand=True, padx=0, pady=2)
         
+        # 分隔线增强视觉层次
+        separator = ttk.Separator(parent, orient="horizontal")
+        separator.pack(fill=tk.X, padx=5, pady=5)
+        
         # 输出设置区域
         output_frame = ttk.LabelFrame(parent, text="输出设置")
-        output_frame.pack(fill=tk.BOTH, expand=True)
+        output_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=0)
         
         # 输出文件
         file_frame = ttk.Frame(output_frame)
@@ -182,6 +190,24 @@ class CreateSheetsTab(ttk.Frame):
         self.output_path = tk.StringVar()
         ttk.Entry(file_frame, textvariable=self.output_path, state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Button(file_frame, text="浏览", style="Auxiliary.TButton", command=self.browse_output).pack(side=tk.LEFT, padx=(5, 0))
+        
+        # 添加更多设置和说明文字，填充空白区域
+        tips_frame = ttk.LabelFrame(output_frame, text="提示")
+        tips_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        tips_text = """
+• 创建Excel工作表时，将按照输入名称创建对应的工作表
+• 可选择是否添加标题行和表头行
+• 如果输出文件已存在，将在原文件基础上添加或更新工作表
+• 建议在预览后再执行创建操作
+        """
+        ttk.Label(tips_frame, text=tips_text, justify=tk.LEFT, wraplength=360).pack(padx=5, pady=5, anchor=tk.NW)
+        
+        # 这里可以添加更多的输出设置选项
+        
+        # 底部留白，提升视觉平衡感
+        bottom_padding = ttk.Frame(parent)
+        bottom_padding.pack(fill=tk.X, pady=5)
     
     def toggle_input_method(self):
         """切换输入方式"""
@@ -491,9 +517,9 @@ class CreateSheetsTab(ttk.Frame):
             self.output_path.set(filename)
     
     def preview(self):
-        """预览生成结果"""
-        self.logger.info("开始预览生成结果")
+        """预览创建操作"""
         try:
+            self.logger.info("开始预览创建工作表")
             # 清空预览表格
             for item in self.preview_tree.get_children():
                 self.preview_tree.delete(item)
@@ -516,7 +542,7 @@ class CreateSheetsTab(ttk.Frame):
                         messagebox.showerror("错误", "请选择Excel文件或导入数据")
                         return
                     
-                    # 读取Excel文件中的工作表名称，这是兜底方案
+                    # 读取Excel文件中的工作表名称
                     from utils.excel_utils import read_sheet_names
                     success, result = read_sheet_names(self.excel_path.get())
                     
@@ -539,26 +565,35 @@ class CreateSheetsTab(ttk.Frame):
                 self.logger.warning("未选择输出文件")
                 messagebox.showerror("错误", "请选择输出文件")
                 return
-            
-            # 获取包含内容
-            content_list = []
-            if self.enable_title.get() and self.title_text.get().strip():
-                content_list.append(f"标题: {self.title_text.get().strip()}")
-                self.logger.info(f"预览标题行: {self.title_text.get().strip()}")
                 
+            # 获取表头内容
+            header_content = ""
             if self.enable_header.get():
-                # 从多行文本框中获取表头
                 header_lines = self.header_text.get("1.0", tk.END).strip().split('\n')
                 if header_lines and any(line.strip() for line in header_lines):
-                    headers = [line.strip() for line in header_lines if line.strip()]
-                    content_list.append(f"表头: {', '.join(headers)}")
-                    self.logger.info(f"预览表头行: {', '.join(headers)}")
+                    header_content = ", ".join([line.strip() for line in header_lines if line.strip()])
+                    if len(header_content) > 50:
+                        header_content = header_content[:47] + "..."
             
-            content_str = ", ".join(content_list) if content_list else "无附加内容"
+            # 格式化标题
+            title_content = ""
+            if self.enable_title.get() and self.title_text.get().strip():
+                title_content = self.title_text.get().strip()
+                if title_content:
+                    if header_content:
+                        header_content = f"标题: {title_content} | 表头: {header_content}"
+                    else:
+                        header_content = f"标题: {title_content}"
             
-            # 添加预览项
+            # 添加到预览表格
             for i, name in enumerate(sheet_names):
-                self.preview_tree.insert("", tk.END, values=(i+1, name, content_str))
+                if len(name) > 50:  # 限制显示长度
+                    displayed_name = name[:47] + "..."
+                else:
+                    displayed_name = name
+                
+                # 添加到预览
+                self.preview_tree.insert("", tk.END, values=(i+1, displayed_name, header_content or "无", output_path))
             
             self.logger.info(f"预览完成，显示了 {len(sheet_names)} 个工作表")
             
@@ -691,7 +726,7 @@ class CreateSheetsTab(ttk.Frame):
         preview_container.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # 预览表格
-        columns = ("序号", "原始信息", "表格名称", "输出路径")
+        columns = ("序号", "工作表名称", "表头内容", "输出文件")
         self.preview_tree = ttk.Treeview(preview_container, columns=columns, show="headings", height=5)
         
         # 设置列标题
@@ -700,11 +735,11 @@ class CreateSheetsTab(ttk.Frame):
             # 设置列宽
             if col == "序号":
                 self.preview_tree.column(col, width=50, stretch=False)
-            elif col == "原始信息":
-                self.preview_tree.column(col, width=100)
-            elif col == "表格名称":
-                self.preview_tree.column(col, width=150)
-            else:  # 输出路径
+            elif col == "工作表名称":
+                self.preview_tree.column(col, width=120)
+            elif col == "表头内容":
+                self.preview_tree.column(col, width=200)
+            else:  # 输出文件
                 self.preview_tree.column(col, width=300, stretch=True)
         
         # 添加垂直滚动条
@@ -715,7 +750,7 @@ class CreateSheetsTab(ttk.Frame):
         x_scrollbar = ttk.Scrollbar(preview_container, orient="horizontal", command=self.preview_tree.xview)
         self.preview_tree.configure(xscrollcommand=x_scrollbar.set)
         
-        # 布局，使用grid而不是pack以更好地控制布局
+        # 布局，使用grid而不是pack
         self.preview_tree.grid(row=0, column=0, sticky="nsew")
         y_scrollbar.grid(row=0, column=1, sticky="ns")
         x_scrollbar.grid(row=1, column=0, sticky="ew")

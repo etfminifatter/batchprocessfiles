@@ -72,19 +72,19 @@ class CreateDirsTab(ttk.Frame):
     def setup_input_area(self, parent):
         """设置输入区域"""
         input_frame = ttk.LabelFrame(parent, text="输入")
-        input_frame.pack(fill=tk.BOTH, expand=True)
+        input_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # 输入方式选择
         method_frame = ttk.Frame(input_frame)
-        method_frame.pack(fill=tk.X, padx=10, pady=5)
+        method_frame.pack(fill=tk.X, padx=10, pady=(8, 5))
         
         ttk.Label(method_frame, text="输入方式:").pack(side=tk.LEFT, padx=(0, 10))
         
         self.input_method = tk.StringVar(value="direct")
         ttk.Radiobutton(method_frame, text="直接输入", variable=self.input_method, value="direct", 
-                       command=self.toggle_input_method).pack(side=tk.LEFT, padx=5)
+                       command=self.toggle_input_method).pack(side=tk.LEFT, padx=(0, 10))
         ttk.Radiobutton(method_frame, text="从文件导入", variable=self.input_method, value="file", 
-                       command=self.toggle_input_method).pack(side=tk.LEFT, padx=5)
+                       command=self.toggle_input_method).pack(side=tk.LEFT, padx=0)
         
         # 直接输入框架
         self.direct_input_frame = ttk.Frame(input_frame)
@@ -96,10 +96,10 @@ class CreateDirsTab(ttk.Frame):
         
         # 按钮区域
         button_frame = ttk.Frame(self.direct_input_frame)
-        button_frame.pack(fill=tk.X, pady=5)
+        button_frame.pack(fill=tk.X, pady=(5, 0))
         
         ttk.Button(button_frame, text="从剪贴板粘贴", style="Auxiliary.TButton", command=self.paste_from_clipboard).pack(side=tk.LEFT, padx=(0, 5))
-        ttk.Button(button_frame, text="清空", style="Auxiliary.TButton", command=self.clear_input).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(button_frame, text="清空", style="Auxiliary.TButton", command=self.clear_input).pack(side=tk.LEFT, padx=0)
         
         # 从文件导入框架
         self.file_input_frame = ttk.Frame(input_frame)
@@ -147,19 +147,19 @@ class CreateDirsTab(ttk.Frame):
     def setup_naming_rules(self, parent):
         """设置命名规则区域"""
         naming_frame = ttk.LabelFrame(parent, text="命名规则")
-        naming_frame.pack(fill=tk.X, padx=0, pady=(0, 5))
+        naming_frame.pack(fill=tk.X, padx=5, pady=(0, 10))
         
         # 命名方式选择
         method_frame = ttk.Frame(naming_frame)
-        method_frame.pack(fill=tk.X, padx=10, pady=5)
+        method_frame.pack(fill=tk.X, padx=10, pady=(8, 5))
         
         ttk.Label(method_frame, text="命名方式:").pack(side=tk.LEFT, padx=(0, 10))
         
         self.naming_rule = tk.StringVar(value="direct")
         ttk.Radiobutton(method_frame, text="直接命名", variable=self.naming_rule, value="direct", 
-                       command=self.toggle_naming_rule).pack(side=tk.LEFT, padx=5)
+                       command=self.toggle_naming_rule).pack(side=tk.LEFT, padx=(0, 10))
         ttk.Radiobutton(method_frame, text="自定义规则", variable=self.naming_rule, value="custom", 
-                       command=self.toggle_naming_rule).pack(side=tk.LEFT, padx=5)
+                       command=self.toggle_naming_rule).pack(side=tk.LEFT, padx=0)
         
         # 直接命名框架（无需额外设置，直接使用输入的名称）
         self.direct_naming_frame = ttk.Frame(naming_frame)
@@ -169,11 +169,11 @@ class CreateDirsTab(ttk.Frame):
         self.custom_rule_frame = ttk.Frame(naming_frame)
         
         rule_entry_frame = ttk.Frame(self.custom_rule_frame)
-        rule_entry_frame.pack(fill=tk.X, pady=5)
+        rule_entry_frame.pack(fill=tk.X, pady=(5, 8))
         
-        ttk.Label(rule_entry_frame, text="命名规则:").pack(side=tk.LEFT)
+        ttk.Label(rule_entry_frame, text="命名规则:").pack(side=tk.LEFT, padx=(0, 5))
         self.rule_pattern = ttk.Entry(rule_entry_frame)
-        self.rule_pattern.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+        self.rule_pattern.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
         self.rule_pattern.insert(0, "prefix_$NAME_$ISEQ3")
         
         # 规则说明
@@ -212,26 +212,31 @@ class CreateDirsTab(ttk.Frame):
     def setup_output_settings(self, parent):
         """设置输出设置区域"""
         output_frame = ttk.LabelFrame(parent, text="输出设置")
-        output_frame.pack(fill=tk.BOTH, expand=True)
+        output_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=0)
         
         # 目标路径
         path_frame = ttk.Frame(output_frame)
-        path_frame.pack(fill=tk.X, padx=10, pady=5)
+        path_frame.pack(fill=tk.X, padx=10, pady=(10, 8))
         
-        ttk.Label(path_frame, text="目标路径:").pack(side=tk.LEFT)
+        ttk.Label(path_frame, text="目标路径:").pack(side=tk.LEFT, padx=(0, 5))
         
         self.target_path = tk.StringVar()
-        ttk.Entry(path_frame, textvariable=self.target_path, width=30).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+        ttk.Entry(path_frame, textvariable=self.target_path, width=30).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
         
         browse_btn = ttk.Button(path_frame, text="浏览", command=self.browse_target_path, style="Auxiliary.TButton")
-        browse_btn.pack(side=tk.LEFT, padx=(5, 0))
-        
+        browse_btn.pack(side=tk.LEFT, padx=0)
+    
     def setup_preview_area(self, parent):
         """设置预览区域"""
+        # 创建一个容器框架，用于设置预览表格和滚动条
+        preview_container = ttk.Frame(parent)
+        preview_container.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
         # 预览表格
         columns = ("序号", "原始输入", "生成目录名", "完整路径")
-        self.preview_tree = ttk.Treeview(parent, columns=columns, show="headings")
+        self.preview_tree = ttk.Treeview(preview_container, columns=columns, show="headings", height=5)
         
+        # 设置列标题
         for col in columns:
             self.preview_tree.heading(col, text=col)
             if col == "序号":
@@ -243,18 +248,22 @@ class CreateDirsTab(ttk.Frame):
             else:  # 完整路径
                 self.preview_tree.column(col, width=350, stretch=True)
         
-        # 添加水平滚动条
-        x_scrollbar = ttk.Scrollbar(parent, orient="horizontal", command=self.preview_tree.xview)
-        self.preview_tree.configure(xscrollcommand=x_scrollbar.set)
-        
-        # 垂直滚动条
-        y_scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.preview_tree.yview)
+        # 添加垂直滚动条
+        y_scrollbar = ttk.Scrollbar(preview_container, orient="vertical", command=self.preview_tree.yview)
         self.preview_tree.configure(yscrollcommand=y_scrollbar.set)
         
-        # 布局
-        self.preview_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0), pady=5)
-        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y, pady=5, padx=(0, 5))
-        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X, padx=5)
+        # 添加水平滚动条
+        x_scrollbar = ttk.Scrollbar(preview_container, orient="horizontal", command=self.preview_tree.xview)
+        self.preview_tree.configure(xscrollcommand=x_scrollbar.set)
+        
+        # 布局，使用grid而不是pack以更好地控制布局
+        self.preview_tree.grid(row=0, column=0, sticky="nsew")
+        y_scrollbar.grid(row=0, column=1, sticky="ns")
+        x_scrollbar.grid(row=1, column=0, sticky="ew")
+        
+        # 配置容器的行列权重
+        preview_container.grid_rowconfigure(0, weight=1)
+        preview_container.grid_columnconfigure(0, weight=1)
     
     def toggle_input_method(self):
         """切换输入方式"""

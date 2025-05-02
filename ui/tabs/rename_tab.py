@@ -50,35 +50,39 @@ class RenameTab(ttk.Frame):
         """设置文件选择区域"""
         # 文件选择区域框架
         file_frame = ttk.LabelFrame(parent, text="文件和文件夹选择")
-        file_frame.pack(fill=tk.BOTH, expand=True)
+        file_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # 顶部按钮区域
         button_frame = ttk.Frame(file_frame)
-        button_frame.pack(fill=tk.X, padx=5, pady=5)
+        button_frame.pack(fill=tk.X, padx=8, pady=8)
+        
+        # 按钮组 - 统一按钮间距和大小
+        btn_container = ttk.Frame(button_frame)
+        btn_container.pack(side=tk.LEFT)
         
         # 添加文件按钮
-        add_files_btn = ttk.Button(button_frame, text="添加文件", command=self.add_files, style="Auxiliary.TButton")
-        add_files_btn.pack(side=tk.LEFT, padx=2)
+        add_files_btn = ttk.Button(btn_container, text="添加文件", command=self.add_files, style="Auxiliary.TButton")
+        add_files_btn.pack(side=tk.LEFT, padx=(0, 5))
         
         # 添加文件夹按钮
-        add_folder_btn = ttk.Button(button_frame, text="添加文件夹", command=self.add_folder, style="Auxiliary.TButton")
-        add_folder_btn.pack(side=tk.LEFT, padx=2)
+        add_folder_btn = ttk.Button(btn_container, text="添加文件夹", command=self.add_folder, style="Auxiliary.TButton")
+        add_folder_btn.pack(side=tk.LEFT, padx=(0, 5))
         
         # 清空选择按钮
-        clear_btn = ttk.Button(button_frame, text="清空选择", command=self.clear_selection, style="Auxiliary.TButton")
-        clear_btn.pack(side=tk.LEFT, padx=2)
+        clear_btn = ttk.Button(btn_container, text="清空选择", command=self.clear_selection, style="Auxiliary.TButton")
+        clear_btn.pack(side=tk.LEFT, padx=0)
         
         # 添加提示标签
         tip_label = ttk.Label(button_frame, text="提示: 可反复点击添加文件/文件夹按钮添加多个项目", foreground="gray", font=("", 8))
         tip_label.pack(side=tk.RIGHT, padx=5)
         
-        # 文件列表显示区域，使用Treeview
-        list_frame = ttk.Frame(file_frame)
-        list_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=(0, 5))
+        # 文件列表显示区域，使用grid布局管理滚动条
+        list_container = ttk.Frame(file_frame)
+        list_container.pack(fill=tk.BOTH, expand=True, padx=8, pady=(0, 8))
         
         # 列配置
         columns = ("文件名", "路径")
-        self.files_tree = ttk.Treeview(list_frame, columns=columns, show="headings", selectmode="extended")
+        self.files_tree = ttk.Treeview(list_container, columns=columns, show="headings", selectmode="extended", height=8)
         
         # 设置列标题
         for col in columns:
@@ -89,17 +93,22 @@ class RenameTab(ttk.Frame):
             else:
                 self.files_tree.column(col, width=300)
         
-        # 添加滚动条
-        y_scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=self.files_tree.yview)
+        # 添加垂直滚动条
+        y_scrollbar = ttk.Scrollbar(list_container, orient="vertical", command=self.files_tree.yview)
         self.files_tree.configure(yscrollcommand=y_scrollbar.set)
         
-        x_scrollbar = ttk.Scrollbar(list_frame, orient="horizontal", command=self.files_tree.xview)
+        # 添加水平滚动条
+        x_scrollbar = ttk.Scrollbar(list_container, orient="horizontal", command=self.files_tree.xview)
         self.files_tree.configure(xscrollcommand=x_scrollbar.set)
         
-        # 布局
-        self.files_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+        # 布局，使用grid而不是pack
+        self.files_tree.grid(row=0, column=0, sticky="nsew")
+        y_scrollbar.grid(row=0, column=1, sticky="ns")
+        x_scrollbar.grid(row=1, column=0, sticky="ew")
+        
+        # 配置list_container的行列权重
+        list_container.grid_rowconfigure(0, weight=1)
+        list_container.grid_columnconfigure(0, weight=1)
         
         # 右键菜单
         self.context_menu = tk.Menu(self.files_tree, tearoff=0)
@@ -116,27 +125,31 @@ class RenameTab(ttk.Frame):
         """设置重命名规则区域"""
         # 重命名规则区域框架
         rules_frame = ttk.LabelFrame(parent, text="重命名规则")
-        rules_frame.pack(fill=tk.BOTH, expand=True)
+        rules_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # 查找和替换文本区域
         find_replace_frame = ttk.Frame(rules_frame)
-        find_replace_frame.pack(fill=tk.X, padx=10, pady=5)
+        find_replace_frame.pack(fill=tk.X, padx=10, pady=(8, 5))
         
         # 查找文本
         find_frame = ttk.Frame(find_replace_frame)
-        find_frame.pack(fill=tk.X, pady=2)
+        find_frame.pack(fill=tk.X, pady=(0, 5))
         
-        ttk.Label(find_frame, text="查找文本:").pack(side=tk.LEFT)
+        ttk.Label(find_frame, text="查找文本:").pack(side=tk.LEFT, padx=(0, 5))
         self.find_text = tk.StringVar()
-        ttk.Entry(find_frame, textvariable=self.find_text).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+        ttk.Entry(find_frame, textvariable=self.find_text).pack(side=tk.LEFT, fill=tk.X, expand=True)
         
         # 替换文本
         replace_frame = ttk.Frame(find_replace_frame)
-        replace_frame.pack(fill=tk.X, pady=2)
+        replace_frame.pack(fill=tk.X, pady=(0, 5))
         
-        ttk.Label(replace_frame, text="替换为:  ").pack(side=tk.LEFT)
+        ttk.Label(replace_frame, text="替换为:  ").pack(side=tk.LEFT, padx=(0, 5))
         self.replace_text = tk.StringVar()
-        ttk.Entry(replace_frame, textvariable=self.replace_text).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+        ttk.Entry(replace_frame, textvariable=self.replace_text).pack(side=tk.LEFT, fill=tk.X, expand=True)
+        
+        # 选项区域 - 使用分隔线增强视觉层次
+        separator = ttk.Separator(rules_frame, orient="horizontal")
+        separator.pack(fill=tk.X, padx=5, pady=5)
         
         # 选项区域
         options_frame = ttk.Frame(rules_frame)
@@ -148,24 +161,31 @@ class RenameTab(ttk.Frame):
         self.use_regex = tk.BooleanVar(value=False)
         
         # 使用网格布局排列复选框
-        ttk.Checkbutton(options_frame, text="大小写敏感", variable=self.case_sensitive).grid(row=0, column=0, sticky="w", padx=5)
-        ttk.Checkbutton(options_frame, text="全词匹配", variable=self.whole_word).grid(row=0, column=1, sticky="w", padx=5)
-        ttk.Checkbutton(options_frame, text="使用正则表达式", variable=self.use_regex).grid(row=1, column=0, sticky="w", padx=5, columnspan=2)
+        checkboxes_frame = ttk.Frame(options_frame)
+        checkboxes_frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Checkbutton(checkboxes_frame, text="大小写敏感", variable=self.case_sensitive).grid(row=0, column=0, sticky="w", padx=(0, 15))
+        ttk.Checkbutton(checkboxes_frame, text="全词匹配", variable=self.whole_word).grid(row=0, column=1, sticky="w", padx=0)
+        ttk.Checkbutton(checkboxes_frame, text="使用正则表达式", variable=self.use_regex).grid(row=1, column=0, sticky="w", padx=(0, 15), pady=(5, 0), columnspan=2)
         
         # 应用范围选项
         scope_frame = ttk.LabelFrame(rules_frame, text="应用范围")
-        scope_frame.pack(fill=tk.X, padx=10, pady=5)
+        scope_frame.pack(fill=tk.X, padx=10, pady=(5, 8))
         
         self.rename_scope = tk.StringVar(value="name_only")
-        ttk.Radiobutton(scope_frame, text="仅文件名", variable=self.rename_scope, value="name_only").pack(anchor=tk.W, padx=5, pady=2)
-        ttk.Radiobutton(scope_frame, text="仅扩展名", variable=self.rename_scope, value="ext_only").pack(anchor=tk.W, padx=5, pady=2)
-        ttk.Radiobutton(scope_frame, text="文件名和扩展名", variable=self.rename_scope, value="both").pack(anchor=tk.W, padx=5, pady=2)
+        ttk.Radiobutton(scope_frame, text="仅文件名", variable=self.rename_scope, value="name_only").pack(anchor=tk.W, padx=8, pady=2)
+        ttk.Radiobutton(scope_frame, text="仅扩展名", variable=self.rename_scope, value="ext_only").pack(anchor=tk.W, padx=8, pady=2)
+        ttk.Radiobutton(scope_frame, text="文件名和扩展名", variable=self.rename_scope, value="both").pack(anchor=tk.W, padx=8, pady=2)
     
     def setup_preview_area(self, parent):
         """设置预览区域"""
+        # 创建一个容器框架，用于设置预览表格和滚动条
+        preview_container = ttk.Frame(parent)
+        preview_container.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
         # 预览表格
         columns = ("序号", "原文件名", "新文件名", "路径")
-        self.preview_tree = ttk.Treeview(parent, columns=columns, show="headings", selectmode="browse")
+        self.preview_tree = ttk.Treeview(preview_container, columns=columns, show="headings", selectmode="browse", height=5)
         
         # 设置列标题
         for col in columns:
@@ -178,17 +198,22 @@ class RenameTab(ttk.Frame):
             else:  # 路径列
                 self.preview_tree.column(col, width=350, stretch=True)
         
-        # 添加滚动条
-        y_scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.preview_tree.yview)
+        # 添加垂直滚动条
+        y_scrollbar = ttk.Scrollbar(preview_container, orient="vertical", command=self.preview_tree.yview)
         self.preview_tree.configure(yscrollcommand=y_scrollbar.set)
         
-        x_scrollbar = ttk.Scrollbar(parent, orient="horizontal", command=self.preview_tree.xview)
+        # 添加水平滚动条
+        x_scrollbar = ttk.Scrollbar(preview_container, orient="horizontal", command=self.preview_tree.xview)
         self.preview_tree.configure(xscrollcommand=x_scrollbar.set)
         
-        # 布局
-        self.preview_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0), pady=5)
-        y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y, pady=5, padx=(0, 5))
-        x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X, padx=5)
+        # 布局，使用grid而不是pack
+        self.preview_tree.grid(row=0, column=0, sticky="nsew")
+        y_scrollbar.grid(row=0, column=1, sticky="ns")
+        x_scrollbar.grid(row=1, column=0, sticky="ew")
+        
+        # 配置容器的行列权重
+        preview_container.grid_rowconfigure(0, weight=1)
+        preview_container.grid_columnconfigure(0, weight=1)
     
     def add_files(self):
         """添加文件按钮回调"""
