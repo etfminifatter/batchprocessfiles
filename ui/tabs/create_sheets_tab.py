@@ -138,6 +138,19 @@ class CreateSheetsTab(ttk.Frame):
             )
         )
         help_button.pack(side=tk.LEFT, padx=(2, 0))
+        
+        # 添加文件内容预览区域
+        preview_frame = ttk.Frame(self.excel_input_frame)
+        preview_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        ttk.Label(preview_frame, text="文件内容预览:").pack(anchor=tk.W, pady=(5, 0))
+        
+        self.file_preview = tk.Text(preview_frame, height=8, wrap=tk.WORD, state="disabled")
+        self.file_preview.pack(fill=tk.BOTH, expand=True, pady=5)
+        # 添加滚动条
+        preview_scroll = ttk.Scrollbar(self.file_preview, command=self.file_preview.yview)
+        preview_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        self.file_preview.config(yscrollcommand=preview_scroll.set)
     
     def setup_format_and_output(self, parent):
         """设置格式和输出区域"""
@@ -240,6 +253,15 @@ class CreateSheetsTab(ttk.Frame):
             # 从直接输入模式切换到Excel导入模式
             self.direct_input_frame.pack_forget()
             self.excel_input_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+            
+            # 如果已经有Excel导入的数据，更新文件预览框
+            if hasattr(self, 'excel_imported_data') and self.excel_imported_data:
+                # 更新预览框内容
+                self.file_preview.config(state="normal")
+                self.file_preview.delete(1.0, tk.END)
+                self.file_preview.insert(1.0, "\n".join(self.excel_imported_data))
+                self.file_preview.config(state="disabled")
+                self.logger.info(f"已更新文件预览区域内容，共 {len(self.excel_imported_data)} 项")
     
     def toggle_title(self):
         """切换标题行"""
@@ -492,6 +514,13 @@ class CreateSheetsTab(ttk.Frame):
                 self.text_input.delete(1.0, tk.END)
                 self.text_input.insert(1.0, "\n".join(data))
                 self.logger.info(f"已将数据显示在文本框中")
+            
+            # 更新文件预览框内容
+            self.file_preview.config(state="normal")
+            self.file_preview.delete(1.0, tk.END)
+            self.file_preview.insert(1.0, "\n".join(data))
+            self.file_preview.config(state="disabled")
+            self.logger.info(f"已更新文件预览区域内容")
                 
             self.logger.info(f"已预览 {len(data)} 个工作表名称")
         else:
@@ -502,6 +531,11 @@ class CreateSheetsTab(ttk.Frame):
             # 清空直接输入框
             if self.input_method.get() == "direct":
                 self.text_input.delete(1.0, tk.END)
+            
+            # 清空文件预览框
+            self.file_preview.config(state="normal")
+            self.file_preview.delete(1.0, tk.END)
+            self.file_preview.config(state="disabled")
                 
             messagebox.showinfo("提示", "未读取到任何数据，可能是该列为空或跳过表头设置不正确")
             self.logger.info("没有可用数据")

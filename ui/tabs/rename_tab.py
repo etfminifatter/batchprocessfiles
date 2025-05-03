@@ -234,6 +234,10 @@ class RenameTab(ttk.Frame):
             if folder_path:
                 self._add_folder_to_tree(folder_path)
                 self.logger.info(f"已添加文件夹: {folder_path}")
+                # 添加提示，说明可以通过多次点击添加多个文件夹
+                if not hasattr(self, "_folder_tip_shown"):
+                    messagebox.showinfo("提示", "要添加多个文件夹，请重复点击\"添加文件夹\"按钮")
+                    self._folder_tip_shown = True
         except Exception as e:
             self.logger.error(f"添加文件夹时出错: {str(e)}")
             messagebox.showerror("错误", f"添加文件夹时出错: {str(e)}")
