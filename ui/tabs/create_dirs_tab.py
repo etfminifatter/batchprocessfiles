@@ -42,6 +42,7 @@ class CreateDirsTab(ttk.Frame):
         left_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
         left_pane.pack_propagate(False)  # 防止子组件改变frame大小
         
+        # 右侧区域 - 不使用Canvas，回归简单Frame
         right_pane = ttk.Frame(top_frame, width=400)  # 设置固定宽度
         right_pane.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
         right_pane.pack_propagate(False)  # 防止子组件改变frame大小
@@ -169,48 +170,46 @@ class CreateDirsTab(ttk.Frame):
         ttk.Radiobutton(method_frame, text="自定义规则", variable=self.naming_rule, value="custom", 
                        command=self.toggle_naming_rule).pack(side=tk.LEFT, padx=0)
         
-        # 直接命名框架（无需额外设置，直接使用输入的名称）
+        # 直接命名框架
         self.direct_naming_frame = ttk.Frame(naming_frame)
-        ttk.Label(self.direct_naming_frame, text="将直接使用输入的目录名").pack(pady=10)
+        ttk.Label(self.direct_naming_frame, text="将直接使用输入的目录名").pack(pady=20)
         
-        # 自定义命名规则框架
+        # 自定义命名规则框架 - 使用更紧凑的布局
         self.custom_rule_frame = ttk.Frame(naming_frame)
         
-        rule_entry_frame = ttk.Frame(self.custom_rule_frame)
-        rule_entry_frame.pack(fill=tk.X, pady=(5, 8))
+        # 使用更紧凑的布局，把规则说明和输入放在一起
+        rule_frame = ttk.Frame(self.custom_rule_frame)
+        rule_frame.pack(fill=tk.X, pady=5, padx=5)
+        rule_frame.columnconfigure(1, weight=1)
         
-        ttk.Label(rule_entry_frame, text="命名规则:").pack(side=tk.LEFT, padx=(0, 5))
-        self.rule_pattern = ttk.Entry(rule_entry_frame)
-        self.rule_pattern.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
+        ttk.Label(rule_frame, text="命名规则:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        self.rule_pattern = ttk.Entry(rule_frame)
+        self.rule_pattern.grid(row=0, column=1, sticky=tk.EW, padx=(0, 5))
         self.rule_pattern.insert(0, "prefix_$NAME_$ISEQ3")
         
-        # 规则说明
-        tip_frame = ttk.LabelFrame(self.custom_rule_frame, text="命名规则说明")
-        tip_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+        # 使用更紧凑的规则说明
+        tip_text = "$NAME=原名 $ISEQ=序号 $ISEQ3=固定位序号(001) $YYYY=年 $MM=月 $DD=日"
+        ttk.Label(rule_frame, text=tip_text, foreground="gray", font=("", 9)).grid(row=1, column=0, columnspan=2, sticky=tk.W, pady=(2, 5))
         
-        tips = """$NAME - 替换为原始名称  $ISEQ - 替换为序号，如 1, 2, 3...  $ISEQ3 - 替换为固定位数序号，如 001, 002...
-$YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
-        ttk.Label(tip_frame, text=tips, justify=tk.LEFT).pack(padx=5, pady=5)
-        
-        # 序号设置
+        # 序号设置 - 全部放在一行，更紧凑
         seq_frame = ttk.Frame(self.custom_rule_frame)
-        seq_frame.pack(fill=tk.X, pady=5)
+        seq_frame.pack(fill=tk.X, pady=5, padx=5)
         
-        ttk.Label(seq_frame, text="起始序号:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=2)
-        self.start_value = ttk.Entry(seq_frame, width=5)
-        self.start_value.grid(row=0, column=1, sticky=tk.W, padx=5, pady=2)
+        ttk.Label(seq_frame, text="起始值:").grid(row=0, column=0, sticky=tk.W, padx=2)
+        self.start_value = ttk.Entry(seq_frame, width=4)
+        self.start_value.grid(row=0, column=1, sticky=tk.W, padx=2)
         self.start_value.insert(0, "1")
         
-        ttk.Label(seq_frame, text="序号步长:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=2)
-        self.step = ttk.Entry(seq_frame, width=5)
-        self.step.grid(row=1, column=1, sticky=tk.W, padx=5, pady=2)
+        ttk.Label(seq_frame, text="步长:").grid(row=0, column=2, sticky=tk.W, padx=2)
+        self.step = ttk.Entry(seq_frame, width=4)
+        self.step.grid(row=0, column=3, sticky=tk.W, padx=2)
         self.step.insert(0, "1")
         
-        ttk.Label(seq_frame, text="序号位数:").grid(row=2, column=0, sticky=tk.W, padx=5, pady=2)
-        self.digits = ttk.Entry(seq_frame, width=5)
-        self.digits.grid(row=2, column=1, sticky=tk.W, padx=5, pady=2)
+        ttk.Label(seq_frame, text="位数:").grid(row=0, column=4, sticky=tk.W, padx=2)
+        self.digits = ttk.Entry(seq_frame, width=4)
+        self.digits.grid(row=0, column=5, sticky=tk.W, padx=2)
         self.digits.insert(0, "3")
-        
+    
     def setup_output_settings(self, parent):
         """设置输出设置区域"""
         output_frame = ttk.LabelFrame(parent, text="输出设置")
@@ -280,8 +279,22 @@ $YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
         """切换命名规则"""
         if self.naming_rule.get() == "direct":
             self.custom_rule_frame.pack_forget()
+            self.direct_naming_frame.pack(fill=tk.BOTH, expand=True)
         else:
-            self.custom_rule_frame.pack(fill=tk.X, padx=5, pady=5)
+            self.direct_naming_frame.pack_forget()
+            # 使用合适的布局参数
+            self.custom_rule_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+            
+            # 更新几何信息以获取实际尺寸
+            self.custom_rule_frame.update_idletasks()
+            
+            # 确保父窗口调整大小以适应内容
+            required_height = self.custom_rule_frame.winfo_reqheight()
+            current_height = self.custom_rule_frame.master.winfo_height()
+            
+            if required_height > current_height:
+                # 设置父框架的最小高度
+                self.custom_rule_frame.master.configure(height=required_height + 10)  # 加10为边距
     
     def paste_from_clipboard(self):
         """从剪贴板粘贴"""
@@ -755,4 +768,15 @@ $YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
             self.file_preview.config(state="normal")
             self.file_preview.delete(1.0, tk.END)
             self.file_preview.insert(1.0, f"刷新文件预览失败: {str(e)}")
-            self.file_preview.config(state="disabled") 
+            self.file_preview.config(state="disabled")
+    
+    def destroy(self):
+        """销毁标签页时解绑所有事件"""
+        try:
+            # 关闭所有额外资源
+            self.logger.info("关闭标签页资源")
+        except Exception as e:
+            self.logger.error(f"关闭资源失败: {str(e)}")
+        finally:
+            # 调用父类的destroy方法
+            super().destroy() 

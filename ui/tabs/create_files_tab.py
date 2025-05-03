@@ -45,6 +45,7 @@ class CreateFilesTab(ttk.Frame):
         left_pane.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
         left_pane.pack_propagate(False)  # 防止子组件改变frame大小
         
+        # 右侧区域 - 不使用Canvas，回归简单Frame
         right_pane = ttk.Frame(top_frame, width=400)  # 设置固定宽度
         right_pane.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
         right_pane.pack_propagate(False)  # 防止子组件改变frame大小
@@ -160,41 +161,42 @@ class CreateFilesTab(ttk.Frame):
         ttk.Radiobutton(method_frame, text="自定义规则", variable=self.naming_rule, value="custom", 
                        command=self.toggle_naming_rule).pack(side=tk.LEFT, padx=0)
         
-        # 直接命名框架（无需额外设置，直接使用输入的名称）
+        # 直接命名框架
         self.direct_naming_frame = ttk.Frame(naming_frame)
-        ttk.Label(self.direct_naming_frame, text="将直接使用输入的文件名").pack(pady=10)
+        ttk.Label(self.direct_naming_frame, text="将直接使用输入的文件名").pack(pady=20)
         
-        # 自定义命名规则框架
+        # 自定义命名规则框架 - 使用更紧凑的布局
         self.custom_naming_frame = ttk.Frame(naming_frame)
         
-        rule_entry_frame = ttk.Frame(self.custom_naming_frame)
-        rule_entry_frame.pack(fill=tk.X, pady=(5, 8))
+        # 使用更紧凑的布局，把规则说明和输入放在一起
+        rule_frame = ttk.Frame(self.custom_naming_frame)
+        rule_frame.pack(fill=tk.X, pady=5, padx=5)
+        rule_frame.columnconfigure(1, weight=1)
         
-        ttk.Label(rule_entry_frame, text="命名规则:").pack(side=tk.LEFT, padx=(0, 5))
-        self.rule_entry = ttk.Entry(rule_entry_frame)
-        self.rule_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 5))
+        ttk.Label(rule_frame, text="命名规则:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
+        self.rule_entry = ttk.Entry(rule_frame)
+        self.rule_entry.grid(row=0, column=1, sticky=tk.EW, padx=(0, 5))
         self.rule_entry.insert(0, "prefix_$NAME_$ISEQ3")
         
-        # 规则说明
-        tip_frame = ttk.LabelFrame(self.custom_naming_frame, text="命名规则说明")
-        tip_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
+        # 使用更紧凑的规则说明
+        tip_text = "$NAME=原名 $ISEQ=序号 $ISEQ3=固定位序号(001) $YYYY=年 $MM=月 $DD=日"
+        ttk.Label(rule_frame, text=tip_text, foreground="gray", font=("", 9)).grid(row=1, column=0, columnspan=2, sticky=tk.W, pady=(2, 5))
         
-        tips = """$NAME - 替换为原始名称  $ISEQ - 替换为序号，如 1, 2, 3...  $ISEQ3 - 替换为固定位数序号，如 001, 002...
-$YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
-        ttk.Label(tip_frame, text=tips, justify=tk.LEFT).pack(padx=8, pady=8)
-        
-        # 序号设置
+        # 序号设置 - 全部放在一行，更紧凑
         seq_frame = ttk.Frame(self.custom_naming_frame)
-        seq_frame.pack(fill=tk.X, pady=5)
+        seq_frame.pack(fill=tk.X, pady=5, padx=5)
         
-        # 使用Grid布局管理序号设置，实现整齐的对齐
-        ttk.Label(seq_frame, text="起始序号:").grid(row=0, column=0, sticky=tk.W, padx=(5, 5), pady=2)
+        ttk.Label(seq_frame, text="起始值:").grid(row=0, column=0, sticky=tk.W, padx=2)
         self.start_value = tk.StringVar(value="1")
-        ttk.Entry(seq_frame, textvariable=self.start_value, width=5).grid(row=0, column=1, sticky=tk.W, padx=5, pady=2)
+        ttk.Entry(seq_frame, textvariable=self.start_value, width=4).grid(row=0, column=1, sticky=tk.W, padx=2)
         
-        ttk.Label(seq_frame, text="序号步长:").grid(row=1, column=0, sticky=tk.W, padx=(5, 5), pady=2)
+        ttk.Label(seq_frame, text="步长:").grid(row=0, column=2, sticky=tk.W, padx=2)
         self.step_value = tk.StringVar(value="1")
-        ttk.Entry(seq_frame, textvariable=self.step_value, width=5).grid(row=1, column=1, sticky=tk.W, padx=5, pady=2)
+        ttk.Entry(seq_frame, textvariable=self.step_value, width=4).grid(row=0, column=3, sticky=tk.W, padx=2)
+        
+        ttk.Label(seq_frame, text="位数:").grid(row=0, column=4, sticky=tk.W, padx=2)
+        self.digits = tk.StringVar(value="3")
+        ttk.Entry(seq_frame, textvariable=self.digits, width=4).grid(row=0, column=5, sticky=tk.W, padx=2)
         
         # 默认显示直接命名
         self.toggle_naming_rule()
@@ -377,8 +379,22 @@ $YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
         self.logger.debug(f"切换命名规则: {self.naming_rule.get()}")
         if self.naming_rule.get() == "direct":
             self.custom_naming_frame.pack_forget()
+            self.direct_naming_frame.pack(fill=tk.BOTH, expand=True)
         else:
-            self.custom_naming_frame.pack(fill=tk.X, padx=5, pady=5)
+            self.direct_naming_frame.pack_forget()
+            # 使用合适的布局参数
+            self.custom_naming_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+            
+            # 更新几何信息以获取实际尺寸
+            self.custom_naming_frame.update_idletasks()
+            
+            # 确保父窗口调整大小以适应内容
+            required_height = self.custom_naming_frame.winfo_reqheight()
+            current_height = self.custom_naming_frame.master.winfo_height()
+            
+            if required_height > current_height:
+                # 设置父框架的最小高度
+                self.custom_naming_frame.master.configure(height=required_height + 10)  # 加10为边距
     
     def paste_from_clipboard(self):
         """从剪贴板粘贴"""
@@ -726,6 +742,7 @@ $YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
             try:
                 start_value = int(self.start_value.get())
                 step = int(self.step_value.get())
+                digits = int(self.digits.get())
             except ValueError:
                 self.logger.error("序号设置无效")
                 messagebox.showerror("错误", "序号设置必须是整数")
@@ -737,7 +754,7 @@ $YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
             
             for i, name in enumerate(names):
                 seq = start_value + i * step
-                seq_str = str(seq).zfill(3)
+                seq_str = str(seq).zfill(digits)
                 
                 if naming_rule:
                     new_name = naming_rule.replace('$NAME', name)
@@ -798,41 +815,63 @@ $YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
             naming_rule = None
             if self.naming_rule.get() == "custom":
                 naming_rule = self.rule_entry.get()
+                if not naming_rule:
+                    self.logger.warning("未设置命名规则")
+                    messagebox.showerror("错误", "请输入命名规则")
+                    return
             
             # 获取序号设置
             try:
                 start_value = int(self.start_value.get())
                 step = int(self.step_value.get())
+                digits = int(self.digits.get())
             except ValueError:
                 self.logger.error("序号设置无效")
                 messagebox.showerror("错误", "序号设置必须是整数")
                 return
             
             # 获取内容模板
-            content_template = self.content_template.get(1.0, tk.END).strip()
-            if not content_template:
-                content_template = None
+            content_template = self.content_template.get(1.0, tk.END)
+            if content_template.strip():
+                self.logger.info(f"使用内容模板，长度: {len(content_template)}")
             
-            # 调用file_utils创建文件
-            result, message = create_files(
+            # 调用创建文件函数
+            self.logger.info(f"开始创建文件，共{len(names)}个，目标路径: {target_path}")
+            
+            # 记录详细参数
+            params = {
+                "文件数量": len(names),
+                "目标路径": target_path,
+                "文件类型": file_type,
+                "命名规则": naming_rule if naming_rule else "直接命名",
+                "起始序号": start_value,
+                "序号步长": step,
+                "序号位数": digits,
+                "使用模板": bool(content_template.strip())
+            }
+            self.logger.info(f"创建文件参数: {params}")
+            
+            success, message = create_files(
                 names=names,
                 target_dir=target_path,
                 file_type=file_type,
                 content_template=content_template,
                 naming_rule=naming_rule,
                 start_value=start_value,
-                step=step
+                step=step,
+                digits=digits
             )
             
-            if result:
+            if success:
                 self.logger.info(f"创建文件成功: {message}")
                 messagebox.showinfo("成功", message)
             else:
                 self.logger.error(f"创建文件失败: {message}")
                 messagebox.showerror("错误", message)
+                
         except Exception as e:
             self.logger.error(f"执行创建文件失败: {str(e)}")
-            messagebox.showerror("错误", f"执行失败: {str(e)}")
+            messagebox.showerror("错误", f"创建文件时发生错误: {str(e)}")
 
     def refresh_file_preview(self):
         """刷新文件预览"""
@@ -851,4 +890,15 @@ $YYYY - 替换为年份  $MM - 替换为月份  $DD - 替换为日期"""
             self.file_preview.config(state="normal")
             self.file_preview.delete(1.0, tk.END)
             self.file_preview.insert(1.0, f"刷新文件预览失败: {str(e)}")
-            self.file_preview.config(state="disabled") 
+            self.file_preview.config(state="disabled")
+    
+    def destroy(self):
+        """销毁标签页时解绑所有事件"""
+        try:
+            # 关闭所有额外资源
+            self.logger.info("关闭标签页资源")
+        except Exception as e:
+            self.logger.error(f"关闭资源失败: {str(e)}")
+        finally:
+            # 调用父类的destroy方法
+            super().destroy() 
