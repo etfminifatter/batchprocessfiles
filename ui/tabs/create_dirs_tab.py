@@ -204,11 +204,6 @@ class CreateDirsTab(ttk.Frame):
         self.step = ttk.Entry(seq_frame, width=4)
         self.step.grid(row=0, column=3, sticky=tk.W, padx=2)
         self.step.insert(0, "1")
-        
-        ttk.Label(seq_frame, text="位数:").grid(row=0, column=4, sticky=tk.W, padx=2)
-        self.digits = ttk.Entry(seq_frame, width=4)
-        self.digits.grid(row=0, column=5, sticky=tk.W, padx=2)
-        self.digits.insert(0, "3")
     
     def setup_output_settings(self, parent):
         """设置输出设置区域"""
@@ -372,10 +367,9 @@ class CreateDirsTab(ttk.Frame):
             try:
                 start_value = int(self.start_value.get())
                 step = int(self.step.get())
-                digits = int(self.digits.get())
             except ValueError:
                 self.logger.error("序号设置无效")
-                messagebox.showerror("错误", "起始值、步长和位数必须是整数")
+                messagebox.showerror("错误", "起始值和步长必须是整数")
                 return
             
             # 禁用层级结构设置
@@ -387,7 +381,7 @@ class CreateDirsTab(ttk.Frame):
             # 普通预览，不处理层级
             for i, name in enumerate(dir_names):
                 seq = start_value + i * step
-                seq_str = str(seq).zfill(digits)
+                seq_str = str(seq).zfill(3)
                 
                 if naming_rule:
                     new_name = naming_rule.replace('$NAME', name)
@@ -400,7 +394,7 @@ class CreateDirsTab(ttk.Frame):
                             seq_formatted = str(seq).zfill(seq_digits)
                             new_name = new_name.replace(f'$ISEQ{seq_match}', seq_formatted)
                         else:
-                            new_name = new_name.replace('$ISEQ', str(seq))
+                            new_name = new_name.replace('$ISEQ', seq_str)
                     
                     # 处理日期变量
                     new_name = new_name.replace('$YYYY', now.strftime('%Y'))
@@ -453,10 +447,9 @@ class CreateDirsTab(ttk.Frame):
             try:
                 start_value = int(self.start_value.get())
                 step = int(self.step.get())
-                digits = int(self.digits.get())
             except ValueError:
                 self.logger.error("序号设置无效")
-                messagebox.showerror("错误", "起始值、步长和位数必须是整数")
+                messagebox.showerror("错误", "起始值和步长必须是整数")
                 return
             
             # 禁用层级结构
@@ -473,8 +466,7 @@ class CreateDirsTab(ttk.Frame):
                 "启用层级": False,
                 "命名规则": naming_rule if naming_rule else "直接命名",
                 "起始序号": start_value,
-                "序号步长": step,
-                "序号位数": digits
+                "序号步长": step
             }
             self.logger.info(f"创建目录参数: {params}")
             
@@ -485,7 +477,7 @@ class CreateDirsTab(ttk.Frame):
                 naming_rule=naming_rule,
                 start_value=start_value,
                 step=step,
-                digits=digits,
+                digits=3,  # 使用默认值3
                 enable_hierarchy=False,
                 indent_spaces=4
             )

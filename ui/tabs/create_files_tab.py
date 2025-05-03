@@ -194,10 +194,6 @@ class CreateFilesTab(ttk.Frame):
         self.step_value = tk.StringVar(value="1")
         ttk.Entry(seq_frame, textvariable=self.step_value, width=4).grid(row=0, column=3, sticky=tk.W, padx=2)
         
-        ttk.Label(seq_frame, text="位数:").grid(row=0, column=4, sticky=tk.W, padx=2)
-        self.digits = tk.StringVar(value="3")
-        ttk.Entry(seq_frame, textvariable=self.digits, width=4).grid(row=0, column=5, sticky=tk.W, padx=2)
-        
         # 默认显示直接命名
         self.toggle_naming_rule()
     
@@ -742,7 +738,6 @@ class CreateFilesTab(ttk.Frame):
             try:
                 start_value = int(self.start_value.get())
                 step = int(self.step_value.get())
-                digits = int(self.digits.get())
             except ValueError:
                 self.logger.error("序号设置无效")
                 messagebox.showerror("错误", "序号设置必须是整数")
@@ -754,7 +749,7 @@ class CreateFilesTab(ttk.Frame):
             
             for i, name in enumerate(names):
                 seq = start_value + i * step
-                seq_str = str(seq).zfill(digits)
+                seq_str = str(seq).zfill(3)
                 
                 if naming_rule:
                     new_name = naming_rule.replace('$NAME', name)
@@ -824,7 +819,6 @@ class CreateFilesTab(ttk.Frame):
             try:
                 start_value = int(self.start_value.get())
                 step = int(self.step_value.get())
-                digits = int(self.digits.get())
             except ValueError:
                 self.logger.error("序号设置无效")
                 messagebox.showerror("错误", "序号设置必须是整数")
@@ -846,7 +840,6 @@ class CreateFilesTab(ttk.Frame):
                 "命名规则": naming_rule if naming_rule else "直接命名",
                 "起始序号": start_value,
                 "序号步长": step,
-                "序号位数": digits,
                 "使用模板": bool(content_template.strip())
             }
             self.logger.info(f"创建文件参数: {params}")
@@ -859,7 +852,7 @@ class CreateFilesTab(ttk.Frame):
                 naming_rule=naming_rule,
                 start_value=start_value,
                 step=step,
-                digits=digits
+                digits=3  # 使用默认值3
             )
             
             if success:
