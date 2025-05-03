@@ -10,6 +10,9 @@ from utils.log_utils import setup_uncaught_exception_handler, rotate_logs
 
 def setup_logger():
     """设置全局日志记录器"""
+    # 判断是否是打包版本
+    is_frozen = getattr(sys, 'frozen', False)
+    
     # 创建日志目录
     log_dir = 'logs'
     if not os.path.exists(log_dir):
@@ -17,7 +20,12 @@ def setup_logger():
     
     # 创建日志记录器
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    
+    # 在打包版本中使用更高的日志级别
+    if is_frozen:
+        logger.setLevel(logging.ERROR)  # 仅保留ERROR级别，进一步减少日志处理
+    else:
+        logger.setLevel(logging.DEBUG)
     
     # 如果已经有处理器，则清除
     if logger.handlers:
@@ -33,16 +41,28 @@ def setup_logger():
         backupCount=7,
         encoding='utf-8'
     )
-    file_handler.setLevel(logging.DEBUG)
+    # 文件处理器级别
+    if is_frozen:
+        file_handler.setLevel(logging.ERROR)  # 打包版本只记录错误
+    else:
+        file_handler.setLevel(logging.DEBUG)
     
     # 创建控制台处理器
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
+    # 在打包版本中控制台只显示错误
+    if is_frozen:
+        console_handler.setLevel(logging.CRITICAL)  # 只显示严重错误
+    else:
+        console_handler.setLevel(logging.DEBUG)
     
-    # 创建格式化器
-    formatter = logging.Formatter(
-        '[%(asctime)s][%(levelname)s][%(name)s][%(filename)s:%(lineno)d] %(message)s'
-    )
+    # 创建格式化器 - 打包版本使用更简单的格式
+    if is_frozen:
+        formatter = logging.Formatter('[%(levelname)s] %(message)s')
+    else:
+        formatter = logging.Formatter(
+            '[%(asctime)s][%(levelname)s][%(name)s][%(filename)s:%(lineno)d] %(message)s'
+        )
+    
     file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
     
@@ -51,7 +71,10 @@ def setup_logger():
     logger.addHandler(console_handler)
     
     # 记录启动信息
-    logger.info("批量文件处理工具启动")
+    if is_frozen:
+        logger.warning("批量文件处理工具启动(发布版)")
+    else:
+        logger.info("批量文件处理工具启动(开发版)")
     
     # 设置未捕获异常处理器
     setup_uncaught_exception_handler(logger)
@@ -59,23 +82,50 @@ def setup_logger():
     return logger
 
 def main():
-    # 轮换日志文件
-    rotate_logs()
+    # 判断是否是打包版本
+    is_frozen = getattr(sys, 'frozen', False)
+    
+    # 只在开发版本中执行轮换日志
+    if not is_frozen:
+        rotate_logs()
     
     # 设置日志
     logger = setup_logger()
     
     try:
-        # 尝试导入TkinterDnD
+        # 创建根窗口 - 安全地尝试导入TkinterDnD，失败则使用标准Tkinter
+        root = None
+        dnd_available = False
+        
         try:
-            import tkinterdnd2 as tkdnd
-            # 如果成功导入，使用TkinterDnD的Tk类
-            root = tkdnd.Tk()
-            logger.info("成功初始化TkinterDnD，拖放功能已启用")
-        except ImportError:
-            # 如果未安装TkinterDnD，使用标准Tkinter
+            # 尝试以安全方式导入TkinterDnD
+            import importlib
+            tkdnd_spec = importlib.util.find_spec("tkinterdnd2")
+            
+            if tkdnd_spec is not None:
+                try:
+                    import tkinterdnd2
+                    # 进一步验证tkdnd库是否可用
+                    try:
+                        root = tkinterdnd2.Tk()
+                        # 尝试调用一个tkdnd特定的方法来验证它是否正常工作
+                        root.TkdndVersion
+                        dnd_available = True
+                        logger.info("成功初始化TkinterDnD，拖放功能已启用")
+                    except (AttributeError, RuntimeError, tk.TclError) as e:
+                        logger.warning(f"TkinterDnD库加载失败: {str(e)}")
+                        if root:
+                            root.destroy()
+                        root = None
+                except ImportError as e:
+                    logger.warning(f"导入TkinterDnD失败: {str(e)}")
+        except Exception as e:
+            logger.warning(f"尝试加载TkinterDnD时出错: {str(e)}")
+        
+        # 如果TkinterDnD初始化失败，使用标准Tkinter
+        if root is None:
             root = tk.Tk()
-            logger.warning("未能导入TkinterDnD，拖放功能已禁用")
+            logger.warning("使用标准Tkinter，拖放功能已禁用")
         
         # 配置样式
         style = configure_styles()
@@ -87,7 +137,7 @@ def main():
         root.minsize(960, 680)    # 设置最小窗口尺寸，防止窗口被缩小到界面变形
         
         # 设置应用图标
-        if getattr(sys, 'frozen', False):
+        if is_frozen:
             # 如果是打包后的exe
             application_path = sys._MEIPASS
         else:
@@ -100,8 +150,8 @@ def main():
         else:
             logger.warning(f"应用图标不存在: {icon_path}")
         
-        # 创建主窗口实例
-        app = MainWindow(root)
+        # 创建主窗口实例，并传递拖放可用性信息
+        app = MainWindow(root, dnd_available=dnd_available)
         
         # 启动主循环
         logger.info("启动主循环")

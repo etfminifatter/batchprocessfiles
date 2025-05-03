@@ -13,10 +13,13 @@ from ui.tabs.rename_tab import RenameTab
 from ui.tabs.move_copy_tab import MoveCopyTab
 
 class MainWindow:
-    def __init__(self, root):
+    def __init__(self, root, dnd_available=True):
         self.root = root
         self.logger = logging.getLogger('main_window')
         self.logger.info("主窗口初始化")
+        # 保存拖放功能可用性状态
+        self.dnd_available = dnd_available
+        self.logger.info(f"拖放功能状态: {'可用' if dnd_available else '不可用'}")
         
         # 检查关键样式是否存在
         style = ttk.Style()
@@ -187,7 +190,7 @@ class MainWindow:
         self.tabs = []
         try:
             self.tabs = [
-                CreateFilesTab(self.tab_contents),
+                CreateFilesTab(self.tab_contents, dnd_available=self.dnd_available),
                 CreateDirsTab(self.tab_contents),
                 CreateSheetsTab(self.tab_contents),
                 RenameTab(self.tab_contents),

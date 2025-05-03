@@ -6,10 +6,14 @@ import csv
 import logging
 
 class CreateFilesTab(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, dnd_available=True):
         super().__init__(parent)
         self.logger = logging.getLogger("create_files_tab")
         self.logger.info("初始化创建文件标签页")
+        
+        # 保存拖放功能可用性状态
+        self.dnd_available = dnd_available
+        self.logger.info(f"拖放功能状态: {'可用' if dnd_available else '不可用'}")
         
         # 设置自身的背景色和边框
         self.configure(style="TabContent.TFrame")
@@ -292,34 +296,36 @@ class CreateFilesTab(ttk.Frame):
     
     def setup_drag_drop(self):
         """设置拖放功能"""
+        # 如果拖放功能不可用，则显示提示并返回
+        if not self.dnd_available:
+            self.logger.warning("拖放功能不可用，可能是tkdnd库缺失")
+            
+            # 添加提示标签，告知用户拖放功能不可用
+            dnd_hint = ttk.Label(
+                self.direct_input_frame, 
+                text="提示: 拖放功能不可用，请手动选择文件", 
+                foreground="gray",
+                justify=tk.CENTER,
+                anchor=tk.CENTER
+            )
+            dnd_hint.pack(side=tk.BOTTOM, fill=tk.X, pady=5)
+            return
+            
         try:
-            # 检查是否有TkinterDnD支持
-            if hasattr(self.text_input, 'drop_target_register'):
-                self.text_input.drop_target_register("DND_Files")
-                self.text_input.dnd_bind("<<Drop>>", self.on_drop)
-                self.logger.info("拖放功能设置成功")
-                
-                # 添加拖放提示
-                hint_label = ttk.Label(
-                    self.direct_input_frame, 
-                    text="提示: 您可以直接拖放文件到此区域", 
-                    foreground="gray",
-                    background="#f5f5f5"
-                )
-                hint_label.pack(side=tk.BOTTOM, anchor=tk.W, padx=5, pady=(0, 5))
-            else:
-                self.logger.warning("没有找到拖放支持，请安装TkinterDnD2")
-                
-                # 添加安装建议
-                hint_label = ttk.Label(
-                    self.direct_input_frame, 
-                    text="提示: 安装TkinterDnD2库以启用拖放功能", 
-                    foreground="#FF6B6B",
-                    background="#f5f5f5"
-                )
-                hint_label.pack(side=tk.BOTTOM, anchor=tk.W, padx=5, pady=(0, 5))
+            # 尝试注册拖放事件
+            self.text_input.drop_target_register('*')
+            self.text_input.dnd_bind('<<Drop>>', self.on_drop)
+            self.logger.info("拖放功能已注册")
         except Exception as e:
             self.logger.warning(f"拖放功能设置失败: {str(e)}，可能需要安装TkinterDnD2")
+            
+            # 添加提示标签
+            dnd_hint = ttk.Label(
+                self.direct_input_frame, 
+                text="提示: 安装TkinterDnD2库以启用拖放功能", 
+                foreground="gray"
+            )
+            dnd_hint.pack(side=tk.BOTTOM, fill=tk.X, pady=5)
     
     def on_drop(self, event):
         """处理拖放事件"""
