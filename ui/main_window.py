@@ -127,7 +127,7 @@ class MainWindow:
         self.nav_buttons = []
         nav_options = [
             {"text": "批量创建文件", "command": lambda: self.switch_tab(0)},
-            {"text": "批量创建目录", "command": lambda: self.switch_tab(1)},
+            {"text": "批量创建文件夹", "command": lambda: self.switch_tab(1)},
             {"text": "批量创建工作表", "command": lambda: self.switch_tab(2)},
             {"text": "批量重命名", "command": lambda: self.switch_tab(3)},
             {"text": "批量移动/复制", "command": lambda: self.switch_tab(4)}
@@ -216,7 +216,7 @@ class MainWindow:
             self.current_tab_index = 0
             self.tabs[0].pack(fill=tk.BOTH, expand=True)
             # 更新状态栏
-            tab_names = ["批量创建文件", "批量创建目录", "批量创建工作表", "批量重命名", "批量移动/复制"]
+            tab_names = ["批量创建文件", "批量创建文件夹", "批量创建工作表", "批量重命名", "批量移动/复制"]
             self.status_var.set(f"当前: {tab_names[0]}")
             # 标记选中的按钮
             self.mark_selected_button()
@@ -255,7 +255,7 @@ class MainWindow:
         self.mark_selected_button()
         
         # 更新状态栏
-        tab_names = ["批量创建文件", "批量创建目录", "批量创建工作表", "批量重命名", "批量移动/复制"]
+        tab_names = ["批量创建文件", "批量创建文件夹", "批量创建工作表", "批量重命名", "批量移动/复制"]
         self.status_var.set(f"当前: {tab_names[index]}")
         
         self.logger.info(f"切换到标签页: {tab_names[index]}")
@@ -428,42 +428,75 @@ class MainWindow:
     def open_website(self):
         """打开官方网站"""
         self.logger.info("打开官方网站")
-        url = "https://www.example.com/batch-file-tool"
+        url = "https://batchfiletool.top"
         try:
             webbrowser.open(url)
         except Exception as e:
             self.logger.error(f"打开网站失败: {str(e)}")
             messagebox.showerror("错误", f"打开网站失败: {str(e)}")
     
+    def center_dialog(self, dialog):
+        """将对话框居中于主窗口"""
+        self.root.update_idletasks()
+        dialog.update_idletasks()
+        
+        # 获取主窗口和对话框的宽高
+        root_width = self.root.winfo_width()
+        root_height = self.root.winfo_height()
+        root_x = self.root.winfo_rootx()
+        root_y = self.root.winfo_rooty()
+        
+        dialog_width = dialog.winfo_width()
+        dialog_height = dialog.winfo_height()
+        
+        # 计算居中位置
+        x = root_x + (root_width - dialog_width) // 2
+        y = root_y + (root_height - dialog_height) // 2
+        
+        # 设置对话框位置
+        dialog.geometry(f"+{x}+{y}")
+    
     def show_donation(self):
         """显示赞助信息"""
         self.logger.info("显示赞助信息")
-        donation_info = """
-        感谢您使用批量文件处理工具！
         
-        如果您觉得这个工具对您有帮助，可以考虑支持我们的开发：
+        # 创建自定义对话框
+        donation_dialog = tk.Toplevel(self.root)
+        donation_dialog.title("赞赏")
+        donation_dialog.geometry("400x200")
+        donation_dialog.resizable(False, False)
+        donation_dialog.transient(self.root)  # 设置为主窗口的子窗口
+        donation_dialog.grab_set()  # 模态对话框
         
-        支付宝：example@example.com
-        微信：example_wechat
+        # 使用Frame容器
+        frame = ttk.Frame(donation_dialog, padding=20)
+        frame.pack(fill=tk.BOTH, expand=True)
         
-        您的支持是我们持续改进的动力！
-        """
-        messagebox.showinfo("赞助", donation_info)
+        # 添加文本信息
+        message = "感谢您使用批量文件处理工具!\n\n您的支持是我们持续改进的动力!\n\n如果有大的商机，可以通过点击关于、作者联系我。"
+        message_label = ttk.Label(frame, text=message, wraplength=350, justify=tk.CENTER)
+        message_label.pack(pady=(0, 20))
+        
+        # 添加捐赠链接
+        def open_donation_link():
+            webbrowser.open("https://ko-fi.com/etfminifatter")
+            donation_dialog.destroy()
+        
+        donation_link = ttk.Label(frame, text="捐赠", foreground="blue", cursor="hand2")
+        donation_link.pack()
+        donation_link.bind("<Button-1>", lambda e: open_donation_link())
+        
+        # 添加样式，使文本显示为链接样式
+        donation_link.configure(font=("Arial", 10, "underline"))
+        
+        # 居中显示对话框
+        self.center_dialog(donation_dialog)
     
     def show_ads(self):
         """显示广告信息"""
         self.logger.info("显示广告信息")
-        ads_info = """
-        推荐产品：高级批处理工具套件
-        
-        - 支持更多文件格式
-        - 提供更多自定义选项
-        - 包含高级批量图像处理功能
-        - 支持脚本自动化
-        
-        详情请访问：https://www.example.com/advanced-tools
-        """
-        messagebox.showinfo("产品推荐", ads_info)
+        ads_info = """这是预留的一个广告位，准备后续可以靠软件上的广告位展示赚广告费，目前空缺，不知道怎么接入呢。"""
+        messagebox.showinfo("广告", ads_info)
     
     def show_help(self):
         """显示帮助信息"""
@@ -472,7 +505,7 @@ class MainWindow:
         批量文件处理工具使用指南：
         
         1. 创建文件：批量创建空文件或带模板内容的文件
-        2. 创建目录：批量创建目录结构，支持层级
+        2. 创建文件夹：批量创建目录结构，支持层级
         3. 创建工作表：批量创建Excel工作表
         4. 重命名：批量重命名文件，支持替换、添加前后缀等
         5. 移动/复制：批量移动或复制文件
@@ -484,15 +517,68 @@ class MainWindow:
     def show_about(self):
         """显示关于信息"""
         self.logger.info("显示关于信息")
-        about_info = """
-        批量文件处理工具 v1.0.0
         
-        一个简单易用的批量文件处理工具，帮助您提高工作效率。
+        # 创建自定义对话框
+        about_dialog = tk.Toplevel(self.root)
+        about_dialog.title("关于")
+        about_dialog.geometry("450x280")
+        about_dialog.resizable(False, False)
+        about_dialog.transient(self.root)  # 设置为主窗口的子窗口
+        about_dialog.grab_set()  # 模态对话框
         
-        版权所有 © 2023
-        作者：示例开发者
-        """
-        messagebox.showinfo("关于", about_info) 
+        # 使用Frame容器
+        frame = ttk.Frame(about_dialog, padding=20)
+        frame.pack(fill=tk.BOTH, expand=True)
+        
+        # 添加标题
+        title_label = ttk.Label(frame, text="批量文件处理工具 v1.0.0", font=("Arial", 14, "bold"))
+        title_label.pack(pady=(0, 15))
+        
+        # 添加分隔线
+        separator1 = ttk.Separator(frame, orient="horizontal")
+        separator1.pack(fill="x", pady=5)
+        
+        # 添加描述
+        desc_label = ttk.Label(frame, 
+                              text="一个简单易用的批量文件处理工具，帮助您提高效率，节省你的时间", 
+                              wraplength=400, 
+                              justify=tk.CENTER)
+        desc_label.pack(pady=15)
+        
+        # 添加分隔线
+        separator2 = ttk.Separator(frame, orient="horizontal")
+        separator2.pack(fill="x", pady=5)
+        
+        # 添加版权信息和作者信息
+        info_frame = ttk.Frame(frame)
+        info_frame.pack(pady=10)
+        
+        copyright_label = ttk.Label(info_frame, text="版权所有  作者: ")
+        copyright_label.grid(row=0, column=0, sticky="e")
+        
+        # 添加作者链接
+        def open_author_link():
+            webbrowser.open("https://bento.me/etfminifatter")
+            
+        author_link = ttk.Label(info_frame, text="ETF迷你小富胖子", foreground="blue", cursor="hand2")
+        author_link.grid(row=0, column=1, sticky="w")
+        author_link.bind("<Button-1>", lambda e: open_author_link())
+        author_link.configure(font=("Arial", 10, "underline"))
+        
+        # GitHub仓库链接
+        github_label = ttk.Label(info_frame, text="GitHub仓库: ")
+        github_label.grid(row=1, column=0, sticky="e", pady=(10, 0))
+        
+        def open_github_link():
+            webbrowser.open("https://github.com/etfminifatter/batchprocessfiles")
+            
+        github_link = ttk.Label(info_frame, text="batchprocessfiles", foreground="blue", cursor="hand2")
+        github_link.grid(row=1, column=1, sticky="w", pady=(10, 0))
+        github_link.bind("<Button-1>", lambda e: open_github_link())
+        github_link.configure(font=("Arial", 10, "underline"))
+        
+        # 居中显示对话框
+        self.center_dialog(about_dialog)
     
     def update_tab_highlight(self):
         """更新标签页高亮线的位置"""

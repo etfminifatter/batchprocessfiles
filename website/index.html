@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="强大的批量文件处理工具，支持批量创建文件、批量创建文件夹、批量重命名、批量移动/复制等功能，提高工作效率的必备软件。">
+    <meta name="keywords" content="批量创建文件,批量创建文件夹,批量重命名,批量移动复制,文件管理工具,提高工作效率">
+    <title>批量文件处理工具 - 高效批量创建文件、批量创建文件夹</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- 添加网站图标 -->
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <!-- 结构化数据，帮助搜索引擎理解网页内容 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "批量文件处理工具",
+      "description": "一个强大的批量文件处理工具，支持批量创建文件、批量创建文件夹等功能",
+      "operatingSystem": "Windows, macOS, Linux",
+      "applicationCategory": "FileProcessingSoftware",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">批量文件处理工具</div>
+                <div class="nav-links">
+                    <a href="#features">功能特点</a>
+                    <a href="#workflow">工作流程</a>
+                    <a href="#system">系统要求</a>
+                    <a href="#download">下载</a>
+                </div>
+                <div class="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container">
+            <h1>高效批量文件处理解决方案</h1>
+            <p>简单易用的桌面工具，帮助您轻松<strong>批量创建文件</strong>、<strong>批量创建文件夹</strong>，提高工作效率</p>
+            <a href="#download" class="btn">立即下载</a>
+        </div>
+    </section>
+
+    <!-- 功能特点 -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>核心功能</h2>
+            </div>
+            <div class="feature-cards">
+                <!-- 批量创建文件 -->
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h3>批量创建文件</h3>
+                        <p>快速创建多个文件，支持自定义命名规则和文件内容模板。完美解决大量文件创建的繁琐工作。</p>
+                        <ul class="feature-list">
+                            <li>支持直接输入或从文件导入名称列表</li>
+                            <li>自定义命名规则，支持变量如$NAME、$ISEQ</li>
+                            <li>可设置文件内容模板，实现内容的批量定制</li>
+                            <li>预览功能，确保操作准确无误</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 批量创建文件夹 -->
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-folder-plus"></i>
+                        </div>
+                        <h3>批量创建文件夹</h3>
+                        <p>一键创建多个文件夹，轻松搭建项目目录结构。支持复杂的命名规则，满足各种组织需求。</p>
+                        <ul class="feature-list">
+                            <li>支持多种输入方式导入文件夹名称</li>
+                            <li>自定义命名规则，增加前后缀和日期变量</li>
+                            <li>支持缩进表示层级结构</li>
+                            <li>直观的操作界面，简单易用</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 批量创建工作表 -->
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-table"></i>
+                        </div>
+                        <h3>批量创建工作表</h3>
+                        <p>在Excel文件中快速创建多个工作表，支持设置标题行和表头，提高数据处理效率。</p>
+                        <ul class="feature-list">
+                            <li>支持从Excel中导入工作表名称</li>
+                            <li>可设置标题行和表头行</li>
+                            <li>自动创建多个工作表，一步到位</li>
+                            <li>方便的预览功能，确保数据准确</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 批量重命名 -->
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <h3>批量重命名</h3>
+                        <p>支持多种重命名规则，如替换文本、添加前缀/后缀、删除文本等。快速整理文件命名风格。</p>
+                        <ul class="feature-list">
+                            <li>支持文本替换、正则表达式</li>
+                            <li>可选择作用范围：文件名/扩展名</li>
+                            <li>支持大小写敏感和全词匹配选项</li>
+                            <li>实时预览重命名结果</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 批量移动/复制 -->
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <div class="feature-icon">
+                            <i class="fas fa-copy"></i>
+                        </div>
+                        <h3>批量移动/复制</h3>
+                        <p>快速移动或复制大量文件，可保留目录结构。处理大量文件的理想工具。</p>
+                        <ul class="feature-list">
+                            <li>支持移动或复制操作</li>
+                            <li>自定义冲突处理策略</li>
+                            <li>可选是否保留目录结构</li>
+                            <li>操作前预览，避免误操作</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 工作流程 -->
+    <section class="workflow" id="workflow">
+        <div class="container">
+            <div class="section-title">
+                <h2>简单易用的工作流程</h2>
+            </div>
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h3>1. 选择功能模块</h3>
+                        <p>在应用程序主界面，根据需求选择相应功能：批量创建文件、批量创建文件夹等</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h3>2. 输入数据</h3>
+                        <p>直接输入名称列表，或从文件导入已有数据，支持CSV、TXT、Excel等多种格式</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h3>3. 设置规则</h3>
+                        <p>根据需要配置命名规则、目标路径、文件类型等参数</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h3>4. 预览结果</h3>
+                        <p>在执行前预览操作结果，确保符合预期</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-content">
+                        <h3>5. 执行操作</h3>
+                        <p>确认无误后，点击"执行"按钮，软件将自动完成批量操作</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 系统要求 -->
+    <section class="system-requirements" id="system">
+        <div class="container">
+            <div class="section-title">
+                <h2>系统要求</h2>
+            </div>
+            <div class="feature-card">
+                <div class="feature-content">
+                    <table class="system-req">
+                        <tr>
+                            <th>项目</th>
+                            <th>最低要求</th>
+                            <th>推荐配置</th>
+                        </tr>
+                        <tr>
+                            <td>操作系统</td>
+                            <td>Windows 7 / macOS 10.12 / Linux</td>
+                            <td>Windows 10 / macOS 11+</td>
+                        </tr>
+                        <tr>
+                            <td>Python版本</td>
+                            <td>Python 3.6+</td>
+                            <td>Python 3.8+</td>
+                        </tr>
+                        <tr>
+                            <td>内存</td>
+                            <td>4GB</td>
+                            <td>8GB</td>
+                        </tr>
+                        <tr>
+                            <td>硬盘空间</td>
+                            <td>100MB</td>
+                            <td>200MB</td>
+                        </tr>
+                        <tr>
+                            <td>依赖库</td>
+                            <td colspan="2">openpyxl, pillow, psutil, tkinterdnd2</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 下载区域 -->
+    <section class="cta" id="download">
+        <div class="container">
+            <h2>提升工作效率，立即下载</h2>
+            <p>批量文件处理工具是您处理大量文件的理想助手，无论是批量创建文件还是批量创建文件夹，都能轻松应对</p>
+            <a href="https://github.com/yourusername/batch-file-tool/releases" class="btn">免费下载</a>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#">主页</a>
+                <a href="#features">功能</a>
+                <a href="#download">下载</a>
+                <a href="https://github.com/yourusername/batch-file-tool" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                &copy; 2023-2025 批量文件处理工具。保留所有权利。
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 移动端导航菜单切换
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('nav-active');
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
