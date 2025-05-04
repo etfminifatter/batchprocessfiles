@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="批量创建工作表功能详解 - 批量文件处理工具提供高效的Excel工作表批量创建功能，支持自动添加标题行和表格样式，提高数据整理效率。">
+    <meta name="keywords" content="批量创建工作表,Excel工作表批量创建,Excel批量处理,表格自动生成,数据表模板">
+    <title>批量创建工作表功能详解 - 批量文件处理工具</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">批量文件处理工具</div>
+                <div class="nav-links">
+                    <a href="index.html">首页</a>
+                    <a href="index.html#features">功能特点</a>
+                    <a href="index.html#workflow">工作流程</a>
+                    <a href="https://github.com/etfminifatter/batchprocessfiles/releases/download/v1.0.0/default.zip" >下载</a>
+                </div>
+                <div class="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container">
+            <h1>高效批量文件处理解决方案</h1>
+            <p>简单易用的桌面工具，帮助您轻松<strong>批量创建文件</strong>、<strong>批量创建文件夹</strong>，提高工作效率</p>
+            <a href="https://github.com/etfminifatter/batchprocessfiles/releases/download/v1.0.0/default.zip" class="btn">立即下载</a>
+        </div>
+    </section>
+
+    <!-- 主要内容 -->
+    <section class="feature-detail">
+        <div class="container">
+            <div class="feature-header">
+                <h1>批量创建工作表功能详解</h1>
+                <p>在Excel文件中快速创建多个工作表，支持设置标题行和表头，提高数据处理效率</p>
+            </div>
+
+            <div class="feature-overview">
+                <h2>功能概述</h2>
+                <p>批量创建工作表功能让您能够在单个Excel文件中快速创建多个工作表，适用于需要管理多组相似结构数据的场景。无需手动重复创建，一次操作即可生成所有需要的工作表。</p>
+                
+                <div class="key-features">
+                    <div class="key-feature">
+                        <i class="fas fa-list"></i>
+                        <h3>多种输入方式</h3>
+                        <p>支持直接输入工作表名称列表或从Excel文件导入已有工作表名</p>
+                    </div>
+                    <div class="key-feature">
+                        <i class="fas fa-table"></i>
+                        <h3>标题行设置</h3>
+                        <p>可为每个工作表添加统一的标题行，保持一致的数据格式</p>
+                    </div>
+                    <div class="key-feature">
+                        <i class="fas fa-th-list"></i>
+                        <h3>表头自定义</h3>
+                        <p>支持设置表头行，使数据表格更加规范和易于理解</p>
+                    </div>
+                    <div class="key-feature">
+                        <i class="fas fa-eye"></i>
+                        <h3>预览功能</h3>
+                        <p>操作前预览创建结果，确保工作表结构符合预期</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-usage">
+                <h2>使用教程</h2>
+                
+                <div class="usage-step">
+                    <h3>1. 直接输入方式创建工作表</h3>
+                    <p>适合创建少量工作表或自定义工作表名</p>
+                    <div class="image-container">
+                        <img src="images/3批量创建工作表/1批量创建工作表_直接输入.png" alt="直接输入方式创建工作表界面">
+                    </div>
+                    <div class="step-instructions">
+                        <ol>
+                            <li>选择"批量创建工作表"功能</li>
+                            <li>在左侧文本框中输入工作表名称列表，每行一个</li>
+                            <li>指定要保存的Excel文件路径</li>
+                            <li>根据需要设置标题行和表头内容</li>
+                            <li>点击"创建工作表"按钮执行</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="usage-step">
+                    <h3>2. 从Excel导入创建工作表</h3>
+                    <p>适合从已有Excel文件中提取工作表名称列表</p>
+                    <div class="image-container">
+                        <img src="images/3批量创建工作表/2批量创建工作表_从excel文件导入.png" alt="从Excel导入创建工作表界面">
+                    </div>
+                    <div class="step-instructions">
+                        <ol>
+                            <li>切换到"从Excel导入"选项卡</li>
+                            <li>点击"浏览"选择包含工作表名称的Excel文件</li>
+                            <li>选择工作表和包含工作表名的列</li>
+                            <li>指定行范围（从哪一行开始读取，读取多少行）</li>
+                            <li>设置目标Excel文件路径</li>
+                            <li>点击"创建工作表"按钮执行</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="usage-step">
+                    <h3>3. 设置标题行和表头</h3>
+                    <p>为所有创建的工作表添加统一的标题和表头结构</p>
+                    <div class="step-instructions">
+                        <ol>
+                            <li>在"标题行"文本框中输入标题内容，这将显示在每个工作表的顶部</li>
+                            <li>在"表头行"文本框中输入表头内容，使用逗号(,)分隔不同的列名</li>
+                            <li>例如输入"姓名,年龄,部门,职位"将创建四列的表头</li>
+                            <li>勾选"使用表格样式"可以让创建的工作表具有Excel表格格式化效果</li>
+                            <li>可以调整"默认列宽"来设置所有列的宽度</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="usage-tips">
+                <h2>使用技巧与应用场景</h2>
+                <ul>
+                    <li><strong>多部门数据管理：</strong>为公司各个部门创建统一格式的数据表，如"销售部"、"人事部"、"财务部"等</li>
+                    <li><strong>项目跟踪表：</strong>为多个项目创建结构一致的工作表，方便比较和汇总</li>
+                    <li><strong>学生成绩管理：</strong>按班级或科目批量创建工作表，统一成绩记录格式</li>
+                    <li><strong>财务报表：</strong>为不同时期（如月份、季度）创建格式一致的财务报表工作表</li>
+                    <li><strong>客户数据整理：</strong>按客户类型或区域批量创建工作表，保持数据结构一致性</li>
+                </ul>
+            </div>
+
+            <div class="cta-section">
+                <h2>立即体验批量创建工作表功能</h2>
+                <p>下载批量文件处理工具，快速提升您的数据处理效率</p>
+                <a href="https://github.com/etfminifatter/batchprocessfiles/releases/download/v1.0.0/default.zip" class="btn">免费下载</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">主页</a>
+                <a href="index.html#features">功能</a>
+                <a href="https://github.com/etfminifatter/batchprocessfiles/releases/download/v1.0.0/default.zip" >下载</a>
+                <a href="https://github.com/etfminifatter/batchprocessfiles" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                Copyright © 2025 - All right reserved by <a href="https://bento.me/etfminifatter">ETF迷你小富胖子</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="css/performance.js"></script>
+</body>
+</html> 

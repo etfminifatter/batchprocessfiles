@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="批量移动/复制功能详解 - 批量文件处理工具提供高效的文件和文件夹批量移动与复制功能，支持保留目录结构和自定义冲突处理策略。">
+    <meta name="keywords" content="批量移动文件,批量复制文件,文件夹复制,保留目录结构,批量处理">
+    <title>批量移动/复制功能详解 - 批量文件处理工具</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">批量文件处理工具</div>
+                <div class="nav-links">
+                    <a href="index.html">首页</a>
+                    <a href="index.html#features">功能特点</a>
+                    <a href="index.html#workflow">工作流程</a>
+                    <a href="https://github.com/etfminifatter/batchprocessfiles/releases/download/v1.0.0/default.zip" >下载</a>
+                </div>
+                <div class="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container">
+            <h1>高效批量文件处理解决方案</h1>
+            <p>简单易用的桌面工具，帮助您轻松<strong>批量创建文件</strong>、<strong>批量创建文件夹</strong>，提高工作效率</p>
+            <a href="https://github.com/etfminifatter/batchprocessfiles/releases/download/v1.0.0/default.zip" class="btn">立即下载</a>
+        </div>
+    </section>
+
+    <!-- 主要内容 -->
+    <section class="feature-detail">
+        <div class="container">
+            <div class="feature-header">
+                <h1>批量移动/复制功能详解</h1>
+                <p>高效批量移动或复制文件，支持保留目录结构和冲突处理，轻松管理大量文件</p>
+            </div>
+
+            <div class="feature-overview">
+                <h2>功能概述</h2>
+                <p>批量移动/复制功能能够同时处理大量文件或文件夹，使文件组织和迁移变得简单高效。无论是迁移项目文件、整理资料库还是备份重要数据，都能轻松应对。</p>
+                
+                <div class="key-features">
+                    <div class="key-feature">
+                        <i class="fas fa-copy"></i>
+                        <h3>批量复制</h3>
+                        <p>一次性复制多个文件或文件夹到目标位置，保留原始数据</p>
+                    </div>
+                    <div class="key-feature">
+                        <i class="fas fa-cut"></i>
+                        <h3>批量移动</h3>
+                        <p>将选定的文件或文件夹移动到新位置，保持文件关系不变</p>
+                    </div>
+                    <div class="key-feature">
+                        <i class="fas fa-sitemap"></i>
+                        <h3>保留目录结构</h3>
+                        <p>可选择是否在目标位置重建源文件的目录结构</p>
+                    </div>
+                    <div class="key-feature">
+                        <i class="fas fa-exchange-alt"></i>
+                        <h3>冲突处理</h3>
+                        <p>提供多种文件名冲突解决方案，如覆盖、重命名或跳过</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-usage">
+                <h2>使用教程</h2>
+                
+                <div class="usage-step">
+                    <h3>1. 批量移动/复制文件</h3>
+                    <p>适合处理不同位置的多个文件</p>
+                    <div class="image-container">
+                        <img src="images/5批量移动复制/1批量移动复制_文件.png" alt="批量移动/复制文件界面">
+                    </div>
+                    <div class="step-instructions">
+                        <ol>
+                            <li>选择"批量移动/复制"功能</li>
+                            <li>点击"选择文件"按钮或拖放文件到文件列表框中</li>
+                            <li>指定目标文件夹路径</li>
+                            <li>选择操作类型：移动或复制</li>
+                            <li>设置冲突处理策略：
+                                <ul>
+                                    <li>覆盖：用新文件替换目标位置的同名文件</li>
+                                    <li>重命名：为冲突文件自动添加后缀</li>
+                                    <li>跳过：保留目标位置的文件，不进行操作</li>
+                                </ul>
+                            </li>
+                            <li>选择是否保留目录结构</li>
+                            <li>点击"执行"按钮开始操作</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="usage-step">
+                    <h3>2. 批量移动/复制文件夹</h3>
+                    <p>适合整理或迁移整个目录</p>
+                    <div class="image-container">
+                        <img src="images/5批量移动复制/2批量移动复制_文件夹.png" alt="批量移动/复制文件夹界面">
+                    </div>
+                    <div class="step-instructions">
+                        <ol>
+                            <li>切换到"文件夹"选项卡</li>
+                            <li>点击"选择文件夹"按钮或拖放文件夹到列表中</li>
+                            <li>指定目标位置</li>
+                            <li>选择操作类型：移动或复制</li>
+                            <li>设置冲突处理策略</li>
+                            <li>可选择"包含子文件夹"选项以处理嵌套的目录结构</li>
+                            <li>点击"执行"按钮开始操作</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="usage-step">
+                    <h3>3. 高级选项设置</h3>
+                    <p>根据需求自定义移动/复制选项</p>
+                    <div class="step-instructions">
+                        <ol>
+                            <li><strong>保留目录结构：</strong>启用此选项后，源文件的目录层级将在目标位置保持不变</li>
+                            <li><strong>过滤选项：</strong>可按文件类型、大小或修改日期设置过滤条件</li>
+                            <li><strong>预览：</strong>执行前查看操作将如何影响文件系统</li>
+                            <li><strong>日志记录：</strong>可选择记录操作日志，便于追踪文件变动</li>
+                            <li><strong>任务计划：</strong>设置任务在指定时间执行，或设为周期性任务</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="usage-tips">
+                <h2>使用技巧与应用场景</h2>
+                <ul>
+                    <li><strong>项目迁移：</strong>在保留目录结构的情况下，快速将整个项目迁移到新位置</li>
+                    <li><strong>多媒体整理：</strong>按类型批量整理照片、视频和音频文件到不同文件夹</li>
+                    <li><strong>备份重要文件：</strong>定期复制重要文档到备份位置，设置覆盖策略保持最新</li>
+                    <li><strong>文件分类：</strong>从混合文件夹中批量提取特定类型的文件到专用文件夹</li>
+                    <li><strong>数据归档：</strong>将旧项目文件移动到归档位置，释放工作空间</li>
+                </ul>
+            </div>
+
+            <div class="cta-section">
+                <h2>立即体验批量移动/复制功能</h2>
+                <p>下载批量文件处理工具，快速提升您的文件管理效率</p>
+                <a href="https://github.com/etfminifatter/batchprocessfiles/releases/download/v1.0.0/default.zip" class="btn">免费下载</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">主页</a>
+                <a href="index.html#features">功能</a>
+                <a href="https://github.com/etfminifatter/batchprocessfiles/releases/download/v1.0.0/default.zip" >下载</a>
+                <a href="https://github.com/etfminifatter/batchprocessfiles" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                Copyright © 2025 - All right reserved by <a href="https://bento.me/etfminifatter">ETF迷你小富胖子</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="css/performance.js"></script>
+</body>
+</html> 

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="批量创建文件功能详解 - 批量文件处理工具提供高效的批量创建文件功能，支持多种输入方式和自定义命名规则，提高文件管理效率。">
+    <meta name="keywords" content="批量创建文件,文件批量生成,自定义文件内容,文件模板,批量处理">
+    <title>批量创建文件功能详解 - 批量文件处理工具</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">批量文件处理工具</div>
+                <div class="nav-links">
+                    <a href="index.html">首页</a>
+                    <a href="index.html#features">功能特点</a>
+                    <a href="index.html#workflow">工作流程</a>
+                    <a href="https://github.com/etfminifatter/batchprocessfiles/releases/download/v1.0.0/default.zip" >下载</a>
+                </div>
+                <div class="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container">
+            <h1>高效批量文件处理解决方案</h1>
+            <p>简单易用的桌面工具，帮助您轻松<strong>批量创建文件</strong>、<strong>批量创建文件夹</strong>，提高工作效率</p>
+            <a href="https://github.com/etfminifatter/batchprocessfiles/releases/tag/v1.0.0" class="btn">立即下载</a>
+        </div>
+    </section>
+
+    <!-- 主要内容 -->
+    <section class="feature-detail">
+        <div class="container">
+            <div class="feature-header">
+                <h1>批量创建文件功能详解</h1>
+                <p>快速批量创建多个文件，支持自定义命名规则和文件内容模板，极大提高文件处理效率</p>                
+            </div>
+
+            <div class="feature-overview">
+                <h2>功能概述</h2>
+                <p>批量创建文件功能是本工具的核心功能之一，适用于需要同时创建大量文件的场景。无论是创建测试数据、准备项目文件结构，还是生成报告模板，都能轻松应对。</p>
+                
+                <div class="key-features">
+                    <div class="key-feature">
+                        <i class="fas fa-list"></i>
+                        <h3>多种输入方式</h3>
+                        <p>支持直接输入文件名列表或从外部文件（CSV、TXT、Excel等）导入名称</p>
+                    </div>
+                    <div class="key-feature">
+                        <i class="fas fa-code"></i>
+                        <h3>灵活的命名规则</h3>
+                        <p>支持自定义变量如$NAME、$ISEQ等，可添加前缀、后缀和日期变量</p>
+                    </div>
+                    <div class="key-feature">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>文件内容模板</h3>
+                        <p>可设置文件内容模板，支持变量替换，实现内容的批量定制</p>
+                    </div>
+                    <div class="key-feature">
+                        <i class="fas fa-eye"></i>
+                        <h3>预览功能</h3>
+                        <p>操作前预览创建结果，确保操作准确无误</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-usage">
+                <h2>使用教程</h2>
+                
+                <div class="usage-step">
+                    <h3>1. 直接输入方式创建文件</h3>
+                    <p>适合创建少量文件或文件名较简单的情况</p>
+                    <div class="image-container">
+                        <img src="images/1批量创建文件/1批量创建文件_直接输入创建文件.png" alt="直接输入方式创建文件界面" loading="lazy">
+                    </div>
+                    <div class="step-instructions">
+                        <ol>
+                            <li>选择"批量创建文件"功能</li>
+                            <li>在左侧文本框中输入文件名列表，每行一个</li>
+                            <li>指定目标文件夹路径</li>
+                            <li>设置文件扩展名（如.txt、.docx等）</li>
+                            <li>点击"创建文件"按钮执行</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="usage-step">
+                    <h3>2. 从文件导入创建文件</h3>
+                    <p>适合批量创建大量文件或从已有数据生成文件</p>
+                    <div class="image-container">
+                        <img src="images/1批量创建文件/2批量创建文件_从文件导入创建文件.png" alt="从文件导入创建文件界面" loading="lazy">
+                    </div>
+                    <div class="step-instructions">
+                        <ol>
+                            <li>切换到"从文件导入"选项卡</li>
+                            <li>点击"浏览"选择包含文件名的CSV、TXT或Excel文件</li>
+                            <li>选择适当的列和行范围</li>
+                            <li>指定目标文件夹和文件扩展名</li>
+                            <li>点击"创建文件"按钮执行</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="usage-step">
+                    <h3>3. 使用自定义命名规则</h3>
+                    <p>适合需要规范化命名或批量定制文件名的场景</p>
+                    <div class="image-container">
+                        <img src="images/1批量创建文件/3批量创建文件_自定义规则.png" alt="自定义命名规则界面" loading="lazy">
+                    </div>
+                    <div class="step-instructions">
+                        <ol>
+                            <li>点击"高级选项"展开更多设置</li>
+                            <li>在"命名规则"中设置格式，如"报告_$NAME_$DATE"</li>
+                            <li>可使用的变量包括：
+                                <ul>
+                                    <li>$NAME - 原始文件名</li>
+                                    <li>$ISEQ - 自增序号</li>
+                                    <li>$DATE - 当前日期</li>
+                                    <li>$TIME - 当前时间</li>
+                                </ul>
+                            </li>
+                            <li>在"文件内容模板"区域设置文件内容</li>
+                            <li>模板中可使用与命名规则相同的变量</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="usage-tips">
+                <h2>使用技巧</h2>
+                <ul>
+                    <li><strong>批量创建项目文件：</strong>可用于快速创建项目结构，如为多个客户创建相同结构的文档</li>
+                    <li><strong>生成测试数据：</strong>创建大量测试文件时，利用自增序号变量生成连续编号的文件</li>
+                    <li><strong>文档模板化：</strong>利用内容模板功能，为不同对象创建结构相同但内容不同的文档</li>
+                    <li><strong>结合Excel使用：</strong>在Excel中整理好数据后导入，可以批量创建具有关联性的文件</li>
+                </ul>
+            </div>
+
+            <div class="cta-section">
+                <h2>立即体验批量创建文件功能</h2>
+                <p>下载批量文件处理工具，快速提升您的文件处理效率</p>
+                <a href="https://github.com/etfminifatter/batchprocessfiles/releases/tag/v1.0.0" class="btn">免费下载</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">主页</a>
+                <a href="index.html#features">功能</a>
+                <a href="index.html#download">下载</a>
+                <a href="https://github.com/etfminifatter/batchprocessfiles" target="_blank">GitHub</a>
+            </div>
+            <div class="copyright">
+                Copyright © 2025 - All right reserved by <a href="https://github.com/etfminifatter">ETF迷你小富胖子</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="css/performance.js"></script>
+</body>
+</html> 
