@@ -1,0 +1,16 @@
+/* 团队信息 */
+主创: ETF迷你小富胖子
+联系方式: https://bento.me/etfminifatter
+GitHub: https://github.com/etfminifatter
+位置: 中国
+
+/* 网站信息 */
+网站: https://batchfiletool.top
+最后更新: 2023/06/30
+语言: 中文
+开发工具: HTML5, CSS3, JavaScript
+软件: Visual Studio Code, Adobe Photoshop
+框架/库: Font Awesome
+
+/* 感谢 */
+感谢所有为开源社区做出贡献的开发者 

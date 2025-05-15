@@ -1,0 +1,6 @@
+# 批量文件处理工具网站的robots.txt
+User-agent: *
+Allow: /
+
+# 指向网站地图
+Sitemap: https://batchfiletool.top/sitemap.xml 

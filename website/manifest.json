@@ -1,0 +1,21 @@
+{
+  "name": "批量文件处理工具",
+  "short_name": "批量文件工具",
+  "description": "高效批量创建文件、创建文件夹、重命名和移动/复制文件的桌面工具",
+  "start_url": "https://batchfiletool.top/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0078D7",
+  "icons": [
+    {
+      "src": "images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 

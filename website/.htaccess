@@ -1,0 +1,42 @@
+# 开启重写引擎
+RewriteEngine On
+
+# 设置基本URL
+RewriteBase /
+
+# 强制HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 设置404错误页面
+ErrorDocument 404 /404.html
+
+# 移除HTML扩展名 (可选)
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteCond %{REQUEST_FILENAME}.html -f
+# RewriteRule ^([^\.]+)$ $1.html [NC,L]
+
+# 缓存控制
+<IfModule mod_expires.c>
+  ExpiresActive On
+  
+  # 图片缓存1年
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/ico "access plus 1 year"
+  
+  # CSS和JavaScript缓存1个月
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  
+  # HTML和XML文件缓存较短
+  ExpiresByType text/html "access plus 1 day"
+  ExpiresByType application/xml "access plus 1 day"
+</IfModule>
+
+# 启用GZIP压缩
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/css text/javascript application/javascript application/x-javascript
+</IfModule> 
