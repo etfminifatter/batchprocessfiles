@@ -1,0 +1,18 @@
+2025-05-15 14:57:01,450 - file_utils - INFO - [log_utils.py:142] - 系统信息: {
+  "操作系统": "Windows-11-10.0.22631-SP0",
+  "Python版本": "3.12.4",
+  "工作目录": "F:\\AI编程\\批量创建文件工具_tk\\dist",
+  "用户名": "zhang",
+  "程序路径": "F:\\AI编程\\批量创建文件工具_tk\\dist\\批量文件处理工具.exe",
+  "处理器": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+  "节点名称": "jingle",
+  "Python位数": "64bit",
+  "总内存": "32452MB",
+  "可用内存": "4858MB",
+  "内存使用率": "85.0%",
+  "磁盘信息": "获取失败: argument 1 (impossible<bad format char>)",
+  "CPU使用率": "7.9%",
+  "CPU核心数": 14,
+  "CPU逻辑核心数": 20
+}
+2025-05-15 14:57:01,450 - file_utils - INFO - [log_utils.py:68] - 日志系统初始化完成，级别: DEBUG, 日志文件: logs\file_utils_20250515.log
